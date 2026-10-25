@@ -9,7 +9,9 @@ Their licences require these notices to stay with any copy of VibeGuard you shar
 | Semgrep | 1.182.0 | LGPL-2.1 | Running VibeGuard's scan rules |
 | Gitleaks | 8.30.1 | MIT | Finding leaked keys |
 | apksig (Android Open Source Project) | 9.3.3 | Apache-2.0 | Checking app signatures |
-| rea-agents | 6.7.0 | MIT, Copyright (c) 2026 morluto | Inside the VibeGuard deep engine (not included in the Docker image) |
+| rea-agents | 6.7.0 | MIT, Copyright (c) 2026 morluto | The VibeGuard deep engine (included in the Docker image) |
+| jadx-headless-mcp | 0.7.1 | Apache-2.0 | The JADX engine the deep engine drives (included in the Docker image) |
+| Node.js | 24 | MIT | Runs the deep engine (included in the Docker image) |
 
 The full licence texts come with each tool: `LICENSE` and `NOTICE` in the jadx release, Semgrep's and Gitleaks'
 `LICENSE` files, the Apache-2.0 header in apksig, and `tools/rea/node_modules/rea-agents/LICENSE` together with its

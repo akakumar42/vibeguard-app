@@ -1,5 +1,6 @@
 # VibeGuard, local edition: everything runs on the user's own computer.
-# Fast engine (jadx) only - the deep engine (REA) needs ~6 GB of RAM. Website scans use the direct fetch.
+# Both APK engines: Fast (jadx) is the default; Deep (REA) is picked per scan and needs ~6 GB of RAM in Docker.
+# Website scans use the direct fetch (REA's website capture needs Chrome, which is not in this image).
 #
 #   docker build -t vibeguard .
 #   docker run --rm -p 127.0.0.1:8000:8000 -p 127.0.0.1:8100:8100 -v vibeguard-data:/data \
@@ -7,22 +8,28 @@
 #
 # Tool versions and checksums are pinned so every copy gives the same results as the reference setup.
 
-# ---- 1. compile the APK signature checker (needs a JDK; the final image only needs a JRE)
+# ---- 1. compile the APK signature checker
 FROM eclipse-temurin:21-jdk AS apksig
 WORKDIR /build
 COPY tools/apksig/ ./
 RUN javac -cp apksig-9.3.3.jar -d classes ApkSigCheck.java
 
-# ---- 2. the app
+# ---- 2. the deep engine: REA (rea-agents, pinned) on Node 24
+FROM node:24-slim AS rea
+WORKDIR /rea
+RUN npm init -y >/dev/null && npm install --omit=dev --no-audit --no-fund rea-agents@6.7.0
+
+# ---- 3. the app
 FROM python:3.14-slim
 ARG TARGETARCH
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \
     JAVA_HOME=/opt/java/openjdk \
     PATH=/opt/java/openjdk/bin:/opt/jadx/bin:$PATH
 
-COPY --from=eclipse-temurin:21-jre /opt/java/openjdk /opt/java/openjdk
+# A full JDK, not a JRE: REA compiles a small Java bridge at run time (needs jdk.compiler).
+COPY --from=eclipse-temurin:21-jdk /opt/java/openjdk /opt/java/openjdk
 RUN apt-get update \
- && apt-get install -y --no-install-recommends ca-certificates curl unzip git \
+ && apt-get install -y --no-install-recommends ca-certificates curl unzip git procps \
  && rm -rf /var/lib/apt/lists/*
 
 # jadx 1.5.6 (decompiler)
@@ -55,6 +62,14 @@ COPY rules/ rules/
 COPY static/ static/
 COPY tools/apksig/ tools/apksig/
 COPY --from=apksig /build/classes tools/apksig/classes
+
+# REA: Node, its packages, and the JADX engine jar it drives (sha256 pinned, as in the README)
+COPY --from=rea /usr/local/bin/node /usr/local/bin/node
+COPY --from=rea /rea/node_modules tools/rea/node_modules
+RUN mkdir -p tools/rea/jar \
+ && curl -fsSL -o tools/rea/jar/jadx-headless-mcp-0.7.1-all.jar \
+      https://github.com/1013503897/jadx-headless-mcp/releases/download/v0.7.1/jadx-headless-mcp-0.7.1-all.jar \
+ && echo "6e5eacf500b64292bfb73c49797c1958f6ee44646e43e868039ae7feb573ff75  tools/rea/jar/jadx-headless-mcp-0.7.1-all.jar" | sha256sum -c -
 COPY samples/web-demo-src.zip samples/taskpal-src.zip samples/
 COPY samples/web-demo/ samples/web-demo/
 COPY THIRD_PARTY_NOTICES.md ./
@@ -67,7 +82,7 @@ USER vibeguard
 # Local-edition defaults: on-screen sign-in codes, demo payments, fast engine, everything kept in /data.
 ENV DATA_DIR=/data VERIFY_SECRET_FILE=/data/.verify-secret \
     APK_ENGINE=jadx EMAIL_MODE=demo PAYMENTS_MODE=demo \
-    WEB_ALLOW_LOCAL=true JAVA_OPTS="-Xmx1536m" DEMO_SITE=1
+    WEB_ALLOW_LOCAL=true JAVA_OPTS="-Xmx1536m" DEMO_SITE=1 REA_NODE_HEAP_MB=3072
 VOLUME /data
 EXPOSE 8000 8100
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s CMD curl -fsS http://127.0.0.1:8000/health >/dev/null || exit 1

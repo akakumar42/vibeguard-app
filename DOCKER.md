@@ -3,8 +3,9 @@
 Runs entirely on your own computer: nothing is uploaded anywhere except, if you add an AI key, short code
 snippets sent to the AI for the plain-English explanations and fixes.
 
-**Needs:** Docker Desktop (Mac, Windows or Linux) and about **2 GB of free memory** (measured peak while
-scanning F-Droid). The image is about 1 GB.
+**Needs:** Docker Desktop (Mac, Windows or Linux) and about **2 GB of free memory** for the fast engine (measured
+peak while scanning F-Droid); the deep engine (Deep · VibeGuard engine on the page) needs about **6 GB** for Docker.
+The image is about 2.3 GB.
 
 ## Start it
 
@@ -40,7 +41,7 @@ Code improvement need the key. **Never put a key into the image or share it with
 
 | | Docker local edition | Full setup |
 |---|---|---|
-| APK engine | Fast (jadx) only | Fast or Deep (REA, needs ~6 GB) |
+| APK engine | Fast (jadx) by default; Deep (REA 6.7.0 on Node 24) when picked on the page, needs ~6 GB for Docker | Fast or Deep (REA, needs ~6 GB) |
 | Website capture | Direct fetch of the scripts the page links to | REA + headless Chrome, falling back to the direct fetch |
 | Sign-in | On-screen code | Google / email via Supabase |
 | Results | **Same rules, tool versions and fingerprints** | |
