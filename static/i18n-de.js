@@ -542,25 +542,6 @@ window.VG_DE = {
 "Secret (shortened):": "Geheimnis (gekürzt):",
 "Note:": "Hinweis:",
 "Preparing your report. The first download in a new language takes about 30 seconds.": "Dein Bericht wird vorbereitet. Der erste Download in einer neuen Sprache dauert etwa 30 Sekunden.",
-"Issue explorer": "Problem-Explorer",
-"Analysing…": "Wird analysiert…",
-"Search issues, CWE, file…": "Probleme, CWE, Datei suchen…",
-"Search issues": "Probleme suchen",
-"Everything we found": "Alles, was wir gefunden haben",
-"Each tile is one place in your code: red is critical, amber a warning, blue a smell, grey a probable false alarm. Drag to spin it.": "Jede Kachel ist eine Stelle in deinem Code: Rot ist kritisch, Orange eine Warnung, Blau ein Smell, Grau ein wahrscheinlicher Fehlalarm. Zieh, um sie zu drehen.",
-"Every issue, tagged": "Jedes Problem, verschlagwortet",
-"Tap any tile to see its severity, its security standard and how many places it's in.": "Tippe auf eine Kachel, um Schweregrad, Sicherheitsstandard und die Zahl der Stellen zu sehen.",
-"Find anything": "Finde alles",
-"Search by name, CWE, OWASP control, kind or file name.": "Suche nach Name, CWE, OWASP-Kontrolle, Art oder Dateiname.",
-"Continue": "Weiter",
-"See all issues ↓": "Alle Probleme ansehen ↓",
-"Show in report": "Im Bericht zeigen",
-"Close": "Schließen",
-"Search for this": "Danach suchen",
-"No matches": "Keine Treffer",
-"1 match": "1 Treffer",
-"1 place": "1 Stelle",
-"Probably a false alarm": "Wahrscheinlich ein Fehlalarm",
 "Please sign in with your email to scan. It's free and takes a minute.": "Bitte melde dich mit deiner E-Mail-Adresse an, um zu scannen. Es ist kostenlos und dauert eine Minute.",
 "Scan refused: you must confirm you own this app or have permission to test it (i_am_authorized=true).": "Scan abgelehnt: Du musst bestätigen, dass dir diese App gehört oder du sie testen darfst.",
 "The deep engine is not installed on this server; choose Fast · jadx.": "Die gründliche Engine ist auf diesem Server nicht installiert; wähle Schnell · jadx.",
@@ -1055,22 +1036,6 @@ window.VG_DE = {
 [
 "Not counted above · (\\d[\\d,]*)",
 "Oben nicht mitgezählt · $1"
-],
-[
-"(\\d[\\d,]*) matches",
-"$1 Treffer"
-],
-[
-"(\\d[\\d,]*) places",
-"$1 Stellen"
-],
-[
-"1 issue · (\\d[\\d,]*) places?",
-"1 Problem · $1 Stelle(n)"
-],
-[
-"(\\d[\\d,]*) issues · (\\d[\\d,]*) places",
-"$1 Probleme · $2 Stellen"
 ],
 [
 "Not counted: (\\d[\\d,]*) probable false alarms \\(listed below the issues\\)",
