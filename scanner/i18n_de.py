@@ -897,6 +897,10 @@ PATTERNS = [
     (rf"and {N} more places?", "und $1 weitere Stelle(n)"),
     (rf"Not verified · not counted above · {N}", "Nicht bestätigt · oben nicht mitgezählt · $1"),
     (rf"Not counted above · {N}", "Oben nicht mitgezählt · $1"),
+    (rf"{N} matches", "$1 Treffer"),
+    (rf"{N} places", "$1 Stellen"),
+    (rf"1 issue · {N} places?", "1 Problem · $1 Stelle(n)"),
+    (rf"{N} issues · {N} places", "$1 Probleme · $2 Stellen"),
     (rf"Not counted: {N} probable false alarms \(listed below the issues\)",
      "Nicht gezählt: $1 wahrscheinliche Fehlalarme (unter den Problemen aufgeführt)"),
     (r"(.+?) · AI rates it (\w+) · confidence (\w+)(.*)", "$1 · KI-Einschätzung: $2 · Sicherheit: $3$4"),
@@ -957,7 +961,7 @@ def exact() -> dict[str, str]:
     """Every English sentence the pages can show, with its German text."""
     from scanner.policy import RULES as POLICY
 
-    out = {**PAGES, **LANDING, **LANDING_FRIENDLY, **LANDING_WAITLIST, **REPORT_DOWNLOAD, **SERVER, **STRUCTURE, **WORDS}
+    out = {**PAGES, **LANDING, **LANDING_FRIENDLY, **LANDING_WAITLIST, **REPORT_DOWNLOAD, **EXPLORER, **SERVER, **STRUCTURE, **WORDS}
     for rule_id, (title, risk, fix) in RULES.items():
         if rule_id in POLICY:
             p = POLICY[rule_id]
@@ -1247,6 +1251,34 @@ REPORT_DOWNLOAD = {
     "Note:": "Hinweis:",
     "Preparing your report. The first download in a new language takes about 30 seconds.":
         "Dein Bericht wird vorbereitet. Der erste Download in einer neuen Sprache dauert etwa 30 Sekunden.",
+}
+
+
+# The interactive issue explorer above a report (static/explorer.js).
+EXPLORER = {
+    "Issue explorer": "Problem-Explorer",
+    "Analysing…": "Wird analysiert…",
+    "Search issues, CWE, file…": "Probleme, CWE, Datei suchen…",
+    "Search issues": "Probleme suchen",
+    "Everything we found": "Alles, was wir gefunden haben",
+    "Each tile is one place in your code: red is critical, amber a warning, blue a smell, grey a probable false alarm. Drag to spin it.":
+        "Jede Kachel ist eine Stelle in deinem Code: Rot ist kritisch, Orange eine Warnung, Blau ein Smell, Grau ein "
+        "wahrscheinlicher Fehlalarm. Zieh, um sie zu drehen.",
+    "Every issue, tagged": "Jedes Problem, verschlagwortet",
+    "Tap any tile to see its severity, its security standard and how many places it's in.":
+        "Tippe auf eine Kachel, um Schweregrad, Sicherheitsstandard und die Zahl der Stellen zu sehen.",
+    "Find anything": "Finde alles",
+    "Search by name, CWE, OWASP control, kind or file name.":
+        "Suche nach Name, CWE, OWASP-Kontrolle, Art oder Dateiname.",
+    "Continue": "Weiter",
+    "See all issues ↓": "Alle Probleme ansehen ↓",
+    "Show in report": "Im Bericht zeigen",
+    "Close": "Schließen",
+    "Search for this": "Danach suchen",
+    "No matches": "Keine Treffer",
+    "1 match": "1 Treffer",
+    "1 place": "1 Stelle",
+    "Probably a false alarm": "Wahrscheinlich ein Fehlalarm",
 }
 
 

@@ -227,6 +227,7 @@
 </style>
 <script src="/static/i18n-de.js"></script>
 <script src="/static/i18n.js"></script>
+<script src="/static/explorer.js"></script>
 </head>
 <body>
 <main>
@@ -439,6 +440,22 @@
   function toast(msg) {
     const t = $("toast"); t.textContent = msg; t.classList.add("show");
     setTimeout(() => t.classList.remove("show"), 1800);
+  }
+
+  // The interactive issue explorer (static/explorer.js) above a report's issue list.
+  function explorer(report) {
+    if (!window.VGExplorer) return null;
+    return VGExplorer.render(report, {
+      onOpen: (issue) => {
+        const card = document.getElementById(`issue-${issue.id}`);
+        if (!card) return;
+        card.scrollIntoView({ behavior: "smooth", block: "center" });
+        const d = card.querySelector("details");
+        if (d) d.open = true;
+        card.classList.remove("vgx-flash"); void card.offsetWidth; card.classList.add("vgx-flash");
+      },
+      onDone: () => { const head = document.querySelector("#report .group-head"); if (head) head.scrollIntoView({ behavior: "smooth" }); },
+    });
   }
 
   async function copy(text) {
@@ -1193,6 +1210,7 @@
       el("div", { class: "glance" },
         tile("critical", c.critical, "Critical"), tile("warning", c.warning, "Warnings"), tile("smell", c.smell, "Code smells")),
       el("p", { class: "meta" }, `Result fingerprint ${r.result_fingerprint} · the paid report has these issues and this fingerprint; any the AI judges false alarms are listed separately and not counted`)));
+    root.append(explorer(r) || "");
 
     for (const [key, label, advice, icon] of GROUPS) {
       const issues = r.issues[key] || [];
@@ -1200,7 +1218,7 @@
       root.append(el("div", { class: "group-head" },
         el("h2", {}, `${icon} ${label}`), el("span", { class: "muted" }, `${advice} · ${issues.length}`)));
       for (const issue of issues) {
-        root.append(el("div", { class: `card issue ${key}` },
+        root.append(el("div", { class: `card issue ${key}`, id: `issue-${issue.id}` },
           el("div", { class: "fix-title" }, el("h4", {}, issue.title), el("span", { class: `sev ${key}` }, SEV_LABEL[key])),
           el("p", { class: "meta" }, `${issue.occurrences} place${issue.occurrences === 1 ? "" : "s"} · ${issue.standard.control} · ${issue.standard.cwe}`),
           el("p", { class: "locked-line" }, "🔒 Where it is, why it matters and how to fix it")));
@@ -1300,6 +1318,8 @@
         "The descriptions below are the rules' standard wording instead of explanations written for your code."));
     }
 
+    root.append(explorer(r) || "");
+
     if (app.what_it_does || app.how_it_works.length) {
       root.append(el("div", { class: "card" },
         el("h2", {}, r.target === "web" ? "How this website works" : "How this app works"),
@@ -1363,7 +1383,7 @@
     const where = issue.locations.slice(0, 3).map((l) =>
       `${l.file.replace(/^sources\//, "")}:${l.line}${l.in ? ` (${l.in})` : ""}`);
     const more = issue.more_locations_count + Math.max(0, issue.locations.length - 3);
-    return el("div", { class: `card issue ${severity}` },
+    return el("div", { class: `card issue ${severity}`, id: `issue-${issue.id}` },
       el("div", { class: "fix-title" }, el("h4", {}, issue.title), el("span", { class: `sev ${severity}` }, SEV_LABEL[severity])),
       el("p", {}, issue.explanation),
       issue.secret_preview ? el("p", { class: "meta" }, `Secret (shortened): ${issue.secret_preview}`) : null,
