@@ -1,4 +1,4 @@
-"""The "Bug fixing" ($50) and "Code improvement" ($150) tiers: fix issues in the customer's source code, and
+"""The "Secure & Auto-Fix" ($99) and "Deep Architecture Audit" ($199, Android $249) tiers: fix issues in the customer's source code, and
 keep a fix only when a re-scan proves it.
 
 - fix:     Critical and Warning issues.
@@ -40,8 +40,8 @@ from scanner.source import (fingerprint, git_apply_check, manifest_findings, pro
                             semgrep_files)
 
 FIX_SEVERITIES = ("critical", "warning")
-TIERS = {"fix": {"name": "Bug fixing", "severities": FIX_SEVERITIES},
-         "improve": {"name": "Code improvement", "severities": ("critical", "warning", "smell")}}
+TIERS = {"fix": {"name": "Secure & Auto-Fix", "severities": FIX_SEVERITIES},
+         "improve": {"name": "Deep Architecture Audit", "severities": ("critical", "warning", "smell")}}
 MAX_STRUCTURE_SUGGESTIONS = 6
 MAX_FILE_CHARS = 60_000
 MAX_ATTEMPTS = 2  # fixes the scanner rejected, per issue

@@ -45,11 +45,14 @@ the downloads (`fixes.patch`, PR description, text report) stay in English. The 
 ## Repeatable results
 
 Which issues are reported, their severity and their order come only from the scanners and the severity
-policy in `scanner/policy.py` (each rule mapped to OWASP MASVS v2 and a CWE id). The AI only writes the
-wording, adds a "probably a false alarm" note (shown, never removes or re-rates an issue), and lists
-extra **AI suggestions** that are kept separate and not counted.
+policy in `scanner/policy.py` (each rule mapped to OWASP MASVS v2 and a CWE id). The AI writes the
+wording, gives a false-alarm opinion per issue, and lists extra **AI suggestions** that are kept separate
+and not counted. An issue the AI judges a false alarm in every place it saw is moved out of the counts into
+a "Probably false alarms" list (`report["false_alarms"]`; the scanner's own counts stay in
+`report["ai_review"]["scanner_counts"]`). It is never re-rated or hidden.
 
-So the same APK always gives the same counts and the same `result_fingerprint`, with or without AI.
+So the same APK always gives the same `result_fingerprint`, with or without AI, and the same counts
+without AI. With AI the counts can be lower by the issues listed as probable false alarms.
 Every report records the engine, policy, rules and tool versions, since changing those can change results.
 
 ## Setup (macOS)
@@ -104,13 +107,15 @@ With `PAYWALL=off` it returns the full `{"report": {...}, "report_text": "..."}`
 The scan runs once and its findings are stored (`data/`, deleted after `REPORT_TTL_HOURS`, default 24).
 The free result shows the counts, the fingerprint and each issue's title. Paying unlocks where each
 issue is, the AI explanations, the fixes and the AI suggestions. The AI runs only after payment, on the
-stored findings, so the paid report always has **the same issues and the same fingerprint** as the free one.
+stored findings, so the paid report always has **the same issues and the same fingerprint** as the free one
+(issues the AI judges false alarms are listed separately and not counted). A paid app or website report can
+be downloaded as one HTML file in English or German: `GET /reports/{id}/download/html?lang=en|de`.
 
 | Plan | Price | Status |
 |---|---|---|
-| Bug report | $9 | available |
-| Bug fixing | $50 | coming soon (needs source-code upload) |
-| Code improvement | $150 | coming soon |
+| Quick-Scan & Report (`report`) | $29 | available |
+| Secure & Auto-Fix (`fix`) | $99 | available (needs source-code upload) |
+| Deep Architecture Audit (`improve`) | $199 website · $249 Android project (has an AndroidManifest.xml) | available (needs source-code upload) |
 
 ```
 POST /checkout  report_id, plan=report   -> {"checkout_url": "/pay/ord_..."}
@@ -186,7 +191,7 @@ scan is given back. The server also remembers each account's running scan (`GET 
 page shows its progress and opens the report when it finishes, and a second scan request follows the first
 instead of failing. A paid fixing run cannot be cancelled from the page.
 
-## Bug fixing ($50): fixes proven by a re-scan
+## Secure & Auto-Fix ($99): fixes proven by a re-scan
 
 The customer uploads their Android project as a .zip on the **Fix my code** tab (`POST /scan-source`).
 The free preview scans the source with the same rules as the app scan and shows what would be fixed.
@@ -230,9 +235,9 @@ Demo project with planted problems: `cd samples && zip -r taskpal-src.zip androi
 key; Warnings 8 → 0) in about 2.5 minutes with z-ai/glm-5.2. AI output varies between runs; the checks
 above decide what is kept, so a run can also end with an issue marked "needs a manual fix".
 
-## Code improvement ($150)
+## Deep Architecture Audit ($199, Android $249)
 
-Everything in Bug fixing, plus:
+Everything in Secure & Auto-Fix, plus:
 - **Smells fixed** with the same proof (silently ignored errors, `printStackTrace`, `System.exit`, caught
   `NullPointerException`, shared storage, `allowBackup`, …).
 - **Structure review**: every Java method is measured (`scanner/structure.py`, Semgrep locates methods) against

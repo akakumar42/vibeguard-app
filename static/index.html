@@ -309,7 +309,7 @@
       <input id="authorized" type="checkbox">
       <span>I own this app, or I have permission to test it.</span>
     </label>
-    <p class="muted small">Free: see how many problems your app has and what they are. The $9 report shows where each one is and how to fix it.</p>
+    <p class="muted small">Free: see how many problems your app has and what they are. The $29 report shows where each one is and how to fix it.</p>
     <fieldset class="engine">
       <legend>Decompiler</legend>
       <div class="switch" role="radiogroup">
@@ -356,7 +356,7 @@
       <input id="web-authorized" type="checkbox">
       <span>I own this website, or I have permission to test it.</span>
     </label>
-    <p class="muted small">Free: see how many problems your site has and what they are. The $9 report shows where each one is and how to fix it.</p>
+    <p class="muted small">Free: see how many problems your site has and what they are. The $29 report shows where each one is and how to fix it.</p>
     <div class="actions">
       <button id="web-scan" class="primary" disabled>Scan website</button>
       <button id="web-verify" class="small">How do I prove I own it?</button>
@@ -372,7 +372,7 @@
       <span id="src-drop-sub" class="muted">or click to choose one (up to 50 MB, leave out build folders). Signing keys and local secret files are dropped automatically.</span>
       <input id="src-file" type="file" accept=".zip,application/zip" hidden>
     </div>
-    <p class="muted small">We scan your source code with the same rules as the app and website scans. For $50 we fix every critical
+    <p class="muted small">We scan your source code with the same rules as the app and website scans. For $99 we fix every critical
       issue and warning, and keep a fix only when a re-scan proves the problem is gone. Works for Android apps
       (Java, Kotlin, AndroidManifest.xml) and web apps (JavaScript, TypeScript, React, Next.js).</p>
     <label class="row">
@@ -981,7 +981,7 @@
 
   // ---------------------------------------------------------------- Bug fixing: preview, progress, result
   function planCards(body, kind) {
-    // For an app or website scan the $50 plan needs the source code, so its button opens the upload tab.
+    // For an app or website scan the source-code plans need the code, so their buttons open the upload tab.
     const plans = (body.plans || []).filter((p) => kind === "source" ? p.id !== "report" : true);
     return el("div", { class: "plans" }, ...plans.map((p) => {
       const forThis = p.needs === kind;
@@ -991,7 +991,7 @@
         `${{ fix: "Fix it", improve: "Improve it" }[p.id] || "Unlock"} for ${money(p.price_cents, p.currency)}`);
       else button = el("button", { onclick: () => { history.replaceState(null, "", "/app"); setMode("src"); window.scrollTo(0, 0); } }, "Upload your source code");
       return el("div", { class: `card plan${forThis && p.available ? " featured" : ""}` },
-        el("h3", {}, p.name), el("p", { class: "price" }, money(p.price_cents, p.currency)), el("p", { class: "small" }, p.includes), button);
+        el("h3", {}, p.name), el("p", { class: "price" }, priceText(p)), el("p", { class: "small" }, p.includes), button);
     }));
   }
 
@@ -1020,7 +1020,7 @@
       el("div", { class: "glance" },
         tile("critical", c.critical, "Critical"), tile("warning", c.warning, "Warnings"), tile("smell", c.smell, "Code smells")),
       el("p", {}, r.fixable_issues
-        ? `Bug fixing would work on ${r.fixable_issues} issue${r.fixable_issues === 1 ? "" : "s"} (${r.fixable_occurrences} place${r.fixable_occurrences === 1 ? "" : "s"}) and keep only fixes a re-scan proves.`
+        ? `Secure & Auto-Fix would work on ${r.fixable_issues} issue${r.fixable_issues === 1 ? "" : "s"} (${r.fixable_occurrences} place${r.fixable_occurrences === 1 ? "" : "s"}) and keep only fixes a re-scan proves.`
         : "There are no critical issues or warnings to fix."),
       r.manual_actions ? el("p", { class: "small" }, `${r.manual_actions} leaked key${r.manual_actions === 1 ? "" : "s"} must be revoked by you; we explain how.`) : null,
       el("p", { class: "meta" }, `Result fingerprint ${r.result_fingerprint} · ${coverageNote(r.coverage)}`),
@@ -1034,7 +1034,7 @@
       if (!issues.length) continue;
       root.append(el("div", { class: "group-head" }, el("h2", {}, `${icon} ${label}`), el("span", { class: "muted" }, `${advice} · ${issues.length}`)));
       for (const i of issues) {
-        const tag = i.rule_id === "secret" ? ["manual", "You revoke the key"] : i.fixable ? ["fixable", "Both tiers fix this"] : ["later", "Code improvement fixes this"];
+        const tag = i.rule_id === "secret" ? ["manual", "You revoke the key"] : i.fixable ? ["fixable", "Both packages fix this"] : ["later", "Deep Architecture Audit fixes this"];
         root.append(el("div", { class: `card issue ${key}` },
           el("div", { class: "fix-title" }, el("h4", {}, i.title), el("span", { class: `badge ${tag[0]}` }, tag[1])),
           el("p", { class: "meta" }, `${i.occurrences} place${i.occurrences === 1 ? "" : "s"} in ${i.files} file${i.files === 1 ? "" : "s"}` +
@@ -1045,12 +1045,13 @@
     if (imp.structure.length) {
       root.append(el("div", { class: "group-head" }, el("h2", {}, "📐 Structure"), el("span", { class: "muted" }, `Measured · ${imp.structure.length}`)));
       for (const st of imp.structure) root.append(el("div", { class: "card issue smell" },
-        el("div", { class: "fix-title" }, el("h4", {}, st.title), el("span", { class: "badge later" }, "Code improvement reviews this")),
+        el("div", { class: "fix-title" }, el("h4", {}, st.title), el("span", { class: "badge later" }, "Deep Architecture Audit reviews this")),
         el("p", { class: "meta" }, `${st.method}() in ${st.file.split("/").pop()} · ${st.lines} lines, ${st.parameters} parameters · ${st.source}`)));
     }
+    const planPrice = (id) => { const p = (body.plans || []).find((x) => x.id === id); return p ? money(p.price_cents, p.currency) : ""; };
     root.append(el("div", { class: "card small" },
-      el("p", {}, el("strong", {}, "Bug fixing ($50): "), `fixes the ${r.fixable_issues} critical issue${r.fixable_issues === 1 ? "" : "s"} and warning${r.fixable_issues === 1 ? "" : "s"} above.`),
-      el("p", {}, el("strong", {}, "Code improvement ($150): "), `also fixes ${imp.smell_issues} smell${imp.smell_issues === 1 ? "" : "s"}, ` +
+      el("p", {}, el("strong", {}, `Secure & Auto-Fix (${planPrice("fix")}): `), `fixes the ${r.fixable_issues} critical issue${r.fixable_issues === 1 ? "" : "s"} and warning${r.fixable_issues === 1 ? "" : "s"} above.`),
+      el("p", {}, el("strong", {}, `Deep Architecture Audit (${planPrice("improve")}): `), `also fixes ${imp.smell_issues} smell${imp.smell_issues === 1 ? "" : "s"}, ` +
         `reviews ${imp.structure_issues} structure problem${imp.structure_issues === 1 ? "" : "s"} with a refactoring plan for each, and gives you a ready-to-open pull request.`)));
     root.append(el("div", { class: "group-head" }, el("h2", {}, "Fix it"),
       body.payments_mode === "demo" ? el("span", { class: "demo-badge" }, "Demo payments · no real money") : null));
@@ -1095,7 +1096,7 @@
       el("div", { class: "n" }, el("span", { class: "was" }, `${b[key]} → `), String(a[key])), el("div", { class: "l" }, label));
     const check = (ok, text) => el("span", { class: `check ${ok ? "ok" : "warn"}` }, `${ok ? "✓" : "⚠"} ${text}`);
     root.append(el("div", { class: "card" },
-      el("p", { class: "paid-note" }, `✓ Paid · ${r.tier_name || "Bug fixing"}`),
+      el("p", { class: "paid-note" }, `✓ Paid · ${r.tier_name || "Secure & Auto-Fix"}`),
       el("h2", {}, `${sm.fixed} of ${sm.attempted} issues fixed and proven by a re-scan`),
       el("div", { class: "glance" }, delta("critical", "Critical"), delta("warning", "Warnings"), delta("smell", "Smells")),
       el("div", { class: "checks" },
@@ -1160,7 +1161,7 @@
     }
     if (r.not_in_this_tier.length) {
       root.append(el("div", { class: "card small" }, el("strong", {}, `${r.not_in_this_tier.length} smell${r.not_in_this_tier.length === 1 ? "" : "s"} left as they were: `),
-        r.not_in_this_tier.map((x) => x.title).join(" · "), el("span", { class: "muted" }, " (cleaned up in the Code improvement tier)")));
+        r.not_in_this_tier.map((x) => x.title).join(" · "), el("span", { class: "muted" }, " (cleaned up in the Deep Architecture Audit)")));
     }
     root.append(el("div", { class: "card small muted" },
       el("p", {}, `${coverageNote(r.coverage)} Fixes written by ${r.ai.model} · severity policy ${r.policy_version} · took ${Math.round(r.seconds)}s`),
@@ -1176,6 +1177,8 @@
     direct: "VibeGuard's direct fetch" }[e] || e || "?");
 
   const money = (cents, currency) => new Intl.NumberFormat("en-US", { style: "currency", currency, minimumFractionDigits: 0 }).format(cents / 100);
+  // A plan priced differently for Android projects shows both prices until a project decides which applies.
+  const priceText = (p) => p.price_android_cents ? `${money(p.price_cents, p.currency)}–${money(p.price_android_cents, p.currency)}` : money(p.price_cents, p.currency);
 
   function renderLocked(body) {
     lastResponse = body;
@@ -1190,7 +1193,7 @@
       el("p", { class: "muted small where" }, r.app.package_name),
       el("div", { class: "glance" },
         tile("critical", c.critical, "Critical"), tile("warning", c.warning, "Warnings"), tile("smell", c.smell, "Code smells")),
-      el("p", { class: "meta" }, `Result fingerprint ${r.result_fingerprint} · the paid report has exactly these issues and this fingerprint`)));
+      el("p", { class: "meta" }, `Result fingerprint ${r.result_fingerprint} · the paid report has these issues and this fingerprint; any the AI judges false alarms are listed separately and not counted`)));
 
     for (const [key, label, advice, icon] of GROUPS) {
       const issues = r.issues[key] || [];
@@ -1263,6 +1266,7 @@
   function renderReport(response, isExample) {
     lastResponse = response;
     const r = response.report, app = r.app, c = r.counts, s0 = r.scan;
+    const falseAlarms = r.false_alarms || [];  // reports saved before false alarms were split out have none
     const root = $("report");
     root.replaceChildren();
 
@@ -1273,10 +1277,19 @@
       el("p", { class: "muted small where" }, app.package_name),
       el("div", { class: "glance" },
         tile("critical", c.critical, "Critical"), tile("warning", c.warning, "Warnings"), tile("smell", c.smell, "Code smells")),
+      falseAlarms.length ? el("p", { class: "muted small" }, falseAlarms.length === 1
+        ? "Not counted: 1 probable false alarm (listed below the issues)"
+        : `Not counted: ${falseAlarms.length} probable false alarms (listed below the issues)`) : null,
       response.paid ? el("p", { class: "paid-note" }, "✓ Paid · full report unlocked") : null,
       el("p", { class: "meta" }, `Result fingerprint ${r.result_fingerprint} · the same app always gives the same issues and fingerprint`),
       el("div", { class: "actions" },
         el("button", { class: "primary small", onclick: () => copy(fixPrompt(r)) }, "Copy all fixes for my AI tool"),
+        // Built by the server in the language chosen at the moment of the click (EN | DE switch).
+        response.paid && response.report_id ? el("button", { class: "small", onclick: () => {
+          const lang = window.VG && VG.lang() === "de" ? "de" : "en";
+          toast("Preparing your report. The first download in a new language takes about 30 seconds.");
+          location.href = `/reports/${encodeURIComponent(response.report_id)}/download/html?lang=${lang}`;
+        } }, "Download report (HTML)") : null,
         el("button", { class: "small", onclick: () => download(`${app.package_name}-report.txt`, response.report_text || "", "text/plain") }, "Download text"),
         el("button", { class: "small", onclick: () => download(`${app.package_name}-report.json`, JSON.stringify(r, null, 2), "application/json") }, "Download JSON"),
         el("button", { class: "small", onclick: () => { history.replaceState(null, "", "/app"); show(["upload"]); window.scrollTo(0, 0); } }, "Scan another app"))));
@@ -1303,6 +1316,14 @@
         el("h2", {}, `${icon} ${label}`), el("span", { class: "muted" }, `${advice} · ${issues.length}`)));
       if (!issues.length) root.append(el("p", { class: "muted" }, "Nothing found."));
       for (const issue of issues) root.append(issueCard(issue, key));
+    }
+
+    if (falseAlarms.length) {
+      root.append(el("div", { class: "group-head" },
+        el("h2", {}, "🔕 Probably false alarms"), el("span", { class: "muted" }, `Not counted above · ${falseAlarms.length}`)));
+      root.append(el("p", { class: "muted small" },
+        "The scanner rules flagged these, but the AI read the code and judged them safe. Check them once before you ignore them."));
+      for (const issue of falseAlarms) root.append(issueCard(issue, issue.severity));
     }
 
     if (r.ai_suggestions.length) {
@@ -1369,7 +1390,7 @@
   function reviewNote(review) {
     if (!review || !REVIEW_TEXT[review.verdict]) return null;
     return el("p", { class: "review" }, el("strong", {}, `${REVIEW_TEXT[review.verdict]}: `), review.reason,
-      el("span", { class: "muted" }, " Still counted until a person checks it."));
+      el("span", { class: "muted" }, review.verdict === "likely_false_alarm" ? " Not counted." : " Still counted until a person checks it."));
   }
 
   function suggestionCard(s) {

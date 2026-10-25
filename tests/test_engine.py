@@ -238,13 +238,24 @@ class BillingTests(TempDataDir):
         with self.assertRaises(billing.BillingError):
             billing.create_checkout(report_id, "fix")  # coming soon
         order = billing.create_checkout(report_id, "report")
-        self.assertEqual(billing.get_order(order["order_id"])["price_cents"], 900)
+        self.assertEqual(billing.get_order(order["order_id"])["price_cents"], 2900)
         billing.complete_demo_order(order["order_id"])
         built = []
         full = billing.full_report(report_id, lambda state: built.append(state) or self.REPORT)
         billing.full_report(report_id, lambda state: built.append(state) or self.REPORT)
         self.assertEqual(full["result_fingerprint"], self.REPORT["result_fingerprint"])
         self.assertEqual(built, [{"state": 1}], "the paid report is built once, from the stored scan")
+
+    def test_report_in_another_language_is_built_once(self):
+        report_id = billing.save_scan({"state": 1}, billing.lock_report(self.REPORT))
+        billing.complete_demo_order(billing.create_checkout(report_id, "report")["order_id"])  # paid in English
+        billing.full_report(report_id, lambda state: self.REPORT)
+        built = []
+        german = dict(self.REPORT, disclaimer="auf Deutsch")
+        for _ in range(2):
+            self.assertEqual(billing.report_in_language(report_id, "de", lambda s: built.append(s) or german), german)
+        self.assertEqual(built, [{"state": 1}])
+        self.assertEqual(billing.report_in_language(report_id, "en", lambda s: 1 / 0), self.REPORT)
 
     def test_cancelled_order_cannot_be_paid(self):
         report_id = billing.save_scan({}, billing.lock_report(self.REPORT))
@@ -706,10 +717,19 @@ class FixTierBillingTests(TempDataDir):
             billing.create_checkout(app, "fix")  # fixing needs the source code
         with self.assertRaises(billing.BillingError):
             billing.create_checkout(src, "report")
-        self.assertEqual(billing.get_order(billing.create_checkout(src, "fix")["order_id"])["price_cents"], 5000)
-        self.assertEqual(billing.get_order(billing.create_checkout(src, "improve")["order_id"])["price_cents"], 15000)
+        self.assertEqual(billing.get_order(billing.create_checkout(src, "fix")["order_id"])["price_cents"], 9900)
+        self.assertEqual(billing.get_order(billing.create_checkout(src, "improve")["order_id"])["price_cents"], 19900)
         with self.assertRaises(billing.BillingError):
             billing.create_checkout(app, "improve")
+
+    def test_audit_costs_more_for_android_projects(self):
+        android = billing.save_scan({}, {"counts": {}, "result_fingerprint": "x", "scan": {"apk_name": "p"},
+                                         "coverage": {"manifests": ["app/src/main/AndroidManifest.xml"]}},
+                                    "acct_a", kind="source")
+        self.assertEqual(billing.get_order(billing.create_checkout(android, "improve")["order_id"])["price_cents"], 24900)
+        self.assertEqual(billing.get_order(billing.create_checkout(android, "fix")["order_id"])["price_cents"], 9900)
+        prices = {p["id"]: p["price_cents"] for p in billing.public_plans(billing.load_scan(android))}
+        self.assertEqual(prices, {"report": 2900, "fix": 9900, "improve": 24900})
 
     def test_paid_plan_decides_the_tier(self):
         src = billing.save_scan({"source_root": "x"}, {"counts": {}, "result_fingerprint": "x", "scan": {"apk_name": "p"}},
@@ -888,10 +908,51 @@ class PageRouteTests(unittest.TestCase):
         from fastapi.testclient import TestClient
         import api
         client = TestClient(api.app)
-        self.assertIn("You built it with AI.", client.get("/").text)
+        self.assertIn("Apply for waitlist", client.get("/").text)
+        self.assertIn('"appUrl": ""', client.get("/site-config.js").text)
         self.assertIn('id="drop"', client.get("/app").text)
         old = client.get("/?report=abc123", follow_redirects=False)
         self.assertEqual((old.status_code, old.headers["location"]), (307, "/app?report=abc123"))
+
+    def test_waitlist(self):
+        from fastapi.testclient import TestClient
+        import api
+        client = TestClient(api.app)
+        with tempfile.TemporaryDirectory() as tmp, unittest.mock.patch.object(billing, "DATA_DIR", Path(tmp)):
+            ok = client.post("/waitlist", data={"name": "Sam", "email": "Sam@Company.io", "package": "improve"})
+            self.assertEqual(ok.status_code, 200)
+            self.assertEqual(client.post("/waitlist", data={"name": "Sam", "email": "nope"}).status_code, 400)
+            client.post("/waitlist", data={"name": "bot", "email": "a@b.co", "website": "spam"})  # ignored
+            rows = (Path(tmp) / "waitlist.jsonl").read_text().splitlines()
+            self.assertEqual(len(rows), 1)
+            self.assertEqual(json.loads(rows[0])["email"], "sam@company.io")
+
+
+class FalseAlarmReportTests(unittest.TestCase):
+    """The example reports: probable false alarms are listed on their own and not counted."""
+
+    def test_false_alarms_are_not_counted(self):
+        from scanner.report import render_text
+        for name in ("sample-report.json", "sample-report.de.json"):
+            report = json.loads((ROOT / "static" / name).read_text(encoding="utf-8"))["report"]
+            with self.subTest(name):
+                self.assertTrue(report["false_alarms"])
+                self.assertEqual(report["counts"], {k: len(v) for k, v in report["issues"].items()})
+                self.assertTrue(all(i["ai_review"]["verdict"] == "likely_false_alarm" for i in report["false_alarms"]))
+                self.assertEqual(sum(report["ai_review"]["scanner_counts"].values()),
+                                 sum(report["counts"].values()) + len(report["false_alarms"]))
+                self.assertIn("PROBABLY FALSE ALARMS", render_text(report))
+
+    def test_html_report_in_english_and_german(self):
+        from scanner.report_html import render_html
+        report = json.loads((ROOT / "static" / "sample-report.json").read_text(encoding="utf-8"))["report"]
+        en, de = render_html(report, "en"), render_html(report, "de")
+        self.assertIn('<html lang="en">', en)
+        self.assertIn("Probably false alarms", en)
+        self.assertIn('<html lang="de">', de)
+        for german in ("Sicherheitsbericht", "Wahrscheinlich Fehlalarme", "Über diesen Scan", "Kritisch"):
+            self.assertIn(german, de)
+        self.assertNotIn("<script", en + de)
 
 
 @unittest.skipUnless(os.environ.get("RUN_GOLDEN") and (ROOT / "samples" / "fdroid.apk").is_file(),

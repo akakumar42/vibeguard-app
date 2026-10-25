@@ -22,14 +22,17 @@ DATA_DIR = Path(os.environ.get("DATA_DIR", Path(__file__).resolve().parent.paren
 # Stored scans include snippets of the customer's code, so they are deleted after this long.
 REPORT_TTL_SECONDS = int(os.environ.get("REPORT_TTL_HOURS", 24)) * 3600
 CURRENCY = "USD"
+# The three packages from the landing page. The audit costs more for Android projects (price_android_cents):
+# a source project counts as Android when it has an AndroidManifest.xml.
 PLANS = {
-    "report": {"name": "Bug report", "price_cents": 900, "available": True, "needs": "scan",
+    "report": {"name": "Quick-Scan & Report", "price_cents": 2900, "available": True, "needs": "scan",
                "includes": "Where every issue is, plain-English explanations, how to fix each one, AI suggestions"},
-    "fix": {"name": "Bug fixing", "price_cents": 5000, "available": True, "needs": "source",
+    "fix": {"name": "Secure & Auto-Fix", "price_cents": 9900, "available": True, "needs": "source",
             "includes": "Fixes for every critical issue and warning in your source code, re-scanned to prove they are gone"},
-    "improve": {"name": "Code improvement", "price_cents": 15000, "available": True, "needs": "source",
-                "includes": "Everything in Bug fixing, plus code smells fixed, a structure review with refactoring plans, "
-                            "and a ready-to-open pull request"},
+    "improve": {"name": "Deep Architecture Audit", "price_cents": 19900, "price_android_cents": 24900, "available": True,
+                "needs": "source",
+                "includes": "Everything in Secure & Auto-Fix, plus code smells fixed, a structure review with refactoring "
+                            "plans, and a ready-to-open pull request"},
 }
 _ID_CHARS = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_")
 _locks: dict[str, threading.Lock] = {}
@@ -48,8 +51,24 @@ def paywall_enabled() -> bool:
     return os.environ.get("PAYWALL", "on").strip().lower() not in ("off", "0", "false", "no")
 
 
-def public_plans() -> list[dict]:
-    return [{"id": key, **plan, "currency": CURRENCY} for key, plan in PLANS.items()]
+def public_plans(record: dict | None = None) -> list[dict]:
+    """The plans with their prices. For a stored source project each plan has the one price that applies
+    to it; otherwise plans with an Android price also carry price_android_cents."""
+    if record is None or record.get("kind") != "source":
+        return [{"id": key, **plan, "currency": CURRENCY} for key, plan in PLANS.items()]
+    return [{"id": key, **{k: v for k, v in plan.items() if k != "price_android_cents"},
+             "price_cents": plan_price(key, record), "currency": CURRENCY} for key, plan in PLANS.items()]
+
+
+def is_android_project(record: dict) -> bool:
+    return bool((record["free_report"].get("coverage") or {}).get("manifests"))
+
+
+def plan_price(plan: str, record: dict) -> int:
+    p = PLANS[plan]
+    if "price_android_cents" in p and record.get("kind") == "source" and is_android_project(record):
+        return p["price_android_cents"]
+    return p["price_cents"]
 
 
 # ---------------------------------------------------------------- stored scans
@@ -114,6 +133,22 @@ def full_report(report_id: str, build) -> dict:
         return record["full_report"]
 
 
+def report_in_language(report_id: str, language: str, build) -> dict:
+    """The paid report with the AI's wording in another language (for a download), built once by
+    build(state) and then served from storage. The paid language itself is the stored full report."""
+    with _lock_for(report_id):
+        record = load_scan(report_id)
+        if not record["paid"] or record["full_report"] is None:
+            raise BillingError("The full report is not ready yet.")
+        if (record.get("language") or "en") == language:
+            return record["full_report"]
+        other = record.setdefault("reports_by_language", {})
+        if language not in other:
+            other[language] = build(record["state"])
+            _write("reports", report_id, record)
+        return other[language]
+
+
 def lock_report(report: dict) -> dict:
     """What the free scan shows: how many issues and what they are, but not where or how to fix them."""
     scan = report["scan"]
@@ -143,8 +178,8 @@ def create_checkout(report_id: str, plan: str) -> dict:
     record = load_scan(report_id)
     kind = record.get("kind", "scan")
     if PLANS[plan]["needs"] != kind:
-        raise BillingError("Bug fixing works on your source code: upload it on the \"Fix my code\" tab."
-                           if plan == "fix" else "This plan is for app and website scans.")
+        raise BillingError(f"{PLANS[plan]['name']} works on your source code: upload it on the \"Fix my code\" tab."
+                           if PLANS[plan]["needs"] == "source" else "This plan is for app and website scans.")
     if record["paid"]:
         return {"already_paid": True, "report_url": f"/app?report={report_id}"}
     if payments_mode() != "demo":
@@ -153,7 +188,7 @@ def create_checkout(report_id: str, plan: str) -> dict:
     report = record["free_report"]
     _write("orders", order_id, {
         "id": order_id, "report_id": report_id, "plan": plan, "plan_name": PLANS[plan]["name"],
-        "price_cents": PLANS[plan]["price_cents"], "currency": CURRENCY, "status": "open", "mode": "demo",
+        "price_cents": plan_price(plan, record), "currency": CURRENCY, "status": "open", "mode": "demo",
         "created": time.time(),
         "scanned": report["scan"].get("apk_name") or report["scan"].get("url"),
         "counts": report["counts"], "result_fingerprint": report["result_fingerprint"],

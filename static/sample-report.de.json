@@ -133,8 +133,8 @@
     },
     "counts": {
       "critical": 1,
-      "warning": 4,
-      "smell": 7
+      "warning": 2,
+      "smell": 6
     },
     "result_fingerprint": "8528083a414fad21",
     "issues": {
@@ -245,76 +245,6 @@
             "F2"
           ],
           "id": "I3"
-        },
-        {
-          "severity": "warning",
-          "rule_id": "runtime-exec",
-          "title": "The app runs commands on the phone",
-          "explanation": "Die App führt einen Systembefehl aus, um symbolische Verknüpfungen zu erstellen. Die Pfade dafür kommen aus der App selbst und sind bereinigt, daher ist eine Einschleusung von fremden Befehlen wahrscheinlich unwahrscheinlich.",
-          "fix": "Prüfe, ob du `android.os.Os.symlink()` oder `Files.createSymbolicLink()` statt `Runtime.getRuntime().exec()` verwenden kannst, um Shell-Befehle ganz zu vermeiden.",
-          "kind": "security",
-          "kind_label": "Security",
-          "standard": {
-            "framework": "OWASP MASVS v2",
-            "control": "MASVS-CODE",
-            "control_area": "Code quality and safe input handling",
-            "cwe": "CWE-78"
-          },
-          "found_by": "semgrep (runtime-exec)",
-          "explained_by": "ai",
-          "ai_review": {
-            "verdict": "likely_false_alarm",
-            "reason": "Die Befehlsargumente sind bereinigte interne Dateipfade und der Befehl wird als String-Array ausgeführt, was Shell-Injection verhindert."
-          },
-          "occurrences": 1,
-          "locations": [
-            {
-              "file": "sources/org/fdroid/fdroid/compat/FileCompat.java",
-              "line": 49,
-              "in": "FileCompat.symlinkRuntime"
-            }
-          ],
-          "more_locations": [],
-          "more_locations_count": 0,
-          "finding_ids": [
-            "F4"
-          ],
-          "id": "I4"
-        },
-        {
-          "severity": "warning",
-          "rule_id": "weak-hash",
-          "title": "The app uses an outdated fingerprinting method",
-          "explanation": "Die App verwendet MD5, um einen kurzen Identifikations-Hash aus Signaturdaten zu berechnen. MD5 gilt als unsicher, aber hier dient es wahrscheinlich nur als Erkennungsmerkmal und nicht zum Passwortschutz oder zur Download-Verifizierung.",
-          "fix": "Ersetze MD5 durch SHA-256 für kryptografisch stärkere Identifikation: `MessageDigest.getInstance('SHA-256')` statt `MessageDigest.getInstance('MD5')`.",
-          "kind": "security",
-          "kind_label": "Security",
-          "standard": {
-            "framework": "OWASP MASVS v2",
-            "control": "MASVS-CRYPTO",
-            "control_area": "Encryption and keys",
-            "cwe": "CWE-328"
-          },
-          "found_by": "semgrep (weak-hash)",
-          "explained_by": "ai",
-          "ai_review": {
-            "verdict": "likely_false_alarm",
-            "reason": "MD5 wird hier als Identifikations-Hash für Signaturschlüssel genutzt, nicht für Passwortschutz oder Integritätsprüfung von Downloads."
-          },
-          "occurrences": 1,
-          "locations": [
-            {
-              "file": "sources/org/fdroid/index/IndexUtils.java",
-              "line": 60,
-              "in": "IndexUtils.md5$index_release"
-            }
-          ],
-          "more_locations": [],
-          "more_locations_count": 0,
-          "finding_ids": [
-            "F5"
-          ],
-          "id": "I5"
         }
       ],
       "smell": [
@@ -594,41 +524,6 @@
             "F18"
           ],
           "id": "I11"
-        },
-        {
-          "severity": "smell",
-          "rule_id": "system-exit",
-          "title": "The app shuts itself down abruptly",
-          "explanation": "Die App zwingt sich selbst zum Schließen. Das ist hier wahrscheinlich gewollt, weil es eine Exit-Funktion für Nutzer gibt, die die App sofort verlassen wollen. Es überspringt aber die normale Aufräumarbeit.",
-          "fix": "Keine Änderung nötig, dies ist eine bewusste Exit-Funktion. Prüfe nur, ob `finishAndRemoveTask()` vor `System.exit(0)` zuverlässig ausgeführt wird.",
-          "kind": "smell",
-          "kind_label": "Code quality",
-          "standard": {
-            "framework": "OWASP MASVS v2",
-            "control": "MASVS-CODE",
-            "control_area": "Code quality and safe input handling",
-            "cwe": "CWE-382"
-          },
-          "found_by": "semgrep (system-exit)",
-          "explained_by": "ai",
-          "ai_review": {
-            "verdict": "likely_false_alarm",
-            "reason": "System.exit(0) ist hier Teil einer bewussten Exit-Funktion zum sofortigen Schließen der App."
-          },
-          "occurrences": 1,
-          "locations": [
-            {
-              "file": "sources/org/fdroid/fdroid/panic/ExitActivity.java",
-              "line": 29,
-              "in": "ExitActivity.onCreate"
-            }
-          ],
-          "more_locations": [],
-          "more_locations_count": 0,
-          "finding_ids": [
-            "F19"
-          ],
-          "id": "I12"
         }
       ]
     },
@@ -670,7 +565,12 @@
     ],
     "ai_review": {
       "likely_false_alarms": 3,
-      "suggestions": 2
+      "suggestions": 2,
+      "scanner_counts": {
+        "critical": 1,
+        "warning": 4,
+        "smell": 7
+      }
     },
     "scan": {
       "apk_name": "fdroid.apk",
@@ -740,7 +640,114 @@
       "total_code_files": 10144
     },
     "warnings": [],
-    "disclaimer": "This is an automated scan of the app's decompiled code. Issues and their severity come from fixed scanner rules, so the same app always gets the same result; the plain-English wording and the 'AI suggestions' section are written by an AI and can be wrong. The scan can miss problems and can raise false alarms, so treat it as a starting point for review, not a guarantee that the app is safe."
+    "disclaimer": "This is an automated scan of the app's decompiled code. Issues and their severity come from fixed scanner rules, so the same app always gets the same result; the plain-English wording and the 'AI suggestions' section are written by an AI and can be wrong. The scan can miss problems and can raise false alarms, so treat it as a starting point for review, not a guarantee that the app is safe.",
+    "false_alarms": [
+      {
+        "severity": "warning",
+        "rule_id": "runtime-exec",
+        "title": "The app runs commands on the phone",
+        "explanation": "Die App führt einen Systembefehl aus, um symbolische Verknüpfungen zu erstellen. Die Pfade dafür kommen aus der App selbst und sind bereinigt, daher ist eine Einschleusung von fremden Befehlen wahrscheinlich unwahrscheinlich.",
+        "fix": "Prüfe, ob du `android.os.Os.symlink()` oder `Files.createSymbolicLink()` statt `Runtime.getRuntime().exec()` verwenden kannst, um Shell-Befehle ganz zu vermeiden.",
+        "kind": "security",
+        "kind_label": "Security",
+        "standard": {
+          "framework": "OWASP MASVS v2",
+          "control": "MASVS-CODE",
+          "control_area": "Code quality and safe input handling",
+          "cwe": "CWE-78"
+        },
+        "found_by": "semgrep (runtime-exec)",
+        "explained_by": "ai",
+        "ai_review": {
+          "verdict": "likely_false_alarm",
+          "reason": "Die Befehlsargumente sind bereinigte interne Dateipfade und der Befehl wird als String-Array ausgeführt, was Shell-Injection verhindert."
+        },
+        "occurrences": 1,
+        "locations": [
+          {
+            "file": "sources/org/fdroid/fdroid/compat/FileCompat.java",
+            "line": 49,
+            "in": "FileCompat.symlinkRuntime"
+          }
+        ],
+        "more_locations": [],
+        "more_locations_count": 0,
+        "finding_ids": [
+          "F4"
+        ],
+        "id": "I4"
+      },
+      {
+        "severity": "warning",
+        "rule_id": "weak-hash",
+        "title": "The app uses an outdated fingerprinting method",
+        "explanation": "Die App verwendet MD5, um einen kurzen Identifikations-Hash aus Signaturdaten zu berechnen. MD5 gilt als unsicher, aber hier dient es wahrscheinlich nur als Erkennungsmerkmal und nicht zum Passwortschutz oder zur Download-Verifizierung.",
+        "fix": "Ersetze MD5 durch SHA-256 für kryptografisch stärkere Identifikation: `MessageDigest.getInstance('SHA-256')` statt `MessageDigest.getInstance('MD5')`.",
+        "kind": "security",
+        "kind_label": "Security",
+        "standard": {
+          "framework": "OWASP MASVS v2",
+          "control": "MASVS-CRYPTO",
+          "control_area": "Encryption and keys",
+          "cwe": "CWE-328"
+        },
+        "found_by": "semgrep (weak-hash)",
+        "explained_by": "ai",
+        "ai_review": {
+          "verdict": "likely_false_alarm",
+          "reason": "MD5 wird hier als Identifikations-Hash für Signaturschlüssel genutzt, nicht für Passwortschutz oder Integritätsprüfung von Downloads."
+        },
+        "occurrences": 1,
+        "locations": [
+          {
+            "file": "sources/org/fdroid/index/IndexUtils.java",
+            "line": 60,
+            "in": "IndexUtils.md5$index_release"
+          }
+        ],
+        "more_locations": [],
+        "more_locations_count": 0,
+        "finding_ids": [
+          "F5"
+        ],
+        "id": "I5"
+      },
+      {
+        "severity": "smell",
+        "rule_id": "system-exit",
+        "title": "The app shuts itself down abruptly",
+        "explanation": "Die App zwingt sich selbst zum Schließen. Das ist hier wahrscheinlich gewollt, weil es eine Exit-Funktion für Nutzer gibt, die die App sofort verlassen wollen. Es überspringt aber die normale Aufräumarbeit.",
+        "fix": "Keine Änderung nötig, dies ist eine bewusste Exit-Funktion. Prüfe nur, ob `finishAndRemoveTask()` vor `System.exit(0)` zuverlässig ausgeführt wird.",
+        "kind": "smell",
+        "kind_label": "Code quality",
+        "standard": {
+          "framework": "OWASP MASVS v2",
+          "control": "MASVS-CODE",
+          "control_area": "Code quality and safe input handling",
+          "cwe": "CWE-382"
+        },
+        "found_by": "semgrep (system-exit)",
+        "explained_by": "ai",
+        "ai_review": {
+          "verdict": "likely_false_alarm",
+          "reason": "System.exit(0) ist hier Teil einer bewussten Exit-Funktion zum sofortigen Schließen der App."
+        },
+        "occurrences": 1,
+        "locations": [
+          {
+            "file": "sources/org/fdroid/fdroid/panic/ExitActivity.java",
+            "line": 29,
+            "in": "ExitActivity.onCreate"
+          }
+        ],
+        "more_locations": [],
+        "more_locations_count": 0,
+        "finding_ids": [
+          "F19"
+        ],
+        "id": "I12"
+      }
+    ]
   },
-  "report_text": "════════════════════════════════════════════════════════════════════════════════════════\n APP SCAN REPORT · org.fdroid.fdroid\n════════════════════════════════════════════════════════════════════════════════════════\nF-Droid ist ein alternativer App-Store für Android, der freie und quelloffene Apps aus\nCommunity-Repositories anbietet.\n\nAt a glance: 1 critical · 4 warnings · 7 smells   (result fingerprint 8528083a414fad21)\n\nWHAT THIS APP DOES\n  Mit F-Droid kannst du freie Android-Apps durchsuchen, herunterladen, installieren und\n  aktualisieren. Die App verbindet sich mit verschiedenen Community-Servern, um App-\n  Kataloge und Installationsdateien zu laden. Sie unterstützt auch das Teilen von Apps\n  mit Geräten in der Nähe über WLAN, Bluetooth, NFC und USB. Zudem kann sie Apps\n  installieren, aktualisieren und deinstallieren sowie Repositorys über QR-Codes\n  hinzufügen.\n\nHOW IT WORKS\n  • Lädt App-Listen und Installationsdateien von verschiedenen F-Droid-Repositorys und\n    Spiegelservern herunter\n  • Verifiziert Downloads kryptografisch und installiert Apps mit Systemberechtigungen\n  • Erkennt Geräte im lokalen Netzwerk über WLAN und Bluetooth für App-Sharing in der\n    Nähe\n  • Nutzt QR-Code-Scanning über die Kamera, um neue Repositorys hinzuzufügen\n  • Unterstützt Tor-Onion-Dienste und IPFS für privaten und dezentralen Zugriff\n\nPERSONAL DATA IT CAN ACCESS\n  • Kamera: zum Scannen von QR-Codes für neue Repositorys\n  • Grobe Standortdaten: zum Entdecken von Geräten in der Nähe\n  • Bluetooth: zum Teilen von Apps mit Geräten in der Nähe\n  • NFC: zum Übertragen von Apps an andere Geräte\n  • USB-Zugriff: zum Verbinden mit externen Speichergeräten\n  • Speicherzugriff: zum Speichern heruntergeladener Apps und Mediendateien\n  • Installierte-Apps-Liste: zum Prüfen auf Updates und installierte Apps\n\nWHO IT TALKS TO\n  • F-Droid-Repositorys und zahlreiche Community-Spiegelserver: lädt App-Kataloge und\n    Installationsdateien herunter\n  • Tor-Onion-Dienste: ermöglicht privaten, verschleierten Zugriff auf Repositorys\n  • IPFS-Gateways: für dezentralen Inhaltabruf\n  • CleanInsights (metrics.cleaninsights.org): sammelt anonyme Nutzungsstatistiken\n  • Spendenplattformen (Liberapay, Flattr, OpenCollective): für Spenden an App-\n    Entwickler\n  • GitHub und GitLab: für Verknüpfungen zu Quellcode-Projekten\n\n────────────────────────────────────────────────────────────────────────────────────────\n🔴 CRITICAL - Fix before you release (1)\n────────────────────────────────────────────────────────────────────────────────────────\n\n1. Unpacking a zip file can overwrite the app's own files\n   Die App entpackt eine ZIP-Datei und verwendet den darin gespeicherten Dateinamen\n   direkt, um eine Datei zu erstellen. Eine specially hergestellte ZIP-Datei mit Namen\n   wie '../../etc/wichtig' könnte Dateien außerhalb des Downloads-Ordners überschreiben.\n   Das könnte dazu führen, dass jemand App-Dateien oder Nutzerdaten ersetzt.\n   How to fix: Prüfe jeden Dateinamen aus der ZIP-Datei, bevor du ihn verwendest: lehne\n   Einträge ab, die '..' oder absolute Pfade enthalten. Nutze z.B. `Path.normalize()`\n   und vergleiche, dass der resultierende Pfad noch im Zielverzeichnis liegt.\n   Where: org/fdroid/fdroid/installer/ObfInstallerService.java:73 (ObfInstallerService.onHandleIntent)\n   Security · MASVS-CODE · CWE-22 · found by semgrep (zip-path-traversal)\n\n────────────────────────────────────────────────────────────────────────────────────────\n🟠 WARNING - Fix soon (4)\n────────────────────────────────────────────────────────────────────────────────────────\n\n2. Unencrypted connections are allowed for some servers\n   Die Netzwerkeinstellungen erlauben generell unverschlüsseltes http:// für alle\n   Verbindungen. Das bedeutet, dass jemand im selben Netzwerk möglicherweise mitgelesene\n   Daten sehen kann. Für bestimmte wichtige Domains ist es gesperrt, aber für alle\n   anderen bleibt es offen.\n   How to fix: Setze `cleartextTrafficPermitted` in `network_security_config.xml` auf\n   `false` als Standard und erlaube unverschlüsselten Verkehr nur für explizit benötigte\n   Domains wie lokale Repositories oder Onion-Adressen.\n   Where: resources/res/xml/network_security_config.xml:3\n   Security · MASVS-NETWORK · CWE-319 · found by manifest (nsc-cleartext)\n\n3. The app is built for an old version of Android\n   Die App ist für Android 10 (API 29) konfiguriert und verzichtet damit auf neuere\n   Datenschutz- und Sicherheitsfunktionen von Android. Nutzer mit neueren Android-\n   Versionen bekommen nicht den vollen Schutz, den ihr System eigentlich bietet.\n   How to fix: Setze `targetSdkVersion` in der `build.gradle` auf mindestens 34 (Android\n   14) und teste die App gründlich auf allen unterstützten Android-Versionen.\n   Where: resources/AndroidManifest.xml:13\n   Security · MASVS-PLATFORM · CWE-1104 · found by manifest (old-target-sdk)\n\n4. The app runs commands on the phone\n   Die App führt einen Systembefehl aus, um symbolische Verknüpfungen zu erstellen. Die\n   Pfade dafür kommen aus der App selbst und sind bereinigt, daher ist eine\n   Einschleusung von fremden Befehlen wahrscheinlich unwahrscheinlich.\n   How to fix: Prüfe, ob du `android.os.Os.symlink()` oder `Files.createSymbolicLink()`\n   statt `Runtime.getRuntime().exec()` verwenden kannst, um Shell-Befehle ganz zu\n   vermeiden.\n   AI review: probably a false alarm here: Die Befehlsargumente sind bereinigte interne\n   Dateipfade und der Befehl wird als String-Array ausgeführt, was Shell-Injection\n   verhindert. (still counted until a person checks it)\n   Where: org/fdroid/fdroid/compat/FileCompat.java:49 (FileCompat.symlinkRuntime)\n   Security · MASVS-CODE · CWE-78 · found by semgrep (runtime-exec)\n\n5. The app uses an outdated fingerprinting method\n   Die App verwendet MD5, um einen kurzen Identifikations-Hash aus Signaturdaten zu\n   berechnen. MD5 gilt als unsicher, aber hier dient es wahrscheinlich nur als\n   Erkennungsmerkmal und nicht zum Passwortschutz oder zur Download-Verifizierung.\n   How to fix: Ersetze MD5 durch SHA-256 für kryptografisch stärkere Identifikation:\n   `MessageDigest.getInstance('SHA-256')` statt `MessageDigest.getInstance('MD5')`.\n   AI review: probably a false alarm here: MD5 wird hier als Identifikations-Hash für\n   Signaturschlüssel genutzt, nicht für Passwortschutz oder Integritätsprüfung von\n   Downloads. (still counted until a person checks it)\n   Where: org/fdroid/index/IndexUtils.java:60 (IndexUtils.md5$index_release)\n   Security · MASVS-CRYPTO · CWE-328 · found by semgrep (weak-hash)\n\n────────────────────────────────────────────────────────────────────────────────────────\n🟡 SMELL - Clean up when you can (7)\n────────────────────────────────────────────────────────────────────────────────────────\n\n6. The app uses shared phone storage\n   Die App speichert Dateien im öffentlichen Downloads-Ordner auf dem Gerät. Andere Apps\n   können diese Dateien lesen. Das ist für Installationsdateien wahrscheinlich\n   beabsichtigt, aber sensible Daten sollten dort nicht liegen.\n   How to fix: Nutze nach Möglichkeit den app-privaten Speicher\n   (`getExternalFilesDir()`), wenn die Dateien nicht für andere Apps sichtbar sein\n   müssen.\n   Where: org/fdroid/fdroid/data/Apk.java:237 (Apk.getMediaInstallPath); org/fdroid/fdroid/data/App.java:362 (App.getObbDir); org/fdroid/fdroid/installer/ObfInstallerService.java:73 (ObfInstallerService.onHandleIntent); and 3 more places\n   Security · MASVS-STORAGE · CWE-922 · found by semgrep (external-storage)\n\n7. App data can be copied off the phone\n   Die App erlaubt es, dass ihre Daten mit Backup-Tools kopiert werden können. Das\n   bedeutet, dass gespeicherte Logins oder andere sensible Daten auf ein anderes Gerät\n   übertragen werden könnten.\n   How to fix: Setze `android:allowBackup='false'` im Manifest, oder nutze\n   `fullBackupContent` mit expliziten Ausschlussregeln für sensible Daten.\n   Where: resources/AndroidManifest.xml:114\n   Security · MASVS-STORAGE · CWE-530 · found by manifest (allow-backup)\n\n8. A crash is hidden instead of fixed\n   Die App fängt einen Absturz wegen fehlender Werte ab, anstatt vorher zu prüfen, ob\n   der Wert vorhanden ist. Das kann echte Fehler verbergen und macht es schwer, Probleme\n   zu finden.\n   How to fix: Prüfe alle Rückgabewerte auf null, bevor du sie verwendest, z.B. `if\n   (networkInterfaces == null) return;` anstatt NullPointerException abzufangen.\n   AI review: some of these places are probably false alarms: Der NPE-Fang dient als\n   vertretbarer UI-Fallback für fehlende Icons und verdeckt keinen echten Datenfehler.\n   (still counted until a person checks it)\n   Where: org/fdroid/fdroid/nearby/WifiStateChangeService.java:176 (WifiStateChangeService.setIpInfoFromNetworkInterface); org/fdroid/fdroid/net/ConnectivityMonitorService.java:42 (ConnectivityMonitorService.getNetworkState); org/fdroid/fdroid/privileged/views/AppSecurityPermissions.java:76 (MyPermissionGroupInfo.loadGroupIcon)\n   Likely bug · MASVS-CODE · CWE-395 · found by semgrep (catch-null-pointer)\n\n9. Background work is scheduled in an outdated way\n   Die App erstellt einen Handler ohne expliziten Thread-Bezug. Das ist veraltet und\n   kann zu seltenen Abstürzen führen, wenn der Code auf einem Hintergrundthread läuft.\n   How to fix: Nutze `new Handler(Looper.getMainLooper())` statt `new Handler()`, um\n   sicherzustellen, dass der Handler auf dem richtigen Thread läuft.\n   Where: org/fdroid/fdroid/nearby/UsbDeviceAttachedReceiver.java:31 (UsbDeviceAttachedReceiver.onReceive)\n   Likely bug · MASVS-CODE · CWE-1188 · found by semgrep (handler-without-looper)\n\n10. Errors are silently ignored\n   Die App fängt alle Fehler beim Löschen des Caches ab und ignoriert sie still. Wenn\n   etwas schiefgeht, merkt niemand davon. Das erschwert die Fehlersuche, ist aber bei\n   Cache-Bereinigung meist nicht kritisch.\n   How to fix: Nutze `Log.w(TAG, 'Cache deletion failed', unused)` im catch-Block statt\n   ihn leer zu lassen, damit Fehler im Log sichtbar bleiben.\n   AI review: some of these places are probably false alarms: Das leere catch ist bei\n   einer closeQuietly-Methode das beabsichtigte Standardverhalten. (still counted until\n   a person checks it)\n   Where: org/fdroid/fdroid/DeleteCacheService.java:26 (DeleteCacheService.onHandleWork); org/fdroid/fdroid/Utils.java:245 (Utils.closeQuietly); and 19 more places\n   Code quality · MASVS-CODE · CWE-390 · found by semgrep (empty-catch-block)\n\n11. Error details are printed to the logs\n   Die App gibt rohe Fehlerdetails in die Konsole aus statt sie ordentlich zu\n   protokollieren. In Release-Builden gehen diese Details verloren, und in Debug-Builden\n   könnten sie Interna verraten.\n   How to fix: Ersetze `e.printStackTrace()` durch `Log.w(TAG, 'Port check failed', e)`\n   für eine sauberere Protokollierung.\n   Where: org/fdroid/fdroid/Utils.java:640 (Utils.isPortInUse); org/fdroid/fdroid/installer/InstallManagerService.java:132 (InstallManagerService.onReceive); and 16 more places\n   Code quality · MASVS-CODE · CWE-209 · found by semgrep (print-stack-trace)\n\n12. The app shuts itself down abruptly\n   Die App zwingt sich selbst zum Schließen. Das ist hier wahrscheinlich gewollt, weil\n   es eine Exit-Funktion für Nutzer gibt, die die App sofort verlassen wollen. Es\n   überspringt aber die normale Aufräumarbeit.\n   How to fix: Keine Änderung nötig, dies ist eine bewusste Exit-Funktion. Prüfe nur, ob\n   `finishAndRemoveTask()` vor `System.exit(0)` zuverlässig ausgeführt wird.\n   AI review: probably a false alarm here: System.exit(0) ist hier Teil einer bewussten\n   Exit-Funktion zum sofortigen Schließen der App. (still counted until a person checks\n   it)\n   Where: org/fdroid/fdroid/panic/ExitActivity.java:29 (ExitActivity.onCreate)\n   Code quality · MASVS-CODE · CWE-382 · found by semgrep (system-exit)\n\n────────────────────────────────────────────────────────────────────────────────────────\n💡 AI SUGGESTIONS - not verified, not counted above (2)\n────────────────────────────────────────────────────────────────────────────────────────\n\n• Fehlendes return nach leerer ZIP-Prüfung (AI rates it warning, confidence high)\n  Wenn die ZIP-Datei leer ist, wird zwar eine Fehlermeldung gesendet, aber der Code\n  läuft weiter und versucht, das erste Element aus einer leeren ZIP-Datei zu holen. Das\n  führt zu einem Absturz statt einer sauberen Fehlermeldung.\n  How to fix: Füge ein `return;` nach `sendBroadcastInstall(...)` in Zeile 70 hinzu,\n  damit die Methode bei einer leeren ZIP-Datei abbricht.\n  Where: org/fdroid/fdroid/installer/ObfInstallerService.java:73\n\n• Stream-Lesen außerhalb des try-Blocks (AI rates it warning, confidence medium)\n  In der Methode `consumeStream` ist der try-Block leer, und der eigentliche\n  `inputStream.read()` Aufruf steht in der while-Bedingung außerhalb des try-Blocks.\n  Wenn read() einen Fehler wirft, wird er nicht abgefangen.\n  How to fix: Verschiebe den `inputStream.read()` Aufruf in den try-Block, z.B. `int n =\n  inputStream.read(new byte[256]); if (n == -1) return;`\n  Where: org/fdroid/fdroid/Utils.java:245\n\n════════════════════════════════════════════════════════════════════════════════════════\nABOUT THIS SCAN\n  File: fdroid.apk (sha256 c1677fb28f6cfc08…)\n  Signature: valid, schemes v1+v2+v3 · RSA 2048-bit · certificate sha256 43238d512c1e5eb2… (apksig 9.3.3)\n  Found 56 raw findings in 420 of the app's own code files (10,144 including libraries); 19 examples explained.\n  Engine 0.4.0 · severity policy 1.3.1 (OWASP MASVS v2, CWE) · jadx 1.5.6, semgrep 1.182.0, gitleaks 8.30.1, rea 6.7.0, apksig 9.3.3\n  Explained by: z-ai/glm-5.2 via openrouter\n  Took 80.8s\n\n  This is an automated scan of the app's decompiled code. Issues and their severity come\n  from fixed scanner rules, so the same app always gets the same result; the plain-\n  English wording and the 'AI suggestions' section are written by an AI and can be\n  wrong. The scan can miss problems and can raise false alarms, so treat it as a\n  starting point for review, not a guarantee that the app is safe."
+  "report_text": "════════════════════════════════════════════════════════════════════════════════════════\n APP SCAN REPORT · org.fdroid.fdroid\n════════════════════════════════════════════════════════════════════════════════════════\nF-Droid ist ein alternativer App-Store für Android, der freie und quelloffene Apps aus\nCommunity-Repositories anbietet.\n\nAt a glance: 1 critical · 2 warnings · 6 smells   (result fingerprint 8528083a414fad21)\nNot counted: 3 probable false alarms (listed at the end)\n\nWHAT THIS APP DOES\n  Mit F-Droid kannst du freie Android-Apps durchsuchen, herunterladen, installieren und\n  aktualisieren. Die App verbindet sich mit verschiedenen Community-Servern, um App-\n  Kataloge und Installationsdateien zu laden. Sie unterstützt auch das Teilen von Apps\n  mit Geräten in der Nähe über WLAN, Bluetooth, NFC und USB. Zudem kann sie Apps\n  installieren, aktualisieren und deinstallieren sowie Repositorys über QR-Codes\n  hinzufügen.\n\nHOW IT WORKS\n  • Lädt App-Listen und Installationsdateien von verschiedenen F-Droid-Repositorys und\n    Spiegelservern herunter\n  • Verifiziert Downloads kryptografisch und installiert Apps mit Systemberechtigungen\n  • Erkennt Geräte im lokalen Netzwerk über WLAN und Bluetooth für App-Sharing in der\n    Nähe\n  • Nutzt QR-Code-Scanning über die Kamera, um neue Repositorys hinzuzufügen\n  • Unterstützt Tor-Onion-Dienste und IPFS für privaten und dezentralen Zugriff\n\nPERSONAL DATA IT CAN ACCESS\n  • Kamera: zum Scannen von QR-Codes für neue Repositorys\n  • Grobe Standortdaten: zum Entdecken von Geräten in der Nähe\n  • Bluetooth: zum Teilen von Apps mit Geräten in der Nähe\n  • NFC: zum Übertragen von Apps an andere Geräte\n  • USB-Zugriff: zum Verbinden mit externen Speichergeräten\n  • Speicherzugriff: zum Speichern heruntergeladener Apps und Mediendateien\n  • Installierte-Apps-Liste: zum Prüfen auf Updates und installierte Apps\n\nWHO IT TALKS TO\n  • F-Droid-Repositorys und zahlreiche Community-Spiegelserver: lädt App-Kataloge und\n    Installationsdateien herunter\n  • Tor-Onion-Dienste: ermöglicht privaten, verschleierten Zugriff auf Repositorys\n  • IPFS-Gateways: für dezentralen Inhaltabruf\n  • CleanInsights (metrics.cleaninsights.org): sammelt anonyme Nutzungsstatistiken\n  • Spendenplattformen (Liberapay, Flattr, OpenCollective): für Spenden an App-\n    Entwickler\n  • GitHub und GitLab: für Verknüpfungen zu Quellcode-Projekten\n\n────────────────────────────────────────────────────────────────────────────────────────\n🔴 CRITICAL - Fix before you release (1)\n────────────────────────────────────────────────────────────────────────────────────────\n\n1. Unpacking a zip file can overwrite the app's own files\n   Die App entpackt eine ZIP-Datei und verwendet den darin gespeicherten Dateinamen\n   direkt, um eine Datei zu erstellen. Eine specially hergestellte ZIP-Datei mit Namen\n   wie '../../etc/wichtig' könnte Dateien außerhalb des Downloads-Ordners überschreiben.\n   Das könnte dazu führen, dass jemand App-Dateien oder Nutzerdaten ersetzt.\n   How to fix: Prüfe jeden Dateinamen aus der ZIP-Datei, bevor du ihn verwendest: lehne\n   Einträge ab, die '..' oder absolute Pfade enthalten. Nutze z.B. `Path.normalize()`\n   und vergleiche, dass der resultierende Pfad noch im Zielverzeichnis liegt.\n   Where: org/fdroid/fdroid/installer/ObfInstallerService.java:73 (ObfInstallerService.onHandleIntent)\n   Security · MASVS-CODE · CWE-22 · found by semgrep (zip-path-traversal)\n\n────────────────────────────────────────────────────────────────────────────────────────\n🟠 WARNING - Fix soon (2)\n────────────────────────────────────────────────────────────────────────────────────────\n\n2. Unencrypted connections are allowed for some servers\n   Die Netzwerkeinstellungen erlauben generell unverschlüsseltes http:// für alle\n   Verbindungen. Das bedeutet, dass jemand im selben Netzwerk möglicherweise mitgelesene\n   Daten sehen kann. Für bestimmte wichtige Domains ist es gesperrt, aber für alle\n   anderen bleibt es offen.\n   How to fix: Setze `cleartextTrafficPermitted` in `network_security_config.xml` auf\n   `false` als Standard und erlaube unverschlüsselten Verkehr nur für explizit benötigte\n   Domains wie lokale Repositories oder Onion-Adressen.\n   Where: resources/res/xml/network_security_config.xml:3\n   Security · MASVS-NETWORK · CWE-319 · found by manifest (nsc-cleartext)\n\n3. The app is built for an old version of Android\n   Die App ist für Android 10 (API 29) konfiguriert und verzichtet damit auf neuere\n   Datenschutz- und Sicherheitsfunktionen von Android. Nutzer mit neueren Android-\n   Versionen bekommen nicht den vollen Schutz, den ihr System eigentlich bietet.\n   How to fix: Setze `targetSdkVersion` in der `build.gradle` auf mindestens 34 (Android\n   14) und teste die App gründlich auf allen unterstützten Android-Versionen.\n   Where: resources/AndroidManifest.xml:13\n   Security · MASVS-PLATFORM · CWE-1104 · found by manifest (old-target-sdk)\n\n────────────────────────────────────────────────────────────────────────────────────────\n🟡 SMELL - Clean up when you can (6)\n────────────────────────────────────────────────────────────────────────────────────────\n\n4. The app uses shared phone storage\n   Die App speichert Dateien im öffentlichen Downloads-Ordner auf dem Gerät. Andere Apps\n   können diese Dateien lesen. Das ist für Installationsdateien wahrscheinlich\n   beabsichtigt, aber sensible Daten sollten dort nicht liegen.\n   How to fix: Nutze nach Möglichkeit den app-privaten Speicher\n   (`getExternalFilesDir()`), wenn die Dateien nicht für andere Apps sichtbar sein\n   müssen.\n   Where: org/fdroid/fdroid/data/Apk.java:237 (Apk.getMediaInstallPath); org/fdroid/fdroid/data/App.java:362 (App.getObbDir); org/fdroid/fdroid/installer/ObfInstallerService.java:73 (ObfInstallerService.onHandleIntent); and 3 more places\n   Security · MASVS-STORAGE · CWE-922 · found by semgrep (external-storage)\n\n5. App data can be copied off the phone\n   Die App erlaubt es, dass ihre Daten mit Backup-Tools kopiert werden können. Das\n   bedeutet, dass gespeicherte Logins oder andere sensible Daten auf ein anderes Gerät\n   übertragen werden könnten.\n   How to fix: Setze `android:allowBackup='false'` im Manifest, oder nutze\n   `fullBackupContent` mit expliziten Ausschlussregeln für sensible Daten.\n   Where: resources/AndroidManifest.xml:114\n   Security · MASVS-STORAGE · CWE-530 · found by manifest (allow-backup)\n\n6. A crash is hidden instead of fixed\n   Die App fängt einen Absturz wegen fehlender Werte ab, anstatt vorher zu prüfen, ob\n   der Wert vorhanden ist. Das kann echte Fehler verbergen und macht es schwer, Probleme\n   zu finden.\n   How to fix: Prüfe alle Rückgabewerte auf null, bevor du sie verwendest, z.B. `if\n   (networkInterfaces == null) return;` anstatt NullPointerException abzufangen.\n   AI review: some of these places are probably false alarms: Der NPE-Fang dient als\n   vertretbarer UI-Fallback für fehlende Icons und verdeckt keinen echten Datenfehler.\n   (still counted until a person checks it)\n   Where: org/fdroid/fdroid/nearby/WifiStateChangeService.java:176 (WifiStateChangeService.setIpInfoFromNetworkInterface); org/fdroid/fdroid/net/ConnectivityMonitorService.java:42 (ConnectivityMonitorService.getNetworkState); org/fdroid/fdroid/privileged/views/AppSecurityPermissions.java:76 (MyPermissionGroupInfo.loadGroupIcon)\n   Likely bug · MASVS-CODE · CWE-395 · found by semgrep (catch-null-pointer)\n\n7. Background work is scheduled in an outdated way\n   Die App erstellt einen Handler ohne expliziten Thread-Bezug. Das ist veraltet und\n   kann zu seltenen Abstürzen führen, wenn der Code auf einem Hintergrundthread läuft.\n   How to fix: Nutze `new Handler(Looper.getMainLooper())` statt `new Handler()`, um\n   sicherzustellen, dass der Handler auf dem richtigen Thread läuft.\n   Where: org/fdroid/fdroid/nearby/UsbDeviceAttachedReceiver.java:31 (UsbDeviceAttachedReceiver.onReceive)\n   Likely bug · MASVS-CODE · CWE-1188 · found by semgrep (handler-without-looper)\n\n8. Errors are silently ignored\n   Die App fängt alle Fehler beim Löschen des Caches ab und ignoriert sie still. Wenn\n   etwas schiefgeht, merkt niemand davon. Das erschwert die Fehlersuche, ist aber bei\n   Cache-Bereinigung meist nicht kritisch.\n   How to fix: Nutze `Log.w(TAG, 'Cache deletion failed', unused)` im catch-Block statt\n   ihn leer zu lassen, damit Fehler im Log sichtbar bleiben.\n   AI review: some of these places are probably false alarms: Das leere catch ist bei\n   einer closeQuietly-Methode das beabsichtigte Standardverhalten. (still counted until\n   a person checks it)\n   Where: org/fdroid/fdroid/DeleteCacheService.java:26 (DeleteCacheService.onHandleWork); org/fdroid/fdroid/Utils.java:245 (Utils.closeQuietly); and 19 more places\n   Code quality · MASVS-CODE · CWE-390 · found by semgrep (empty-catch-block)\n\n9. Error details are printed to the logs\n   Die App gibt rohe Fehlerdetails in die Konsole aus statt sie ordentlich zu\n   protokollieren. In Release-Builden gehen diese Details verloren, und in Debug-Builden\n   könnten sie Interna verraten.\n   How to fix: Ersetze `e.printStackTrace()` durch `Log.w(TAG, 'Port check failed', e)`\n   für eine sauberere Protokollierung.\n   Where: org/fdroid/fdroid/Utils.java:640 (Utils.isPortInUse); org/fdroid/fdroid/installer/InstallManagerService.java:132 (InstallManagerService.onReceive); and 16 more places\n   Code quality · MASVS-CODE · CWE-209 · found by semgrep (print-stack-trace)\n\n────────────────────────────────────────────────────────────────────────────────────────\n🔕 PROBABLY FALSE ALARMS - not counted above (3)\n────────────────────────────────────────────────────────────────────────────────────────\n  The scanner rules flagged these, but the AI read the code and judged them safe. Check\n  them once before you ignore them.\n\n10. The app runs commands on the phone\n   Die App führt einen Systembefehl aus, um symbolische Verknüpfungen zu erstellen. Die\n   Pfade dafür kommen aus der App selbst und sind bereinigt, daher ist eine\n   Einschleusung von fremden Befehlen wahrscheinlich unwahrscheinlich.\n   How to fix: Prüfe, ob du `android.os.Os.symlink()` oder `Files.createSymbolicLink()`\n   statt `Runtime.getRuntime().exec()` verwenden kannst, um Shell-Befehle ganz zu\n   vermeiden.\n   AI review: probably a false alarm here: Die Befehlsargumente sind bereinigte interne\n   Dateipfade und der Befehl wird als String-Array ausgeführt, was Shell-Injection\n   verhindert. (not counted above)\n   Where: org/fdroid/fdroid/compat/FileCompat.java:49 (FileCompat.symlinkRuntime)\n   Security · MASVS-CODE · CWE-78 · found by semgrep (runtime-exec)\n\n11. The app uses an outdated fingerprinting method\n   Die App verwendet MD5, um einen kurzen Identifikations-Hash aus Signaturdaten zu\n   berechnen. MD5 gilt als unsicher, aber hier dient es wahrscheinlich nur als\n   Erkennungsmerkmal und nicht zum Passwortschutz oder zur Download-Verifizierung.\n   How to fix: Ersetze MD5 durch SHA-256 für kryptografisch stärkere Identifikation:\n   `MessageDigest.getInstance('SHA-256')` statt `MessageDigest.getInstance('MD5')`.\n   AI review: probably a false alarm here: MD5 wird hier als Identifikations-Hash für\n   Signaturschlüssel genutzt, nicht für Passwortschutz oder Integritätsprüfung von\n   Downloads. (not counted above)\n   Where: org/fdroid/index/IndexUtils.java:60 (IndexUtils.md5$index_release)\n   Security · MASVS-CRYPTO · CWE-328 · found by semgrep (weak-hash)\n\n12. The app shuts itself down abruptly\n   Die App zwingt sich selbst zum Schließen. Das ist hier wahrscheinlich gewollt, weil\n   es eine Exit-Funktion für Nutzer gibt, die die App sofort verlassen wollen. Es\n   überspringt aber die normale Aufräumarbeit.\n   How to fix: Keine Änderung nötig, dies ist eine bewusste Exit-Funktion. Prüfe nur, ob\n   `finishAndRemoveTask()` vor `System.exit(0)` zuverlässig ausgeführt wird.\n   AI review: probably a false alarm here: System.exit(0) ist hier Teil einer bewussten\n   Exit-Funktion zum sofortigen Schließen der App. (not counted above)\n   Where: org/fdroid/fdroid/panic/ExitActivity.java:29 (ExitActivity.onCreate)\n   Code quality · MASVS-CODE · CWE-382 · found by semgrep (system-exit)\n\n────────────────────────────────────────────────────────────────────────────────────────\n💡 AI SUGGESTIONS - not verified, not counted above (2)\n────────────────────────────────────────────────────────────────────────────────────────\n\n• Fehlendes return nach leerer ZIP-Prüfung (AI rates it warning, confidence high)\n  Wenn die ZIP-Datei leer ist, wird zwar eine Fehlermeldung gesendet, aber der Code\n  läuft weiter und versucht, das erste Element aus einer leeren ZIP-Datei zu holen. Das\n  führt zu einem Absturz statt einer sauberen Fehlermeldung.\n  How to fix: Füge ein `return;` nach `sendBroadcastInstall(...)` in Zeile 70 hinzu,\n  damit die Methode bei einer leeren ZIP-Datei abbricht.\n  Where: org/fdroid/fdroid/installer/ObfInstallerService.java:73\n\n• Stream-Lesen außerhalb des try-Blocks (AI rates it warning, confidence medium)\n  In der Methode `consumeStream` ist der try-Block leer, und der eigentliche\n  `inputStream.read()` Aufruf steht in der while-Bedingung außerhalb des try-Blocks.\n  Wenn read() einen Fehler wirft, wird er nicht abgefangen.\n  How to fix: Verschiebe den `inputStream.read()` Aufruf in den try-Block, z.B. `int n =\n  inputStream.read(new byte[256]); if (n == -1) return;`\n  Where: org/fdroid/fdroid/Utils.java:245\n\n════════════════════════════════════════════════════════════════════════════════════════\nABOUT THIS SCAN\n  File: fdroid.apk (sha256 c1677fb28f6cfc08…)\n  Signature: valid, schemes v1+v2+v3 · RSA 2048-bit · certificate sha256 43238d512c1e5eb2… (apksig 9.3.3)\n  Found 56 raw findings in 420 of the app's own code files (10,144 including libraries); 19 examples explained.\n  Engine 0.4.0 · severity policy 1.3.1 (OWASP MASVS v2, CWE) · jadx 1.5.6, semgrep 1.182.0, gitleaks 8.30.1, rea 6.7.0, apksig 9.3.3\n  Explained by: z-ai/glm-5.2 via openrouter\n  Took 80.8s\n\n  This is an automated scan of the app's decompiled code. Issues and their severity come\n  from fixed scanner rules, so the same app always gets the same result; the plain-\n  English wording and the 'AI suggestions' section are written by an AI and can be\n  wrong. The scan can miss problems and can raise false alarms, so treat it as a\n  starting point for review, not a guarantee that the app is safe."
 }

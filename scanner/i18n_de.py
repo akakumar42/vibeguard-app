@@ -52,8 +52,8 @@ PAGES = {
     "MB)": "MB)",
     "I own this app, or I have permission to test it.":
         "Diese App gehört mir, oder ich habe die Erlaubnis, sie zu testen.",
-    "Free: see how many problems your app has and what they are. The $9 report shows where each one is and how to fix it.":
-        "Kostenlos: Sieh, wie viele Probleme deine App hat und welche. Der Bericht für 9 $ zeigt, wo jedes steckt "
+    "Free: see how many problems your app has and what they are. The $29 report shows where each one is and how to fix it.":
+        "Kostenlos: Sieh, wie viele Probleme deine App hat und welche. Der Bericht für 29 $ zeigt, wo jedes steckt "
         "und wie du es behebst.",
     "Decompiler": "Decompiler",
     "Fast · jadx": "Schnell · jadx",
@@ -98,8 +98,8 @@ PAGES = {
     "again. You can remove it afterwards.": "erneut. Danach kannst du es wieder entfernen.",
     "I own this website, or I have permission to test it.":
         "Diese Website gehört mir, oder ich habe die Erlaubnis, sie zu testen.",
-    "Free: see how many problems your site has and what they are. The $9 report shows where each one is and how to fix it.":
-        "Kostenlos: Sieh, wie viele Probleme deine Website hat und welche. Der Bericht für 9 $ zeigt, wo jedes "
+    "Free: see how many problems your site has and what they are. The $29 report shows where each one is and how to fix it.":
+        "Kostenlos: Sieh, wie viele Probleme deine Website hat und welche. Der Bericht für 29 $ zeigt, wo jedes "
         "steckt und wie du es behebst.",
     "How do I prove I own it?": "Wie beweise ich, dass sie mir gehört?",
     "No proof needed": "Kein Nachweis nötig",
@@ -118,10 +118,10 @@ PAGES = {
     "dropped automatically.":
         "oder klicke, um eine auszuwählen (bis zu 50 MB, ohne Build-Ordner). Signaturschlüssel und lokale "
         "geheime Dateien werden automatisch weggelassen.",
-    "We scan your source code with the same rules as the app and website scans. For $50 we fix every critical issue "
+    "We scan your source code with the same rules as the app and website scans. For $99 we fix every critical issue "
     "and warning, and keep a fix only when a re-scan proves the problem is gone. Works for Android apps (Java, "
     "Kotlin, AndroidManifest.xml) and web apps (JavaScript, TypeScript, React, Next.js).":
-        "Wir scannen deinen Quellcode mit denselben Regeln wie die App- und Website-Scans. Für 50 $ beheben wir jedes kritische "
+        "Wir scannen deinen Quellcode mit denselben Regeln wie die App- und Website-Scans. Für 99 $ beheben wir jedes kritische "
         "Problem und jede Warnung und behalten eine Korrektur nur, wenn ein erneuter Scan beweist, dass das Problem "
         "weg ist. Funktioniert für Android-Apps (Java, Kotlin, AndroidManifest.xml) und Web-Apps (JavaScript, "
         "TypeScript, React, Next.js).",
@@ -201,6 +201,13 @@ PAGES = {
     "AI review: probably a false alarm here": "KI-Prüfung: hier wahrscheinlich ein Fehlalarm",
     "AI review: some of these places are probably false alarms": "KI-Prüfung: einige dieser Stellen sind wahrscheinlich Fehlalarme",
     "Still counted until a person checks it.": "Wird weiter gezählt, bis ein Mensch es geprüft hat.",
+    "Not counted.": "Wird nicht gezählt.",
+    "🔕 Probably false alarms": "🔕 Wahrscheinlich Fehlalarme",
+    "The scanner rules flagged these, but the AI read the code and judged them safe. Check them once before you ignore them.":
+        "Die Scanner-Regeln haben diese Stellen markiert, aber die KI hat den Code gelesen und sie als sicher eingestuft. "
+        "Prüfe sie einmal, bevor du sie ignorierst.",
+    "Not counted: 1 probable false alarm (listed below the issues)":
+        "Nicht gezählt: 1 wahrscheinlicher Fehlalarm (unter den Problemen aufgeführt)",
     "Possible fix": "Mögliche Korrektur",
     "No issues with suggested fixes were found.": "Es wurden keine Probleme mit Korrekturvorschlägen gefunden.",
     "Opening your report…": "Dein Bericht wird geöffnet…",
@@ -227,8 +234,8 @@ PAGES = {
         "Wo jedes Problem steckt, verständliche Erklärungen, wie du jedes behebst, KI-Vorschläge",
     "Fixes for every critical issue and warning in your source code, re-scanned to prove they are gone":
         "Korrekturen für jedes kritische Problem und jede Warnung in deinem Quellcode, durch erneuten Scan bewiesen",
-    "Everything in Bug fixing, plus code smells fixed, a structure review with refactoring plans, and a ready-to-open pull request":
-        "Alles aus der Fehlerbehebung, dazu behobene Code-Smells, eine Strukturprüfung mit Refactoring-Plänen und "
+    "Everything in Secure & Auto-Fix, plus code smells fixed, a structure review with refactoring plans, and a ready-to-open pull request":
+        "Alles aus Secure & Auto-Fix, dazu behobene Code-Smells, eine Strukturprüfung mit Refactoring-Plänen und "
         "ein fertiger Pull Request",
     # ---------------------------------------------------------------- source scans and fixing
     "No problems found in your code": "In deinem Code wurden keine Probleme gefunden",
@@ -237,12 +244,10 @@ PAGES = {
         "Du hast genau dieses Projekt schon gescannt, das ist also das gespeicherte Ergebnis. Es wurde kein "
         "kostenloser Scan verbraucht.",
     "You revoke the key": "Du sperrst den Schlüssel",
-    "Both tiers fix this": "Beide Stufen beheben das",
-    "Code improvement fixes this": "Die Code-Verbesserung behebt das",
-    "Code improvement reviews this": "Die Code-Verbesserung prüft das",
+    "Both packages fix this": "Beide Pakete beheben das",
+    "Deep Architecture Audit fixes this": "Das Deep Architecture Audit behebt das",
+    "Deep Architecture Audit reviews this": "Das Deep Architecture Audit prüft das",
     "📐 Structure": "📐 Struktur",
-    "Bug fixing ($50):": "Fehlerbehebung (50 $):",
-    "Code improvement ($150):": "Code-Verbesserung (150 $):",
     "Fix it": "Beheben",
     "Scan another project": "Ein anderes Projekt scannen",
     "Fixing your code…": "Dein Code wird korrigiert…",
@@ -275,7 +280,7 @@ PAGES = {
     "Copy PR description": "PR-Beschreibung kopieren",
     "Download commit-message.txt": "commit-message.txt herunterladen",
     "Preview the PR description": "Vorschau der PR-Beschreibung",
-    "(cleaned up in the Code improvement tier)": "(werden in der Stufe Code-Verbesserung aufgeräumt)",
+    "(cleaned up in the Deep Architecture Audit)": "(werden im Deep Architecture Audit aufgeräumt)",
     "Measured with SonarSource's default limits. Suggestions are written by the AI and are not applied: a "
     "restructure can only be proven safe by compiling the app and running its tests.":
         "Gemessen mit den Standardgrenzen von SonarSource. Die Vorschläge schreibt die KI, und sie werden nicht "
@@ -732,8 +737,10 @@ SERVER = {
     "This file isn't a valid .apk or .zip (both are ZIP archives).": "Diese Datei ist keine gültige .apk oder .zip (beides sind ZIP-Archive).",
     "This report has expired. Please scan again.": "Dieser Bericht ist abgelaufen. Bitte scanne erneut.",
     "This report has not been paid for.": "Dieser Bericht wurde nicht bezahlt.",
-    "Bug fixing works on your source code: upload it on the \"Fix my code\" tab.":
-        "Die Fehlerbehebung arbeitet mit deinem Quellcode: Lade ihn im Tab „Meinen Code beheben“ hoch.",
+    "Secure & Auto-Fix works on your source code: upload it on the \"Fix my code\" tab.":
+        "Secure & Auto-Fix arbeitet mit deinem Quellcode: Lade ihn im Tab „Meinen Code beheben“ hoch.",
+    "Deep Architecture Audit works on your source code: upload it on the \"Fix my code\" tab.":
+        "Das Deep Architecture Audit arbeitet mit deinem Quellcode: Lade ihn im Tab „Meinen Code beheben“ hoch.",
     "This plan is for app and website scans.": "Dieser Tarif ist für App- und Website-Scans.",
     "Demo payments are switched off on this server.": "Demo-Zahlungen sind auf diesem Server ausgeschaltet.",
     "This order was cancelled. Start a new checkout from the report.":
@@ -869,8 +876,9 @@ PATTERNS = [
     (r"No problems found in your app", "In deiner App wurden keine Probleme gefunden"),
     (r"No problems found in your website", "Auf deiner Website wurden keine Probleme gefunden"),
     (r"Scan another (app|website)", "Eine andere $1 scannen"),
-    (r"Result fingerprint (\w+) · the paid report has exactly these issues and this fingerprint",
-     "Ergebnis-Fingerabdruck $1 · der bezahlte Bericht hat genau diese Probleme und diesen Fingerabdruck"),
+    (r"Result fingerprint (\w+) · the paid report has these issues and this fingerprint; any the AI judges false alarms are listed separately and not counted",
+     "Ergebnis-Fingerabdruck $1 · der bezahlte Bericht hat diese Probleme und diesen Fingerabdruck; was die KI als "
+     "Fehlalarm einstuft, wird getrennt aufgeführt und nicht gezählt"),
     (r"Result fingerprint (\w+) · the same app always gives the same issues and fingerprint",
      "Ergebnis-Fingerabdruck $1 · dieselbe App ergibt immer dieselben Probleme und denselben Fingerabdruck"),
     (r"Result fingerprint (\w+) · same app, same result, every time",
@@ -888,6 +896,9 @@ PATTERNS = [
     (r"(Fix before you release|Fix soon|Clean up when you can) · (\d+)", "$1 · $2"),
     (rf"and {N} more places?", "und $1 weitere Stelle(n)"),
     (rf"Not verified · not counted above · {N}", "Nicht bestätigt · oben nicht mitgezählt · $1"),
+    (rf"Not counted above · {N}", "Oben nicht mitgezählt · $1"),
+    (rf"Not counted: {N} probable false alarms \(listed below the issues\)",
+     "Nicht gezählt: $1 wahrscheinliche Fehlalarme (unter den Problemen aufgeführt)"),
     (r"(.+?) · AI rates it (\w+) · confidence (\w+)(.*)", "$1 · KI-Einschätzung: $2 · Sicherheit: $3$4"),
     (rf"Scanned (.+?) · {N} raw findings · (.+?) · took {N}s", "Gescannt: $1 · $2 Rohbefunde · $3 · Dauer $4 s"),
     (rf"Scanned (.+?) · {N} raw findings · (.+)", "Gescannt: $1 · $2 Rohbefunde · $3"),
@@ -908,8 +919,8 @@ PATTERNS = [
     (rf"{N} critical · {N} warnings · {N} smells", "$1 kritisch · $2 Warnungen · $3 Smells"),
     (r"Pay (\$[\d.,]+) \(demo\)", "$1 bezahlen (Demo)"),
     # ---- source preview and fixing
-    (rf"Bug fixing would work on {N} issues? \({N} places?\) and keep only fixes a re-scan proves\.",
-     "Die Fehlerbehebung würde $1 Problem(e) an $2 Stelle(n) angehen und nur Korrekturen behalten, die ein erneuter Scan beweist."),
+    (rf"Secure & Auto-Fix would work on {N} issues? \({N} places?\) and keep only fixes a re-scan proves\.",
+     "Secure & Auto-Fix würde $1 Problem(e) an $2 Stelle(n) angehen und nur Korrekturen behalten, die ein erneuter Scan beweist."),
     (r"1 leaked key must be revoked by you; we explain how\.", "1 geleakter Schlüssel muss von dir gesperrt werden; wir erklären, wie."),
     (rf"{N} leaked keys must be revoked by you; we explain how\.", "$1 geleakte Schlüssel müssen von dir gesperrt werden; wir erklären, wie."),
     (rf"For your safety we did not keep {N} secret files? from the zip \(signing keys, local settings\): (.+)",
@@ -946,7 +957,7 @@ def exact() -> dict[str, str]:
     """Every English sentence the pages can show, with its German text."""
     from scanner.policy import RULES as POLICY
 
-    out = {**PAGES, **LANDING, **LANDING_FRIENDLY, **SERVER, **STRUCTURE, **WORDS}
+    out = {**PAGES, **LANDING, **LANDING_FRIENDLY, **LANDING_WAITLIST, **REPORT_DOWNLOAD, **SERVER, **STRUCTURE, **WORDS}
     for rule_id, (title, risk, fix) in RULES.items():
         if rule_id in POLICY:
             p = POLICY[rule_id]
@@ -957,7 +968,8 @@ def exact() -> dict[str, str]:
 def write_js(path: Path = Path(__file__).resolve().parent.parent / "static" / "i18n-de.js") -> Path:
     data = {"exact": exact(), "patterns": [[p, r] for p, r in PATTERNS], "terms": [[a, b] for a, b in TERMS]}
     path.write_text("/* Generated by `python -m scanner.i18n_de` from scanner/i18n_de.py - edit that file, not this one. */\n"
-                    f"window.VG_DE = {json.dumps(data, ensure_ascii=False, indent=0)};\n")
+                    f"window.VG_DE = {json.dumps(data, ensure_ascii=False, indent=0)};\n", encoding="utf-8",
+                    newline="\n")
     return path
 
 
@@ -1098,6 +1110,143 @@ LANDING_FRIENDLY = {
     "For the technical folks: findings follow OWASP MASVS / ASVS and CWE; built on jadx, Semgrep, Gitleaks and apksig plus VibeGuard's own deep engine.":
         "Für Technikinteressierte: Die Befunde folgen OWASP MASVS / ASVS und CWE; basiert auf jadx, Semgrep, Gitleaks und apksig sowie der eigenen gründlichen Engine von VibeGuard.",
     "The website's .env file can be downloaded": "Die .env-Datei der Website kann heruntergeladen werden",
+}
+
+
+# Melina's landing page (static/landing.html): waitlist, the three packages, what we check, FAQ.
+LANDING_WAITLIST = {
+    "Quick-Scan & Report": "Quick-Scan & Report",
+    "Secure & Auto-Fix": "Secure & Auto-Fix",
+    "Deep Architecture Audit": "Deep Architecture Audit",
+    "VibeGuard — Knowing it's safe to ship is the hard part": "VibeGuard — Zu wissen, dass man sicher veröffentlichen kann, ist der schwierige Teil",
+    "Skip to content": "Zum Inhalt springen",
+    "Apply for waitlist": "Auf die Warteliste",
+    "Try it free": "Kostenlos testen",
+    "Building with AI is easy.": "Mit KI zu bauen ist einfach.",
+    "Knowing it's safe to ship is the hard part.": "Zu wissen, dass man sicher veröffentlichen kann, ist der schwierige Teil.",
+    "VibeGuard checks the website or Android app you already shipped. Get a report, have us fix it, or get an audit you can show someone else.": "VibeGuard prüft die Website oder Android-App, die du schon veröffentlicht hast. Hol dir einen Bericht, lass sie von uns reparieren oder bekomme ein Audit, das du anderen zeigen kannst.",
+    "Free scan · about a minute · no card needed ·": "Kostenloser Scan · etwa eine Minute · keine Karte nötig ·",
+    "see an example report": "Beispielbericht ansehen",
+    "Three different jobs.": "Drei verschiedene Aufgaben.",
+    "A report, the fixes, or a full audit. One app. No subscription.": "Ein Bericht, die Korrekturen oder ein komplettes Audit. Eine App. Kein Abo.",
+    "See it clearly": "Klar sehen",
+    "We fix it": "Wir reparieren es",
+    "Proof you can hand over": "Ein Nachweis zum Weitergeben",
+    "A short report on the app you already shipped.": "Ein kurzer Bericht über die App, die du schon veröffentlicht hast.",
+    "What's risky, and what's already fine": "Was riskant ist und was schon passt",
+    "What to do first, in plain language": "Was du zuerst tun solltest, in einfachen Worten",
+    "The report, then the safe fixes done for you.": "Der Bericht, dann die sicheren Korrekturen für dich.",
+    "Security holes in your code fixed, and leaked keys explained step by step": "Sicherheitslücken in deinem Code behoben und geleakte Schlüssel Schritt für Schritt erklärt",
+    "A second check, so you can see what changed": "Eine zweite Prüfung, damit du siehst, was sich geändert hat",
+    "A deeper look at how the app is actually built.": "Ein genauerer Blick darauf, wie die App wirklich gebaut ist.",
+    "Evidence next to every finding": "Belege neben jedem Befund",
+    "A \"What we checked\" certificate you can show a client, a customer or an investor": "Ein Zertifikat „Was wir geprüft haben“, das du einem Auftraggeber, Kunden oder Investor zeigen kannst",
+    "$199 website · $249 Android or both": "199 $ Website · 249 $ Android oder beides",
+    "Apply for waitlist.": "Auf die Warteliste.",
+    "Leave your name. We'll write back.": "Hinterlasse deinen Namen. Wir melden uns.",
+    "Name": "Name",
+    "Package": "Paket",
+    "Choose a package": "Paket wählen",
+    "Link or app name": "Link oder App-Name",
+    "Optional": "Optional",
+    "https:// or the name of the app": "https:// oder der Name der App",
+    "VibeGuard · Team 4": "VibeGuard · Team 4",
+    "Thanks! We'll write back soon.": "Danke! Wir melden uns bald.",
+    "Get early access": "Früher Zugang",
+    "Get early access →": "Früher Zugang →",
+    "The free scan opens soon. Join the waitlist to be the first to try it.": "Der kostenlose Scan startet bald. Trag dich in die Warteliste ein, um ihn als Erste:r zu testen.",
+    "We only use your details to write back about VibeGuard. Ask us any time and we'll delete them.": "Wir nutzen deine Angaben nur, um dir zu VibeGuard zu antworten. Sag uns jederzeit Bescheid, dann löschen wir sie.",
+    "We couldn't save that. Please check your email address and try again.": "Das konnten wir nicht speichern. Bitte prüfe deine E-Mail-Adresse und versuch es erneut.",
+    "We couldn't save that. Please try again.": "Das konnten wir nicht speichern. Bitte versuch es erneut.",
+    "Please enter your name and email.": "Bitte gib deinen Namen und deine E-Mail-Adresse ein.",
+    "👤 Logins and access": "👤 Logins und Zugriff",
+    "What we check.": "Was wir prüfen.",
+    "The mistakes AI coding tools make most often. Up to 70 checks, mapped to the OWASP Top 10.": "Die Fehler, die KI-Coding-Tools am häufigsten machen. Bis zu 70 Prüfungen, zugeordnet zu den OWASP Top 10.",
+    "🔑 Leaked keys": "🔑 Geleakte Schlüssel",
+    "API keys, tokens and passwords anyone can copy from your app or site.": "API-Schlüssel, Tokens und Passwörter, die jeder aus deiner App oder Website kopieren kann.",
+    "🔒 Connections": "🔒 Verbindungen",
+    "Data sent without HTTPS, fake certificates accepted, missing security headers.": "Daten ohne HTTPS, akzeptierte gefälschte Zertifikate, fehlende Sicherheits-Header.",
+    "💉 Code that can be tricked": "💉 Code, der sich austricksen lässt",
+    "SQL, HTML and commands built from what users type.": "SQL, HTML und Befehle, die aus Nutzereingaben gebaut werden.",
+    "Weak login tokens, admin features unlocked in the browser, open CORS.": "Schwache Login-Tokens, im Browser freigeschaltete Admin-Funktionen, offenes CORS.",
+    "📂 Exposed files": "📂 Offene Dateien",
+    ".env files, backups, .git folders and source maps anyone can download.": ".env-Dateien, Backups, .git-Ordner und Source Maps, die jeder herunterladen kann.",
+    "📦 Risky libraries": "📦 Riskante Bibliotheken",
+    "Known security holes, and packages AI tools invented that attackers can register.": "Bekannte Sicherheitslücken und von KI-Tools erfundene Pakete, die Angreifer registrieren können.",
+    "🕵️ Privacy": "🕵️ Datenschutz",
+    "Trackers that start before consent, and the personal data your app can reach.": "Tracker, die vor der Einwilligung starten, und die persönlichen Daten, auf die deine App zugreifen kann.",
+    "✍️ Settings": "✍️ Einstellungen",
+    "Debug builds, unsafe app settings and how your Android or iPhone app is signed.": "Debug-Builds, unsichere App-Einstellungen und wie deine Android- oder iPhone-App signiert ist.",
+    "Why you can trust it.": "Warum du dem vertrauen kannst.",
+    "Rules find the problems. The AI explains them.": "Regeln finden die Probleme. Die KI erklärt sie.",
+    "Same app, same result": "Gleiche App, gleiches Ergebnis",
+    "Fixed security rules find and rate every problem, so checking again gives the same answer.": "Feste Sicherheitsregeln finden und bewerten jedes Problem, deshalb liefert eine erneute Prüfung dasselbe Ergebnis.",
+    "Every fix proven": "Jede Korrektur bewiesen",
+    "We keep a fix only when a second scan shows the problem is gone and nothing new broke.": "Wir behalten eine Korrektur nur, wenn ein zweiter Scan zeigt, dass das Problem weg ist und nichts Neues kaputtging.",
+    "Uploads are deleted after 24 hours, secret files are never kept, and you can only check what you own.": "Uploads werden nach 24 Stunden gelöscht, geheime Dateien werden nie gespeichert, und du kannst nur prüfen, was dir gehört.",
+    "Questions.": "Fragen.",
+    "Do you keep my code?": "Speichert ihr meinen Code?",
+    "No. Uploads and reports are deleted after 24 hours, and signing keys or .env files are never stored.": "Nein. Uploads und Berichte werden nach 24 Stunden gelöscht, und Signaturschlüssel oder .env-Dateien werden nie gespeichert.",
+    "I don't have the source code. Can I still use it?": "Ich habe den Quellcode nicht. Kann ich es trotzdem nutzen?",
+    "Yes. Send your Android app (.apk), your iPhone app (.ipa) or your website's address. Fixing needs the source code.": "Ja. Schick deine Android-App (.apk), deine iPhone-App (.ipa) oder die Adresse deiner Website. Für Korrekturen brauchen wir den Quellcode.",
+    "Which apps work?": "Welche Apps funktionieren?",
+    "Android and iPhone apps, websites, and projects in JavaScript, TypeScript, React, Next.js, Python, Kotlin or Java, including apps built with Lovable, Bolt, Cursor, Replit or v0.": "Android- und iPhone-Apps, Websites und Projekte in JavaScript, TypeScript, React, Next.js, Python, Kotlin oder Java, auch Apps, die mit Lovable, Bolt, Cursor, Replit oder v0 gebaut wurden.",
+    "A real example.": "Ein echtes Beispiel.",
+    "The \"What we checked\" certificate from a real scan of F-Droid, an open-source Android app store.": "Das Zertifikat „Was wir geprüft haben“ aus einem echten Scan von F-Droid, einem Open-Source-App-Store für Android.",
+    "What we checked": "Was wir geprüft haben",
+    "44 checks · OWASP Top 10:2025": "44 Prüfungen · OWASP Top 10:2025",
+    "1 to fix right away": "1 sofort beheben",
+    "4 warnings": "4 Warnungen",
+    "9 to tidy up": "9 zum Aufräumen",
+    "30 checks passed": "30 Prüfungen bestanden",
+    "1 issue": "1 Problem",
+    "2 issues": "2 Probleme",
+    "3 issues": "3 Probleme",
+    "4 issues": "4 Probleme",
+    "Passed": "Bestanden",
+    "Needs a person": "Braucht einen Menschen",
+    "Partly checked": "Teilweise geprüft",
+    "Every issue in the report comes with the file, the line and the evidence. Checking the same app again gives the same result.": "Zu jedem Problem im Bericht gibt es die Datei, die Zeile und den Beleg. Eine erneute Prüfung derselben App liefert dasselbe Ergebnis.",
+    "Is an AI deciding what's wrong?": "Entscheidet eine KI, was falsch ist?",
+    "No. Fixed security rules find and rate the problems; the AI explains them in plain words and writes fixes, which a second scan must prove.": "Nein. Feste Sicherheitsregeln finden und bewerten die Probleme; die KI erklärt sie in einfachen Worten und schreibt Korrekturen, die ein zweiter Scan bestätigen muss.",
+    "A01 Broken Access Control": "A01 Fehlerhafte Zugriffskontrolle",
+    "A02 Security Misconfiguration": "A02 Sicherheitsrelevante Fehlkonfiguration",
+    "A03 Software Supply Chain Failures": "A03 Fehler in der Software-Lieferkette",
+    "A04 Cryptographic Failures": "A04 Kryptografische Fehler",
+    "A05 Injection": "A05 Injection",
+    "A06 Insecure Design": "A06 Unsicheres Design",
+    "A07 Authentication Failures": "A07 Fehler bei der Authentifizierung",
+    "A08 Software or Data Integrity Failures": "A08 Fehler bei Software- oder Datenintegrität",
+    "A09 Security Logging and Alerting Failures": "A09 Fehler bei Sicherheitsprotokollierung und Alarmierung",
+    "A10 Mishandling of Exceptional Conditions": "A10 Fehlerhafte Behandlung von Ausnahmesituationen",
+}
+
+
+# The downloadable HTML report (scanner/report_html.py) and its button.
+REPORT_DOWNLOAD = {
+    "Download report (HTML)": "Bericht herunterladen (HTML)",
+    "Security report": "Sicherheitsbericht",
+    "Report downloaded from VibeGuard": "Bericht heruntergeladen von VibeGuard",
+    "App scan": "App-Scan",
+    "Website scan": "Website-Scan",
+    "About this scan": "Über diesen Scan",
+    "File": "Datei",
+    "Website": "Website",
+    "Scanned at": "Gescannt am",
+    "Raw findings": "Rohbefunde",
+    "Explained by": "Erklärt von",
+    "Engine": "Engine",
+    "severity policy": "Schweregrad-Richtlinie",
+    "Tools": "Werkzeuge",
+    "Signature": "Signatur",
+    "valid": "gültig",
+    "not valid": "ungültig",
+    "Smell": "Smell",
+    "Quick-Scan & Report": "Quick-Scan & Report",
+    "Secret (shortened):": "Geheimnis (gekürzt):",
+    "Note:": "Hinweis:",
+    "Preparing your report. The first download in a new language takes about 30 seconds.":
+        "Dein Bericht wird vorbereitet. Der erste Download in einer neuen Sprache dauert etwa 30 Sekunden.",
 }
 
 

@@ -7,6 +7,7 @@ Docs: http://127.0.0.1:8000/docs  (raw API)
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import re
@@ -18,7 +19,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from scanner.ai import PROVIDERS, get_config, load_dotenv
@@ -33,6 +34,7 @@ from scanner.policy import POLICY_VERSION
 from scanner.rea import rea_available
 from scanner.web import NotVerifiedError, WebScanError, verification_instructions
 from scanner.report import render_text
+from scanner.report_html import LANGUAGES, render_html
 
 load_dotenv()
 log = logging.getLogger("vibeguard")
@@ -133,6 +135,37 @@ def landing_page(request: Request):
 @app.get("/app", include_in_schema=False)
 def scanner_page() -> FileResponse:
     return FileResponse(STATIC_DIR / "index.html")
+
+
+@app.get("/site-config.js", include_in_schema=False)
+def site_config() -> Response:
+    """Settings for the landing page (static/landing.js). The app runs on this same site, so appUrl is ""
+    and the waitlist form posts to /waitlist here instead of to Supabase."""
+    cfg = {"appUrl": "", "contactEmail": os.environ.get("CONTACT_EMAIL") or None}
+    return Response(f"window.VG_SITE = {json.dumps(cfg)};\n", media_type="application/javascript")
+
+
+WAITLIST_PACKAGES = ("", "report", "fix", "improve")
+_waitlist_lock = threading.Lock()
+
+
+@app.post("/waitlist")
+def join_waitlist(name: str = Form(...), email: str = Form(...), package: str = Form(""), link: str = Form(""),
+                  website: str = Form("")) -> dict:
+    """The landing page's "Apply for waitlist" form. Kept in DATA_DIR/waitlist.jsonl."""
+    if website:  # the hidden field only bots fill in
+        return {"ok": True}
+    name, email, link = name.strip()[:100], email.strip().lower()[:200], link.strip()[:300]
+    if not name or not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
+        raise HTTPException(400, "Please enter your name and a valid email address.")
+    if package not in WAITLIST_PACKAGES:
+        raise HTTPException(400, "Unknown package.")
+    entry = {"name": name, "email": email, "package": package or None, "link": link or None, "created": time.time()}
+    with _waitlist_lock:
+        billing.DATA_DIR.mkdir(parents=True, exist_ok=True)
+        with open(billing.DATA_DIR / "waitlist.jsonl", "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry) + "\n")
+    return {"ok": True}
 
 
 @app.get("/health")
@@ -454,7 +487,7 @@ def _respond(state: dict, use_ai: bool, include_text: bool, owner: str | None = 
 def _stored(report_id: str, owner: str | None, reused: bool = False) -> dict:
     """A stored scan as the scan endpoints return it (free result, or the full report if already paid)."""
     record = billing.load_scan(report_id)
-    response = {"report": record["free_report"], "report_id": report_id, "plans": billing.public_plans(),
+    response = {"report": record["free_report"], "report_id": report_id, "plans": billing.public_plans(record),
                 "payments_mode": billing.payments_mode(), "reused": reused}
     if record["paid"] and record["full_report"]:
         response.update(report=record["full_report"], paid=True)
@@ -491,7 +524,7 @@ def get_report(request: Request, report_id: str, include_text: bool = True) -> d
         if record.get("kind") == "source" and record["paid"]:
             return _fix_status(report_id, record)
         if not record["paid"]:
-            return {"report": record["free_report"], "report_id": report_id, "plans": billing.public_plans(),
+            return {"report": record["free_report"], "report_id": report_id, "plans": billing.public_plans(record),
                     "payments_mode": billing.payments_mode()}
         language = record.get("language") or _language(request)
         report = billing.full_report(report_id, lambda state: finish_report(state, use_ai=True, language=language))
@@ -576,7 +609,7 @@ def fixer_max_zip() -> int:
 
 def _fix_status(report_id: str, record: dict) -> dict:
     """A paid source job: the result if done, otherwise start it (once) and report progress."""
-    base = {"report_id": report_id, "paid": True, "plans": billing.public_plans(), "payments_mode": billing.payments_mode()}
+    base = {"report_id": report_id, "paid": True, "plans": billing.public_plans(record), "payments_mode": billing.payments_mode()}
     if record["full_report"]:
         return {**base, "report": record["full_report"], "status": "done"}
     with _fix_jobs_lock:
@@ -608,6 +641,29 @@ def _run_fix_job(report_id: str, job: dict) -> None:
             f"The fixing run stopped: {str(e)[:200]}. Reload the page to try again."
     finally:
         job["done_flag"] = True
+
+
+@app.get("/reports/{report_id}/download/html")
+def download_report_html(request: Request, report_id: str, lang: str | None = None) -> HTMLResponse:
+    """The paid app or website report as one HTML file, in English or German (lang=en|de; default: the
+    page's language cookie). Fixed texts are translated; the AI's wording is written in that language."""
+    language = (lang or _language(request) or "en").lower()
+    if language not in LANGUAGES:
+        raise HTTPException(400, "lang must be en or de.")
+    try:
+        _check_owner(request, billing.report_owner(report_id))
+        record = billing.load_scan(report_id)
+        if record.get("kind") == "source" or not record["paid"] or not record["full_report"]:
+            raise BillingError("The full report is not ready yet. Open it first, then download it.")
+        # Paid in the other language: the AI writes its wording once more in this one (~30 s, then stored).
+        report = billing.report_in_language(report_id, language, lambda state: finish_report(
+            state, use_ai=True, language=language if language != "en" else None))
+    except BillingError as e:
+        raise HTTPException(404, str(e))
+    plan = billing.PLANS.get(record.get("paid_plan") or "", {}).get("name")
+    name = re.sub(r"[^A-Za-z0-9._-]+", "_", report["app"]["package_name"])[:60] or "report"
+    return HTMLResponse(render_html(report, language, plan), headers={
+        "Content-Disposition": f'attachment; filename="{name}-report-{language}.html"'})
 
 
 @app.get("/reports/{report_id}/download/{what}")

@@ -2,9 +2,10 @@
 
 build_report() returns JSON-ready data grouped by severity; render_text() turns it into readable text.
 
-What is counted (issues, severities, locations, order) comes only from the scanners and the severity
-policy, so it is identical on every run. The AI only adds wording, a false-alarm opinion per issue,
-and a separate, uncounted list of suggestions.
+Which issues are found (severities, locations, order, fingerprint) comes only from the scanners and the
+severity policy, so it is identical on every run. The AI adds wording, a false-alarm opinion per issue,
+and a separate, uncounted list of suggestions. Issues it judges false alarms everywhere it looked are
+moved out of the counts into their own list (report["false_alarms"]), so the counts can be lower with AI.
 """
 
 from __future__ import annotations
@@ -63,7 +64,11 @@ def build_report(app_map: dict, scan_result: dict, triaged: dict, ai_result: dic
     for n, s in enumerate(suggestions, 1):
         s["id"] = f"S{n}"
 
-    groups = {key: [i for i in issues if i["severity"] == key] for key, _, _ in GROUPS}
+    # Issues the AI judged false alarms in every place it saw are listed on their own and not counted.
+    # The fingerprint still covers every issue the scanners found, so it does not depend on the AI.
+    false_alarms = [i for i in issues if is_false_alarm(i)]
+    counted = [i for i in issues if not is_false_alarm(i)]
+    groups = {key: [i for i in counted if i["severity"] == key] for key, _, _ in GROUPS}
     summary = ai_result["app_summary"]
     return {
         "target": target,
@@ -83,9 +88,11 @@ def build_report(app_map: dict, scan_result: dict, triaged: dict, ai_result: dic
         "counts": {key: len(groups[key]) for key, _, _ in GROUPS},
         "result_fingerprint": result_fingerprint(issues),
         "issues": {key: groups[key] for key, _, _ in GROUPS},
+        "false_alarms": false_alarms,
         "ai_suggestions": suggestions,
         "ai_review": {
-            "likely_false_alarms": sum(1 for i in issues if (i["ai_review"] or {}).get("verdict") == "likely_false_alarm"),
+            "likely_false_alarms": len(false_alarms),
+            "scanner_counts": {key: sum(1 for i in issues if i["severity"] == key) for key, _, _ in GROUPS},
             "suggestions": len(suggestions),
         },
         "scan": {
@@ -148,8 +155,13 @@ def _merge_by_rule(items: dict, explained: dict) -> list[dict]:
     return issues
 
 
+def is_false_alarm(issue: dict) -> bool:
+    return (issue.get("ai_review") or {}).get("verdict") == "likely_false_alarm"
+
+
 def _ai_review(examples: list[dict]) -> dict | None:
-    """The AI's opinion on the examples it saw. It is shown next to the issue but never moves or removes it."""
+    """The AI's opinion on the examples it saw. "likely_false_alarm" (every example) moves the issue out of the
+    counts into the report's false_alarms list; "partly_false_alarm" is shown next to a counted issue."""
     reviewed = [e for e in examples if e["explained_by"] == "ai"]
     if not reviewed:
         return None
@@ -216,6 +228,9 @@ def render_text(report: dict) -> str:
     out += ["", "At a glance: " + " · ".join([
         f"{counts['critical']} critical", f"{counts['warning']} warnings", f"{counts['smell']} smells"])
         + f"   (result fingerprint {report['result_fingerprint']})"]
+    if report.get("false_alarms"):
+        fa = len(report["false_alarms"])
+        out.append(f"Not counted: {fa} probable false alarm{'s' if fa != 1 else ''} (listed at the end)")
     if not report["scan"].get("ai"):
         out += ["", "AI explanations were not used for this report: the issues and severities are the same as",
                 "with AI, and the descriptions are the scanner policy's standard wording."]
@@ -228,30 +243,44 @@ def render_text(report: dict) -> str:
     bullets("WHO IT TALKS TO", app["talks_to"])
 
     n = 0
+
+    def issue_block(issue: dict) -> None:
+        nonlocal n
+        n += 1
+        out.append("")
+        out.append(textwrap.fill(f"{n}. {issue['title']}", WIDTH, subsequent_indent="   "))
+        para(issue["explanation"], "   ")
+        if issue.get("secret_preview"):
+            out.append(f"   Secret (shortened): {issue['secret_preview']}")
+        if issue["fix"]:
+            out.append(textwrap.fill(f"How to fix: {issue['fix']}", WIDTH, initial_indent="   ",
+                                     subsequent_indent="   "))
+        review = issue["ai_review"]
+        if review and review["verdict"] in VERDICT_TEXT:
+            counted = "not counted above" if review["verdict"] == "likely_false_alarm" else \
+                "still counted until a person checks it"
+            out.append(textwrap.fill(f"{VERDICT_TEXT[review['verdict']]}: {review['reason']} ({counted})", WIDTH,
+                                     initial_indent="   ", subsequent_indent="   "))
+        out.append(f"   Where: {_where(issue)}")
+        std = issue["standard"]
+        out.append(f"   {issue['kind_label']} · {std['control']}" + (f" · {std['cwe']}" if std["cwe"] else "")
+                   + f" · found by {issue['found_by']}")
+
     for key, label, advice in GROUPS:
         issues = report["issues"][key]
         out += ["", "─" * WIDTH, f"{ICONS[key]} {label.upper()} - {advice} ({len(issues)})", "─" * WIDTH]
         if not issues:
             out.append("  Nothing found.")
         for issue in issues:
-            n += 1
-            out.append("")
-            out.append(textwrap.fill(f"{n}. {issue['title']}", WIDTH, subsequent_indent="   "))
-            para(issue["explanation"], "   ")
-            if issue.get("secret_preview"):
-                out.append(f"   Secret (shortened): {issue['secret_preview']}")
-            if issue["fix"]:
-                out.append(textwrap.fill(f"How to fix: {issue['fix']}", WIDTH, initial_indent="   ",
-                                         subsequent_indent="   "))
-            review = issue["ai_review"]
-            if review and review["verdict"] in VERDICT_TEXT:
-                out.append(textwrap.fill(f"{VERDICT_TEXT[review['verdict']]}: {review['reason']} (still counted "
-                                         "until a person checks it)", WIDTH, initial_indent="   ",
-                                         subsequent_indent="   "))
-            out.append(f"   Where: {_where(issue)}")
-            std = issue["standard"]
-            out.append(f"   {issue['kind_label']} · {std['control']}" + (f" · {std['cwe']}" if std["cwe"] else "")
-                       + f" · found by {issue['found_by']}")
+            issue_block(issue)
+
+    false_alarms = report.get("false_alarms") or []
+    if false_alarms:
+        out += ["", "─" * WIDTH, f"🔕 PROBABLY FALSE ALARMS - not counted above ({len(false_alarms)})", "─" * WIDTH]
+        para("The scanner rules flagged these, but the AI read the code and judged them safe. Check them once "
+             "before you ignore them.", "  ")
+        for issue in false_alarms:
+            issue_block(issue)
 
     suggestions = report["ai_suggestions"]
     if suggestions:

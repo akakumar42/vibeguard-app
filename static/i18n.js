@@ -153,7 +153,7 @@
   const style = document.createElement("style");
   style.textContent = `.lang-switch{display:inline-flex;gap:2px;padding:2px;border:1px solid var(--border);border-radius:8px;background:var(--card,transparent);vertical-align:middle;margin-right:10px}
     .lang-switch button{font:600 11.5px var(--mono,monospace);letter-spacing:.04em;border:none;background:none;color:var(--muted);padding:4px 7px;border-radius:6px;cursor:pointer}
-    .lang-switch button[aria-pressed="true"]{background:var(--accent);color:var(--accent-text)}`;
+    .lang-switch button[aria-pressed="true"]{background:var(--lime,var(--accent));color:#121410}`;
   document.head.append(style);
 
   function start() {
