@@ -576,6 +576,17 @@ window.VG_DE = {
 "1 place": "1 Stelle",
 "Free scan, about a minute": "Kostenloser Scan, etwa eine Minute",
 "Uploads deleted after 24 hours": "Uploads werden nach 24 Stunden gelöscht",
+"Fixable now": "Jetzt behebbar",
+"By package": "Nach Paket",
+"What each package fixes": "Was jedes Paket behebt",
+"Issues fixed and proven": "Probleme behoben und bewiesen",
+"How every fix was checked": "So wurde jede Korrektur geprüft",
+"Apply the fixes": "Korrekturen anwenden",
+"In your project folder:": "In deinem Projektordner:",
+"Search changes or files…": "Änderungen oder Dateien suchen…",
+"A leaked key can't be fixed in code alone: you revoke it, and we explain how.": "Ein geleakter Schlüssel lässt sich nicht allein im Code beheben: Du sperrst ihn, und wir erklären, wie.",
+"Secure & Auto-Fix and the Deep Architecture Audit both fix this, and keep the fix only when a re-scan proves it.": "Secure & Auto-Fix und das Deep Architecture Audit beheben das beide und behalten die Korrektur nur, wenn ein erneuter Scan sie beweist.",
+"The Deep Architecture Audit cleans this up, proven by a re-scan.": "Das Deep Architecture Audit räumt das auf, bewiesen durch einen erneuten Scan.",
 "Please sign in with your email to scan. It's free and takes a minute.": "Bitte melde dich mit deiner E-Mail-Adresse an, um zu scannen. Es ist kostenlos und dauert eine Minute.",
 "Scan refused: you must confirm you own this app or have permission to test it (i_am_authorized=true).": "Scan abgelehnt: Du musst bestätigen, dass dir diese App gehört oder du sie testen darfst.",
 "The deep engine is not installed on this server; choose Fast · jadx.": "Die gründliche Engine ist auf diesem Server nicht installiert; wähle Schnell · jadx.",
@@ -1086,6 +1097,14 @@ window.VG_DE = {
 [
 "What we found in your (app|website)",
 "Was wir in deiner $1 gefunden haben"
+],
+[
+"What we found in your code",
+"Was wir in deinem Code gefunden haben"
+],
+[
+"Measured · (\\d[\\d,]*)",
+"Gemessen · $1"
 ],
 [
 "Not counted: (\\d[\\d,]*) probable false alarms \\(listed below the issues\\)",

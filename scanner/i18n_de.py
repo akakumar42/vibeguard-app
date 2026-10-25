@@ -901,6 +901,8 @@ PATTERNS = [
     (r"1 place · (CWE-\d+)", "1 Stelle · $1"),
     (rf"{N} places · (CWE-\d+)", "$1 Stellen · $2"),
     (r"What we found in your (app|website)", "Was wir in deiner $1 gefunden haben"),
+    (r"What we found in your code", "Was wir in deinem Code gefunden haben"),
+    (rf"Measured · {N}", "Gemessen · $1"),
     (rf"Not counted: {N} probable false alarms \(listed below the issues\)",
      "Nicht gezählt: $1 wahrscheinliche Fehlalarme (unter den Problemen aufgeführt)"),
     (r"(.+?) · AI rates it (\w+) · confidence (\w+)(.*)", "$1 · KI-Einschätzung: $2 · Sicherheit: $3$4"),
@@ -1292,6 +1294,20 @@ DASHBOARD = {
     "1 place": "1 Stelle",
     "Free scan, about a minute": "Kostenloser Scan, etwa eine Minute",
     "Uploads deleted after 24 hours": "Uploads werden nach 24 Stunden gelöscht",
+    "Fixable now": "Jetzt behebbar",
+    "By package": "Nach Paket",
+    "What each package fixes": "Was jedes Paket behebt",
+    "Issues fixed and proven": "Probleme behoben und bewiesen",
+    "How every fix was checked": "So wurde jede Korrektur geprüft",
+    "Apply the fixes": "Korrekturen anwenden",
+    "In your project folder:": "In deinem Projektordner:",
+    "Search changes or files…": "Änderungen oder Dateien suchen…",
+    "A leaked key can't be fixed in code alone: you revoke it, and we explain how.":
+        "Ein geleakter Schlüssel lässt sich nicht allein im Code beheben: Du sperrst ihn, und wir erklären, wie.",
+    "Secure & Auto-Fix and the Deep Architecture Audit both fix this, and keep the fix only when a re-scan proves it.":
+        "Secure & Auto-Fix und das Deep Architecture Audit beheben das beide und behalten die Korrektur nur, wenn ein erneuter Scan sie beweist.",
+    "The Deep Architecture Audit cleans this up, proven by a re-scan.":
+        "Das Deep Architecture Audit räumt das auf, bewiesen durch einen erneuten Scan.",
 }
 
 
