@@ -574,6 +574,8 @@ window.VG_DE = {
 "Probably a false alarm": "Wahrscheinlich ein Fehlalarm",
 "Where it is, why it matters and how to fix it": "Wo es steckt, warum es wichtig ist und wie du es behebst",
 "1 place": "1 Stelle",
+"Free scan, about a minute": "Kostenloser Scan, etwa eine Minute",
+"Uploads deleted after 24 hours": "Uploads werden nach 24 Stunden gelöscht",
 "Please sign in with your email to scan. It's free and takes a minute.": "Bitte melde dich mit deiner E-Mail-Adresse an, um zu scannen. Es ist kostenlos und dauert eine Minute.",
 "Scan refused: you must confirm you own this app or have permission to test it (i_am_authorized=true).": "Scan abgelehnt: Du musst bestätigen, dass dir diese App gehört oder du sie testen darfst.",
 "The deep engine is not installed on this server; choose Fast · jadx.": "Die gründliche Engine ist auf diesem Server nicht installiert; wähle Schnell · jadx.",

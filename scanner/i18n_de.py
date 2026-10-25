@@ -1290,6 +1290,8 @@ DASHBOARD = {
     "Probably a false alarm": "Wahrscheinlich ein Fehlalarm",
     "Where it is, why it matters and how to fix it": "Wo es steckt, warum es wichtig ist und wie du es behebst",
     "1 place": "1 Stelle",
+    "Free scan, about a minute": "Kostenloser Scan, etwa eine Minute",
+    "Uploads deleted after 24 hours": "Uploads werden nach 24 Stunden gelöscht",
 }
 
 

@@ -206,17 +206,17 @@ def render_html(report: dict, language: str = "en", paid_plan: str | None = None
 
 
 CSS = """
-:root { --bg: #f5f7fc; --card: #fff; --text: #0d1222; --muted: #5a6277; --border: #e3e7f0; --code-bg: #f3f5fb;
-  --accent: #1f4fe0; --accent-soft: #e9efff; --critical: #d0342c; --critical-bg: #fde9e8; --warning: #b36b00; --warning-bg: #fff3dc;
-  --smell: #5b50d6; --smell-bg: #eeecff; color-scheme: light; }
+:root { --bg: #f1f4ef; --card: #fff; --text: #141a12; --muted: #58634f; --border: #d7ddd2; --code-bg: #f4f7f1;
+  --accent: #3f7d1e; --accent-soft: #e3f0d6; --critical: #b4322a; --critical-bg: #f7e2e0; --warning: #9a6a12; --warning-bg: #f6ebd6;
+  --smell: #3a5a93; --smell-bg: #e2e9f5; color-scheme: light; }
 * { box-sizing: border-box; }
-body { margin: 0; background: radial-gradient(rgba(31,79,224,.08) 1px, transparent 1.2px) 0 0 / 22px 22px, var(--bg); color: var(--text);
+body { margin: 0; background: radial-gradient(rgba(63,125,30,.09) 1px, transparent 1.2px) 0 0 / 22px 22px, var(--bg); color: var(--text);
   font: 15px/1.55 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 h1, h2, h4 { font-family: "Inter Tight", Inter, -apple-system, "Segoe UI", sans-serif; letter-spacing: -.02em; }
 main { max-width: 860px; margin: 0 auto; padding: 28px 16px 48px; }
 .brand { font: 600 12px ui-monospace, Menlo, monospace; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); margin: 0 0 18px; }
 header, .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 22px 24px; margin-bottom: 18px;
-  box-shadow: 0 1px 2px rgba(13,18,34,.04), 0 10px 30px rgba(31,79,224,.07); }
+  box-shadow: 0 1px 2px rgba(13,18,34,.04), 0 10px 30px rgba(63,125,30,.07); }
 h1 { font-size: 26px; line-height: 1.2; margin: 8px 0 4px; font-weight: 800; } h2 { font-size: 18px; margin: 0; } h3 { font-size: 14px; margin: 16px 0 6px; }
 h4 { font-size: 15px; margin: 0; }
 .eyebrow, .muted, .meta { color: var(--muted); font-size: 13px; } .eyebrow { margin: 0; }
