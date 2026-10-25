@@ -1,0 +1,11 @@
+# Finds every Java method and constructor; scanner/structure.py measures them (no findings by itself).
+rules:
+  - id: method-declaration
+    languages: [java]
+    severity: INFO
+    message: method
+    pattern-either:
+      - pattern: |
+          $RET $NAME(...) { ... }
+      - pattern: |
+          $NAME(...) { ... }

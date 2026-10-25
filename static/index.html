@@ -1,0 +1,1412 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VibeGuard</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  /* VibeGuard design tokens (light; dark below). */
+  :root {
+    --bg: #f1f4ef; --card: #ffffff; --surface-2: #f4f7f1; --panel: #0c120b; --panel-fg: #cfe6b8;
+    --text: #141a12; --muted: #58634f; --faint: #828e78; --border: #d7ddd2;
+    --accent: #3f7d1e; --accent-bright: #6fbf33; --accent-text: #ffffff; --accent-soft: #e3f0d6;
+    --critical: #b4322a; --critical-bg: #f7e2e0;
+    --warning: #9a6a12; --warning-bg: #f6ebd6;
+    --smell: #3a5a93; --smell-bg: #e2e9f5;
+    --fine: #3f7d1e; --fine-bg: #e3f0d6; --code-bg: #f4f7f1;
+    --shadow: 0 1px 2px rgba(16,24,16,.06), 0 8px 24px rgba(16,24,16,.07);
+    --display: "Archivo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #0a0e09; --card: #121810; --surface-2: #0e130c; --panel: #050804;
+    --text: #e7ece2; --muted: #9aa78d; --faint: #6a7760; --border: #242c1f;
+    --accent: #8fd14f; --accent-bright: #a6e85f; --accent-text: #0a1204; --accent-soft: #1c2a12;
+    --critical: #e86b62; --critical-bg: #3a1f1d; --warning: #d9a23f; --warning-bg: #352a16;
+    --smell: #7aa0dd; --smell-bg: #1b2740; --fine: #8fd14f; --fine-bg: #1c2a12; --code-bg: #0e130c;
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 12px 34px rgba(0,0,0,.55);
+    color-scheme: dark;
+  } }
+  :root[data-theme="dark"] {
+    --bg: #0a0e09; --card: #121810; --surface-2: #0e130c; --panel: #050804;
+    --text: #e7ece2; --muted: #9aa78d; --faint: #6a7760; --border: #242c1f;
+    --accent: #8fd14f; --accent-bright: #a6e85f; --accent-text: #0a1204; --accent-soft: #1c2a12;
+    --critical: #e86b62; --critical-bg: #3a1f1d; --warning: #d9a23f; --warning-bg: #352a16;
+    --smell: #7aa0dd; --smell-bg: #1b2740; --fine: #8fd14f; --fine-bg: #1c2a12; --code-bg: #0e130c;
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 12px 34px rgba(0,0,0,.55);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 var(--body); -webkit-font-smoothing: antialiased; }
+  main { max-width: 860px; margin: 0 auto; padding: 28px max(16px, env(safe-area-inset-left, 0px)) 64px; }
+  h1, h2, h3, h4 { text-wrap: balance; font-family: var(--display); }
+  h2 { font-size: 20px; font-weight: 800; margin: 0 0 6px; letter-spacing: -.01em; }
+  h3 { font-size: 15px; font-weight: 700; }
+  a { color: var(--accent); }
+  .muted { color: var(--muted); }
+  .small { font-size: 13.5px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin: 16px 0; box-shadow: var(--shadow); }
+  .hidden { display: none !important; }
+
+  /* header */
+  .head-tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .head-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .masthead { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .mark { width: 34px; height: 40px; flex: none; }
+  .logo { font-family: var(--display); font-weight: 800; font-size: 27px; letter-spacing: -.02em; margin: 0; }
+  .logo .g { color: var(--accent); }
+  .tag { font-family: var(--mono); font-size: 12px; color: var(--faint); text-transform: uppercase; letter-spacing: .08em; }
+  .lede { color: var(--muted); margin: 10px 0 22px; max-width: 62ch; }
+  .account { color: var(--muted); overflow-wrap: anywhere; font-family: var(--mono); font-size: 12.5px; }
+  .account button.link { font-size: 12.5px; margin-left: 8px; }
+
+  /* tabs: segmented control */
+  .tabs { display: flex; gap: 4px; padding: 5px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 11px; margin: 0 0 14px; }
+  .tabs button { flex: 1; font-family: var(--display); font-weight: 700; font-size: 14px; border: none; background: none;
+                 color: var(--muted); padding: 10px 6px; border-radius: 8px; cursor: pointer; }
+  .tabs button[aria-selected="true"] { background: var(--card); color: var(--text); box-shadow: var(--shadow); }
+  #upload, #web, #source { margin-top: 0; }
+
+  /* drop zones */
+  #drop, #src-drop { border: 1.5px dashed var(--border); border-radius: 12px; background: var(--surface-2); padding: 30px 20px;
+                     text-align: center; cursor: pointer; transition: border-color .15s, background .15s; }
+  #drop:hover, #drop.over, #drop:focus-visible, #src-drop:hover, #src-drop.over, #src-drop:focus-visible { border-color: var(--accent); background: var(--accent-soft); outline: none; }
+  #drop.has-file, #src-drop.has-file { border-style: solid; border-color: var(--accent); background: var(--accent-soft); }
+  #drop strong, #src-drop strong { display: block; font-family: var(--display); font-weight: 700; font-size: 18px; margin-bottom: 4px; overflow-wrap: anywhere; }
+  #drop .muted, #src-drop .muted { font-size: 13px; }
+  .drop-icon { width: 38px; height: 38px; margin: 0 auto 12px; display: block; stroke: var(--accent); }
+
+  /* form */
+  label strong { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); font-weight: 500; }
+  .row { display: flex; gap: 10px; align-items: flex-start; margin: 14px 0; padding: 12px 14px; border-radius: 9px; background: var(--warning-bg); font-size: 13.5px; }
+  .row input { margin-top: 2px; width: 16px; height: 16px; flex: none; accent-color: var(--accent); }
+  input[type=url], input[type=email], #signin-code, #magic-email {
+    font: 14px var(--mono); width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--surface-2); color: var(--text); margin-top: 6px; min-width: 0; }
+  input[type=url]:focus, input[type=email]:focus, #signin-code:focus, #magic-email:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+  #signin label { display: block; margin-top: 10px; }
+  #signin .or { margin: 18px 0 0; display: flex; align-items: center; gap: 12px; font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); }
+  #signin .or::before, #signin .or::after { content: ""; height: 1px; background: var(--border); flex: 1; }
+  #signin-code { letter-spacing: .3em; max-width: 220px; font-size: 18px; }
+  .demo-inbox { background: var(--warning-bg); color: var(--warning); border-radius: 10px; padding: 12px 14px; margin: 10px 0 14px; }
+  .demo-inbox span { display: block; font-size: 13.5px; }
+  .demo-inbox .demo-code { font: 600 28px var(--mono); letter-spacing: .25em; margin-top: 6px; }
+  .verify { border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 12px; padding: 14px 16px; margin: 14px 0; background: var(--surface-2); }
+  .verify.refused { border-left-color: var(--warning); background: var(--warning-bg); }
+  .verify h3 { margin: 0 0 6px; font-size: 16px; }
+  .verify code { font: 12.5px var(--mono); background: var(--card); border: 1px solid var(--border); border-radius: 5px; padding: 1px 5px; }
+  .verify ol { margin: 8px 0; }
+  .token-row { display: flex; gap: 8px; align-items: center; }
+  .verify .method { margin: 10px 0 4px; }
+  .verify .token { white-space: pre-wrap; }
+  .verify details { margin: 10px 0; }
+  .token-row .token { flex: 1; margin: 4px 0; }
+  .demo-site { margin: 8px 0 0; color: var(--muted); }
+  .token { font: 13px var(--mono); overflow-wrap: anywhere; background: var(--panel); color: var(--panel-fg); border-radius: 8px; padding: 10px 12px; margin: 8px 0; }
+
+  /* buttons */
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 16px; }
+  button, a.button { font: 600 14px var(--body); border-radius: 10px; padding: 10px 18px; cursor: pointer; border: 1px solid var(--border);
+                     background: var(--card); color: var(--text); text-decoration: none; display: inline-block; transition: transform .08s, filter .15s; }
+  button.primary, a.button.primary { font-family: var(--display); font-weight: 700; font-size: 15px; background: var(--accent);
+                     color: var(--accent-text); border-color: var(--accent); padding: 12px 24px; }
+  button.primary:hover:not(:disabled), a.button.primary:hover { transform: translateY(-1px); filter: brightness(1.05); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.link { border: none; background: none; color: var(--accent); padding: 4px 0; font-weight: 600; }
+  button.small { padding: 6px 12px; font-size: 13px; }
+
+  /* engine switch */
+  .engine { border: none; padding: 0; margin: 14px 0 4px; }
+  .engine legend { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); margin-bottom: 6px; }
+  .switch { display: inline-flex; gap: 4px; padding: 4px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; max-width: 100%; }
+  .switch input { position: absolute; opacity: 0; pointer-events: none; }
+  .switch label { padding: 8px 14px; cursor: pointer; color: var(--muted); border-radius: 7px; font-family: var(--display); font-weight: 700; font-size: 13.5px; }
+  .switch input:checked + label { background: var(--card); color: var(--text); box-shadow: var(--shadow); }
+  .switch input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .switch input:disabled + label { opacity: .45; cursor: not-allowed; }
+
+  /* progress */
+  #progress-title::before { content: ""; display: inline-block; width: 16px; height: 16px; margin-right: 10px; vertical-align: -2px;
+    border: 2.5px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .bar { height: 8px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 99px; overflow: hidden; margin: 14px 0; }
+  .bar > div { height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-bright)); transition: width .4s; }
+  .steps { list-style: none; padding: 0; margin: 12px 0 0; }
+  .steps li { padding: 5px 0 5px 28px; position: relative; color: var(--faint); }
+  .steps li::before { content: "○"; position: absolute; left: 4px; }
+  .steps li.active { color: var(--text); font-weight: 600; }
+  .steps li.active::before { content: "◐"; color: var(--accent); }
+  .steps li.done { color: var(--muted); }
+  .steps li.done::before { content: "✓"; color: var(--accent); }
+  #elapsed { font-family: var(--mono); font-size: 12px; }
+  .error { border-color: transparent; background: var(--critical-bg); color: var(--critical); }
+
+  /* report: tiles */
+  .glance { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0 6px; }
+  .tile { border-radius: 12px; padding: 14px 16px; border: 1px solid var(--border); background: var(--card); border-top-width: 3px; }
+  .tile .n { font-family: var(--display); font-weight: 800; font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .tile .l { font: 500 11.5px var(--mono); text-transform: uppercase; letter-spacing: .06em; margin-top: 8px; color: var(--muted); }
+  .tile.critical { border-top-color: var(--critical); } .tile.critical .n { color: var(--critical); }
+  .tile.warning { border-top-color: var(--warning); } .tile.warning .n { color: var(--warning); }
+  .tile.smell { border-top-color: var(--smell); } .tile.smell .n { color: var(--smell); }
+  .tile .n .was { font-size: 18px; color: var(--faint); font-weight: 700; }
+  @media (max-width: 520px) {
+    .glance { gap: 8px; }
+    .tile { padding: 10px 10px 12px; }
+    .tile .n { font-size: 24px; }
+    .tile .n .was { font-size: 14px; }
+    .tile .l { font-size: 10px; letter-spacing: .04em; }
+    .tabs button { font-size: 13px; padding: 9px 4px; }
+  }
+  .chip { font: 500 12px var(--mono); padding: 2px 8px; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--border); color: var(--muted); }
+
+  .group-head { display: flex; align-items: baseline; gap: 10px; margin: 30px 0 10px; flex-wrap: wrap; }
+  .group-head h2 { margin: 0; }
+  .group-head .muted { font: 12px var(--mono); text-transform: uppercase; letter-spacing: .05em; }
+  .issue { border-left: 4px solid var(--border); padding: 16px 18px; margin: 10px 0; }
+  .issue.critical { border-left-color: var(--critical); }
+  .issue.warning { border-left-color: var(--warning); }
+  .issue.smell { border-left-color: var(--smell); }
+  .issue.suggestion { border-left-color: var(--accent); border-style: dashed; }
+  .issue h4 { margin: 0 0 6px; font-size: 16.5px; font-weight: 700; }
+  .issue p { margin: 6px 0; }
+  .sev { font: 600 10.5px var(--mono); text-transform: uppercase; letter-spacing: .06em; padding: 2px 7px; border-radius: 5px; white-space: nowrap; }
+  .sev.critical { background: var(--critical-bg); color: var(--critical); }
+  .sev.warning { background: var(--warning-bg); color: var(--warning); }
+  .sev.smell { background: var(--smell-bg); color: var(--smell); }
+  .fix-title { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .fix { background: var(--accent-soft); border-radius: 10px; padding: 10px 12px; margin: 10px 0; }
+  .fix-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .fix-head strong { font: 500 11px var(--mono); text-transform: uppercase; letter-spacing: .05em; color: var(--accent); }
+  .fix p { margin: 4px 0 0; overflow-wrap: anywhere; }
+  .meta { font: 12px/1.5 var(--mono); color: var(--faint); overflow-wrap: anywhere; }
+  .where { font-family: var(--mono); font-size: 12px; }
+  details summary { cursor: pointer; color: var(--accent); font-size: 13.5px; font-weight: 600; margin-top: 8px; }
+  ul.plain, ol.plain { margin: 6px 0; padding-left: 20px; }
+  ul.plain li, ol.plain li { margin: 3px 0; }
+  .review { font-size: 13.5px; border-radius: 8px; padding: 8px 12px; margin: 8px 0; background: var(--smell-bg); }
+  .banner { border-color: transparent; background: var(--warning-bg); }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  /* badges, checks, plans */
+  .badge { font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .06em; border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
+  .badge.fixed, .badge.fixable { color: var(--fine); background: var(--fine-bg); }
+  .badge.partly, .badge.later { color: var(--smell); background: var(--smell-bg); }
+  .badge.manual { color: var(--critical); background: var(--critical-bg); }
+  .checks { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px; }
+  .check { font: 500 12px var(--mono); border-radius: 7px; padding: 4px 10px; }
+  .check.ok { color: var(--fine); background: var(--fine-bg); }
+  .check.warn { color: var(--warning); background: var(--warning-bg); }
+  .migration { background: var(--warning-bg); color: var(--warning); border-radius: 8px; padding: 8px 12px; font-size: 13.5px; }
+  pre.diff { background: var(--panel); color: var(--panel-fg); border-radius: 8px; padding: 12px 14px; overflow-x: auto; font: 12.5px/1.55 var(--mono); margin: 8px 0 0; }
+  pre.diff .d-add { color: #8fd14f; }
+  pre.diff .d-del { color: #ff8a80; }
+  pre.diff .d-hunk, pre.diff .d-file { color: #7d8b72; }
+  .plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+  .plans .card { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+  .plans .card h3 { margin: 0; font: 600 12px var(--mono); text-transform: uppercase; letter-spacing: .07em; color: var(--faint); }
+  .plans .card button { margin-top: auto; }
+  .plan.featured { border: 2px solid var(--accent); }
+  .price { font-family: var(--display); font-size: 32px; font-weight: 800; margin: 0; letter-spacing: -.02em; }
+  .locked-line { color: var(--faint); margin: 6px 0 0; font-size: 13px; }
+  .demo-badge { font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--warning); background: var(--warning-bg); border-radius: 999px; padding: 3px 9px; }
+  .reused { background: var(--fine-bg); color: var(--fine); border-radius: 8px; padding: 8px 12px; font-size: 13.5px; }
+  .free-left { margin: 12px 0 0; font-family: var(--mono); font-size: 12px; }
+  .free-left.none-left { color: var(--warning); font-weight: 600; }
+  .paid-note { color: var(--fine); font: 600 12px var(--mono); text-transform: uppercase; letter-spacing: .06em; margin: 0 0 6px; }
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text); color: var(--bg);
+           padding: 8px 16px; border-radius: 8px; font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+  footer.foot { margin-top: 40px; font-size: 12px; color: var(--faint); line-height: 1.6; }
+  footer.foot code { font-family: var(--mono); background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+  @media (prefers-reduced-motion: reduce) { #progress-title::before { animation: none; } button.primary:hover { transform: none; } }
+</style>
+<script src="/static/i18n-de.js"></script>
+<script src="/static/i18n.js"></script>
+</head>
+<body>
+<main>
+  <header>
+    <div class="head-row">
+      <a class="masthead" id="home-link" href="/" style="text-decoration:none;color:inherit" aria-label="VibeGuard home">
+        <svg class="mark" viewBox="0 0 34 40" fill="none" aria-hidden="true">
+          <path d="M17 2 31 7v13c0 9-6 15-14 18C9 35 3 29 3 20V7z" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>
+          <text x="17" y="19" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" font-weight="600" fill="var(--accent)">{/}</text>
+          <path d="m11 25 4 4 8-8" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h1 class="logo">Vibe<span class="g">Guard</span></h1>
+        <span class="tag">scan · explain · fix</span>
+      </a>
+      <div class="head-tools" data-lang-host>
+      <div id="account" class="account small hidden">
+        <span id="account-email"></span>
+        <button id="sign-out" class="link">Sign out</button>
+      </div>
+      </div>
+    </div>
+    <p class="lede">Point VibeGuard at an app or website you built and own. It finds the security holes, bugs and code
+      smells that AI coding tools leave behind, explains each one in plain English, and can fix them in your code.</p>
+  </header>
+
+  <!-- 0. sign in -->
+  <section id="signin" class="card hidden">
+    <h2>Sign in to scan</h2>
+    <p class="muted small" id="signin-why">Free scans are counted per person, so we need a verified email. No password needed.</p>
+    <div id="signin-supabase" class="hidden">
+      <div class="actions"><button class="primary google" id="google-signin" type="button">Continue with Google</button></div>
+      <form id="magic-form" class="hidden">
+        <p class="or muted small">or get a sign-in link by email</p>
+        <label for="magic-email"><strong>Email</strong></label>
+        <input id="magic-email" type="email" autocomplete="email" required placeholder="you@example.com">
+        <div class="actions"><button id="magic-send" type="submit">Email me a sign-in link</button></div>
+      </form>
+      <p class="small hidden" id="magic-sent"></p>
+    </div>
+    <div id="signin-local">
+    <form id="signin-email-form">
+      <label for="signin-email"><strong>Email</strong></label>
+      <input id="signin-email" type="email" autocomplete="email" required placeholder="you@example.com">
+      <div class="actions"><button class="primary" id="send-code" type="submit">Send code</button></div>
+    </form>
+    <form id="signin-code-form" class="hidden">
+      <p class="small" id="code-sent-to"></p>
+      <div id="demo-inbox" class="demo-inbox hidden" role="note">
+        <strong>Demo inbox: no email was sent</strong>
+        <span>This server runs in email demo mode, so the code is shown here. With SMTP configured it arrives by email.</span>
+        <span class="demo-code" id="demo-code"></span>
+      </div>
+      <label for="signin-code"><strong>6-digit code</strong></label>
+      <input id="signin-code" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required placeholder="123456">
+      <div class="actions">
+        <button class="primary" id="verify-code" type="submit">Sign in</button>
+        <button class="small" id="resend-code" type="button">Send a new code</button>
+        <button class="link" id="change-email" type="button">Use a different email</button>
+      </div>
+    </form>
+    </div>
+  </section>
+
+  <div class="tabs" role="tablist">
+    <button id="tab-apk" role="tab" aria-selected="true" aria-controls="upload">Android app</button>
+    <button id="tab-web" role="tab" aria-selected="false" aria-controls="web">Website</button>
+    <button id="tab-src" role="tab" aria-selected="false" aria-controls="source">Fix my code</button>
+  </div>
+
+  <!-- 1. upload -->
+  <section id="upload" class="card">
+    <div id="drop" tabindex="0" role="button" aria-label="Choose an APK file">
+      <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      <strong id="drop-title">Drop your .apk file here</strong>
+      <span id="drop-sub" class="muted">or click to choose one (up to <span id="max-mb">150</span> MB)</span>
+      <input id="file" type="file" accept=".apk,application/vnd.android.package-archive" hidden>
+    </div>
+
+    <label class="row">
+      <input id="authorized" type="checkbox">
+      <span>I own this app, or I have permission to test it.</span>
+    </label>
+    <p class="muted small">Free: see how many problems your app has and what they are. The $9 report shows where each one is and how to fix it.</p>
+    <fieldset class="engine">
+      <legend>Decompiler</legend>
+      <div class="switch" role="radiogroup">
+        <input type="radio" name="engine" id="engine-jadx" value="jadx" checked><label for="engine-jadx">Fast · jadx</label>
+        <input type="radio" name="engine" id="engine-rea" value="rea"><label for="engine-rea">Deep · VibeGuard engine</label>
+      </div>
+      <p class="muted small" id="engine-note"></p>
+    </fieldset>
+
+    <div class="actions">
+      <button id="scan" class="primary" disabled>Scan app</button>
+      <button id="example" class="link">or view an example report</button>
+    </div>
+    <p class="muted small free-left" data-free-left></p>
+  </section>
+
+  <!-- 1b. website -->
+  <section id="web" class="card hidden">
+    <label for="web-url"><strong>Website address</strong></label>
+    <input id="web-url" type="url" placeholder="https://myapp.com" autocomplete="url" spellcheck="false">
+    <p class="muted small">We load the page like a visitor would, check the code it sends to browsers and the server's
+      security settings. Nothing is changed on your site. You can only scan websites you own.</p>
+    <p class="small demo-site hidden" id="demo-site-hint">Just trying VibeGuard?
+      <button class="link" id="use-demo-site" type="button">Scan the built-in demo site</button> (it has problems planted on purpose).</p>
+    <div id="verify-box" class="verify hidden" role="region" aria-labelledby="verify-title">
+      <h3 id="verify-title">Prove you own this site</h3>
+      <p class="small" id="verify-text"></p>
+      <div class="verify-steps" id="verify-steps">
+        <p class="method"><b>Easiest: add one tag to your homepage</b> <span class="muted">(works even if the rest of your site needs a login)</span></p>
+        <div class="token-row"><div class="token" id="verify-meta"></div><button class="small" id="copy-meta" type="button">Copy</button></div>
+        <p class="small muted">Put it inside <code>&lt;head&gt;</code> of <a id="verify-home" target="_blank" rel="noopener"></a>.
+          In Next.js (app folder), add this to <code>app/layout.tsx</code>:</p>
+        <div class="token-row"><div class="token" id="verify-next"></div><button class="small" id="copy-next" type="button">Copy</button></div>
+        <details class="small"><summary>Or upload a file instead</summary>
+          <p>Create <code>public/.well-known/vibeguard-verify.txt</code> (or a <code>.well-known</code> folder next to your
+            index.html) containing only this line, so it opens at <a id="verify-file" target="_blank" rel="noopener"></a>:</p>
+          <div class="token-row"><div class="token" id="verify-token"></div><button class="small" id="copy-token" type="button">Copy</button></div>
+          <p class="muted">If your site sends every page to a login screen, let <code>/.well-known/</code> through your middleware.</p>
+        </details>
+        <p class="small">Then deploy and press <b>Scan website</b> again. You can remove it afterwards.</p>
+      </div>
+    </div>
+    <label class="row">
+      <input id="web-authorized" type="checkbox">
+      <span>I own this website, or I have permission to test it.</span>
+    </label>
+    <p class="muted small">Free: see how many problems your site has and what they are. The $9 report shows where each one is and how to fix it.</p>
+    <div class="actions">
+      <button id="web-scan" class="primary" disabled>Scan website</button>
+      <button id="web-verify" class="small">How do I prove I own it?</button>
+    </div>
+    <p class="muted small free-left" data-free-left></p>
+  </section>
+
+  <!-- 1c. source code (Bug fixing tier) -->
+  <section id="source" class="card hidden">
+    <div id="src-drop" tabindex="0" role="button" aria-label="Choose a .zip of your project">
+      <svg class="drop-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      <strong id="src-drop-title">Drop your project's .zip here</strong>
+      <span id="src-drop-sub" class="muted">or click to choose one (up to 50 MB, leave out build folders). Signing keys and local secret files are dropped automatically.</span>
+      <input id="src-file" type="file" accept=".zip,application/zip" hidden>
+    </div>
+    <p class="muted small">We scan your source code with the same rules as the app and website scans. For $50 we fix every critical
+      issue and warning, and keep a fix only when a re-scan proves the problem is gone. Works for Android apps
+      (Java, Kotlin, AndroidManifest.xml) and web apps (JavaScript, TypeScript, React, Next.js).</p>
+    <label class="row">
+      <input id="src-authorized" type="checkbox">
+      <span>I own this code, or I have permission to change it.</span>
+    </label>
+    <div class="actions">
+      <button id="src-scan" class="primary" disabled>Scan source code</button>
+    </div>
+    <p class="muted small free-left" data-free-left></p>
+  </section>
+
+  <!-- 2. progress -->
+  <section id="progress" class="card hidden" aria-live="polite">
+    <h2 id="progress-title">Scanning…</h2>
+    <p class="muted small" id="progress-sub">Keep this tab open until the report appears.</p>
+    <div class="bar"><div id="bar"></div></div>
+    <ul class="steps" id="steps"></ul>
+    <p class="muted small" id="elapsed"></p>
+    <div class="actions hidden" id="cancel-row">
+      <button class="small" id="cancel-scan" type="button">Cancel scan</button>
+      <span class="muted small">Stops the scan straight away. No free scan is used.</span>
+    </div>
+  </section>
+
+  <!-- errors -->
+  <section id="error" class="card error hidden" role="alert">
+    <h2>That didn't work</h2>
+    <p id="error-msg"></p>
+    <button id="error-back" class="small">Try again</button>
+  </section>
+
+  <!-- 3. report -->
+  <section id="report" class="hidden"></section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const GROUPS = [
+    ["critical", "Critical", "Fix before you release", "🔴"],
+    ["warning", "Warning", "Fix soon", "🟠"],
+    ["smell", "Smell", "Clean up when you can", "🟡"],
+  ];
+  let selectedFile = null, lastResponse = null, timer = null;
+
+  // ---------------------------------------------------------------- tiny DOM helper
+  // All report content comes from an untrusted APK, so it is only ever inserted as text.
+  function el(tag, attrs = {}, ...children) {
+    const node = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (k === "class") node.className = v;
+      else if (k.startsWith("on")) node.addEventListener(k.slice(2), v);
+      else node.setAttribute(k, v);
+    }
+    for (const c of children.flat()) {
+      if (c === null || c === undefined || c === false) continue;
+      node.append(c instanceof Node ? c : document.createTextNode(String(c)));
+    }
+    return node;
+  }
+
+  function toast(msg) {
+    const t = $("toast"); t.textContent = msg; t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 1800);
+  }
+
+  async function copy(text) {
+    try { await navigator.clipboard.writeText(text); toast("Copied"); }
+    catch { toast("Couldn't copy - select the text instead"); }
+  }
+
+  function download(name, text, type) {
+    const a = el("a", { href: URL.createObjectURL(new Blob([text], { type })), download: name });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+
+  let mode = "apk";
+  let me = null, authRequired = false, afterSignIn = null;
+  function show(section) {
+    const FORMS = ["upload", "web", "source"];
+    section = section.map((id) => (id === "upload" ? { apk: "upload", web: "web", src: "source" }[mode] : id));
+    if (authRequired && !(me && me.signed_in) && section.some((id) => FORMS.includes(id))) {
+      section = section.filter((id) => !FORMS.includes(id)).concat("signin");
+    }
+    for (const id of ["signin", ...FORMS, "progress", "error", "report"]) $(id).classList.toggle("hidden", !section.includes(id));
+    document.querySelector(".tabs").classList.toggle("hidden", !section.some((id) => FORMS.includes(id)));
+  }
+
+  function setMode(m) {
+    mode = m;
+    $("tab-apk").setAttribute("aria-selected", String(m === "apk"));
+    $("tab-web").setAttribute("aria-selected", String(m === "web"));
+    $("tab-src").setAttribute("aria-selected", String(m === "src"));
+    show(["upload"]);
+  }
+  $("tab-apk").addEventListener("click", () => setMode("apk"));
+  $("tab-web").addEventListener("click", () => setMode("web"));
+  $("tab-src").addEventListener("click", () => setMode("src"));
+
+  // ---------------------------------------------------------------- source code form (Bug fixing)
+  let srcFile = null;
+  const srcDrop = $("src-drop");
+  srcDrop.addEventListener("click", () => $("src-file").click());
+  srcDrop.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("src-file").click(); } });
+  srcDrop.addEventListener("dragover", (e) => { e.preventDefault(); srcDrop.classList.add("over"); });
+  srcDrop.addEventListener("dragleave", () => srcDrop.classList.remove("over"));
+  srcDrop.addEventListener("drop", (e) => { e.preventDefault(); srcDrop.classList.remove("over"); pickSource(e.dataTransfer.files[0]); });
+  $("src-file").addEventListener("change", () => pickSource($("src-file").files[0]));
+  function pickSource(file) {
+    if (!file) return;
+    if (!file.name.toLowerCase().endsWith(".zip")) { toast("Please choose a .zip of your project"); return; }
+    if (file.size > 50 * 1048576) { toast(`This zip is ${(file.size / 1048576).toFixed(0)} MB. The limit is 50 MB; leave out build folders.`); return; }
+    srcFile = file;
+    srcDrop.classList.add("has-file");
+    $("src-drop-title").textContent = file.name;
+    $("src-drop-sub").textContent = `${(file.size / 1048576).toFixed(1)} MB · click to choose a different file`;
+    refreshSrcButton();
+  }
+  function refreshSrcButton() { $("src-scan").disabled = !(srcFile && $("src-authorized").checked); }
+  $("src-authorized").addEventListener("change", refreshSrcButton);
+  $("src-scan").addEventListener("click", () => {
+    const form = new FormData();
+    form.append("file", srcFile);
+    form.append("i_am_authorized", "true");
+    runScan("/scan-source", form, "source", false, 15);
+  });
+
+  // ---------------------------------------------------------------- website form
+  // REA reverse-engineers the app method by method: thorough, but minutes rather than seconds.
+  // Both find the same issues; the choice is remembered in this browser only.
+  const ENGINE_NOTES = {
+    jadx: "About 1 minute. Decompiles the whole app in one pass.",
+    rea: "About 13 minutes. The VibeGuard deep engine decompiles each method separately and records where every fact came from. Same issues as jadx.",
+  };
+  let apkEngine = "jadx";
+  try { if (localStorage.getItem("vibeguard.engine") === "rea") apkEngine = "rea"; } catch (e) { /* storage blocked */ }
+  function setEngine(name) {
+    apkEngine = name;
+    $(`engine-${name}`).checked = true;
+    $("engine-note").textContent = ENGINE_NOTES[name];
+  }
+  for (const name of ["jadx", "rea"]) {
+    $(`engine-${name}`).addEventListener("change", () => {
+      setEngine(name);
+      try { localStorage.setItem("vibeguard.engine", name); } catch (e) { /* storage blocked */ }
+    });
+  }
+  setEngine(apkEngine);
+  fetch("/health").then((r) => r.json()).then((h) => {
+    if (!(h.apk_engines || []).includes("rea")) {
+      $("engine-rea").disabled = true;
+      setEngine("jadx");
+      $("engine-note").textContent = ENGINE_NOTES.jadx + " (The deep engine is not installed on this server.)";
+    }
+  }).catch(() => {});
+  const APK_SECONDS = { rea: [700, 15, 12], jadx: [20, 2, 12] };  // decompile, map, scan
+  function apkSteps() {
+    const [d, m, sc] = APK_SECONDS[apkEngine] || APK_SECONDS.rea;
+    return [["0", "Uploading the app"],
+            ["1", apkEngine === "rea" ? "VibeGuard deep engine: reverse-engineering the app method by method (the longest step)" : "Unpacking and decompiling the code"],
+            [String(d), "Mapping permissions, servers and libraries"], [String(d + m), "Scanning for security problems and bugs"],
+            [String(d + m + sc), "Writing plain-English explanations", true]];
+  }
+  const STEPS = {
+    source: [["0", "Uploading your project"], ["1", "Unpacking it safely"], ["2", "Scanning the code with the same rules as the app scan"]],
+    web: [["0", "Checking the website's security settings"], ["3", "Loading the page and capturing its code"],
+          ["12", "Scanning the code for security problems"], ["18", "Writing plain-English explanations", true]],
+  };
+  function setSteps(kind, useAi) {
+    const steps = kind === "apk" ? apkSteps() : STEPS[kind];
+    $("steps").replaceChildren(...steps.filter((s) => useAi || !s[2]).map(([at, text, ai]) =>
+      el("li", ai ? { "data-at": at, "data-ai": "" } : { "data-at": at }, text)));
+  }
+  function refreshWebButton() { $("web-scan").disabled = !($("web-url").value.trim() && $("web-authorized").checked); }
+  $("web-url").addEventListener("input", refreshWebButton);
+  $("web-authorized").addEventListener("change", refreshWebButton);
+  // "Prove you own this site": shown on request, or when a scan was refused because the file wasn't found.
+  function showVerify(info, refused) {
+    setMode("web");
+    $("web-url").value = $("web-url").value || info.url;
+    const box = $("verify-box");
+    box.classList.remove("hidden");
+    box.classList.toggle("refused", !!refused);
+    const steps = $("verify-steps");
+    if (info.local || info.trusted) {
+      $("verify-title").textContent = "No proof needed";
+      $("verify-text").textContent = info.local ? "This site runs on your own computer, so you can scan it straight away."
+        : "This site is on this server's trusted list, so you can scan it straight away.";
+      steps.classList.add("hidden");
+    } else {
+      $("verify-title").textContent = refused ? "We couldn't confirm you own this site yet" : "Prove you own this site";
+      $("verify-text").textContent = refused
+        ? `We didn't find the verification tag on ${info.home_url} or the file at ${info.file_url}. Nothing was scanned and no free scan was used.`
+        : "Before we scan a website we check that its owner added a small tag or file to it. It takes a minute:";
+      steps.classList.remove("hidden");
+      $("verify-meta").textContent = info.meta_tag;
+      $("verify-next").textContent = `export const metadata = {\n  other: { "${info.meta_name}": "${info.token}" },\n};`;
+      $("verify-home").textContent = info.home_url;
+      $("verify-home").href = info.home_url;
+      $("verify-token").textContent = info.token;
+      $("verify-file").textContent = info.file_url;
+      $("verify-file").href = info.file_url;
+    }
+    box.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  $("copy-token").addEventListener("click", () => copy($("verify-token").textContent));
+  $("copy-meta").addEventListener("click", () => copy($("verify-meta").textContent));
+  $("copy-next").addEventListener("click", () => copy($("verify-next").textContent));
+  $("web-verify").addEventListener("click", async () => {
+    const url = $("web-url").value.trim();
+    if (!url) { toast("Enter the website address first"); return; }
+    try {
+      const res = await fetch(`/web/verify?url=${encodeURIComponent(url)}`);
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.detail || "error");
+      showVerify(body, false);
+    } catch (e) { toast(String(e.message || e)); }
+  });
+  // The demo site (samples/web-demo/serve.py) only exists when VibeGuard runs on this computer.
+  const DEMO_SITE = "http://127.0.0.1:8100";
+  if (["127.0.0.1", "localhost"].includes(location.hostname)) {
+    fetch("/web/verify?url=" + encodeURIComponent(DEMO_SITE)).then((r) => r.ok && $("demo-site-hint").classList.remove("hidden")).catch(() => {});
+  }
+  $("use-demo-site").addEventListener("click", () => {
+    $("web-url").value = DEMO_SITE;
+    $("verify-box").classList.add("hidden");
+    refreshWebButton();
+    $("web-authorized").focus();
+  });
+  $("web-scan").addEventListener("click", startWebScan);
+
+  function startWebScan() {
+    const form = new FormData();
+    form.append("url", $("web-url").value.trim());
+    form.append("i_am_authorized", "true");
+    form.append("include_text", "true");
+    runScan("/scan-web", form, "web", false, 25);
+  }
+
+  // ---------------------------------------------------------------- upload form
+  const drop = $("drop"), fileInput = $("file");
+  drop.addEventListener("click", () => fileInput.click());
+  drop.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInput.click(); } });
+  drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+  drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+  drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("over"); pick(e.dataTransfer.files[0]); });
+  fileInput.addEventListener("change", () => pick(fileInput.files[0]));
+  $("authorized").addEventListener("change", refreshButton);
+
+  function pick(file) {
+    if (!file) return;
+    if (!file.name.toLowerCase().endsWith(".apk")) { toast("Please choose a file ending in .apk"); return; }
+    if (file.size > maxUploadMb * 1048576) { toast(`This file is ${(file.size / 1048576).toFixed(0)} MB. The limit is ${maxUploadMb} MB.`); return; }
+    selectedFile = file;
+    drop.classList.add("has-file");
+    $("drop-title").textContent = file.name;
+    $("drop-sub").textContent = `${(file.size / 1048576).toFixed(1)} MB · click to choose a different file`;
+    refreshButton();
+  }
+
+  function refreshButton() { $("scan").disabled = !(selectedFile && $("authorized").checked); }
+
+  $("scan").addEventListener("click", startScan);
+  async function loadExample() {
+    try {
+      // The example's explanations were written by the AI, so German has its own copy (same scan, same fingerprint).
+      const res = await fetch(window.VG && VG.lang() === "de" ? "/static/sample-report.de.json" : "/static/sample-report.json");
+      if (!res.ok) throw new Error();
+      renderReport(await res.json(), true);
+      showingExample = true;
+    } catch { showError("The example report couldn't be loaded."); }
+  }
+  $("example").addEventListener("click", loadExample);
+  let showingExample = false;
+  window.addEventListener("vg-lang", () => { if (showingExample && !$("report").classList.contains("hidden")) loadExample(); });
+  if (location.hash === "#example") loadExample();  // handy direct link for demos
+  $("error-back").addEventListener("click", () => show(["upload"]));
+
+  // ---------------------------------------------------------------- scanning
+  function startScan() {
+    const form = new FormData();
+    form.append("file", selectedFile);
+    form.append("i_am_authorized", "true");
+    form.append("include_text", "true");
+    form.append("engine", apkEngine);
+    runScan("/scan", form, "apk", false, apkEngine === "rea" ? 730 : 35);
+  }
+
+  function runScan(path, form, kind, useAi, expected) {  // expected seconds: a rough guide for the bar only
+    setSteps(kind, useAi);
+    $("progress-title").textContent = "Scanning…";
+    $("progress-sub").textContent = "Keep this tab open until the report appears.";
+    show(["progress"]);
+    setStep(0, 0);
+    let started = null;
+
+    // XHR rather than fetch, to get upload progress for big APKs on slow venue Wi-Fi.
+    const xhr = new XMLHttpRequest();
+    currentXhr = xhr;
+    $("cancel-row").classList.remove("hidden");
+    xhr.open("POST", path);
+    xhr.timeout = 40 * 60 * 1000;
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) $("bar").style.width = `${(e.loaded / e.total) * 10}%`;
+    };
+    xhr.upload.onload = () => {
+      started = Date.now();
+      clearInterval(timer);
+      timer = setInterval(() => {
+        const secs = (Date.now() - started) / 1000;
+        setStep(secs, 1);
+        // ease towards 95% so the bar never claims to be done before the server is
+        $("bar").style.width = `${10 + 85 * (1 - Math.exp(-secs / (expected / 2)))}%`;
+        $("elapsed").textContent = `${Math.round(secs)} seconds so far`;
+        if (secs > expected * 1.6) $("progress-sub").textContent = "Taking longer than usual. Still working…";
+      }, 500);
+    };
+    xhr.onload = () => {
+      clearInterval(timer);
+      let body = null;
+      try { body = JSON.parse(xhr.responseText); } catch { /* not JSON */ }
+      if (xhr.status === 200 && body && body.report) { $("bar").style.width = "100%"; renderAny(body); }
+      else if (xhr.status === 401) needSignIn(null);
+      else if (xhr.status === 409 && body && body.detail && body.detail.active) showActiveScan(body.detail.active);
+      else if (xhr.status === 409 && body && body.detail && body.detail.cancelled) { /* the Cancel button already showed this */ }
+      else if (xhr.status === 403 && body && body.detail && body.detail.verify) showVerify(body.detail.verify, true);
+      else showError((body && (typeof body.detail === "string" ? body.detail : body.detail && body.detail.message)) || `The server returned an error (${xhr.status}).`);
+    };
+    xhr.onerror = () => { clearInterval(timer); showError("Couldn't reach the scanner. Is the server still running?"); };
+    xhr.ontimeout = () => { clearInterval(timer); showError("The scan took too long and was stopped. Try again, or choose the Fast · jadx decompiler."); };
+    if (kind === "web") xhr.upload.onload();  // nothing to upload: start the step timer now
+    xhr.send(form);
+  }
+
+  function setStep(secs, minIndex) {
+    const items = [...document.querySelectorAll("#steps li:not(.hidden)")];
+    let current = 0;
+    items.forEach((li, i) => { if (secs >= Number(li.dataset.at) && i >= minIndex - 0) current = Math.max(current, i); });
+    current = Math.max(current, minIndex);
+    items.forEach((li, i) => {
+      li.classList.toggle("done", i < current);
+      li.classList.toggle("active", i === current);
+    });
+  }
+
+  function showError(msg) {
+    $("cancel-row").classList.add("hidden");
+    $("error-msg").textContent = msg;
+    show(["upload", "error"]);
+  }
+
+  // ---------------------------------------------------------------- accounts
+  // The logo: signed-in users stay in the scanner (back to its start screen); visitors go to the landing page.
+  $("home-link").addEventListener("click", (e) => {
+    if (!(me && me.signed_in) || e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;  // new tab still works
+    e.preventDefault();
+    clearTimeout(fixPoll);
+    history.replaceState(null, "", "/app");
+    show(["upload"]);
+    window.scrollTo(0, 0);
+  });
+
+  function setMe(m) {
+    me = m;
+    $("home-link").setAttribute("href", me && me.signed_in ? "/app" : "/");
+    $("account").classList.toggle("hidden", !(me && me.signed_in));
+    $("account-email").textContent = me && me.signed_in ? `Signed in as ${me.email}` : "";
+    if (me && me.signed_in) showLimits(me);
+  }
+  function needSignIn(then) {  // a request came back 401: sign in, then carry on
+    setMe({ signed_in: false });
+    afterSignIn = then;
+    show(["upload"]);
+    $("signin-email").focus();
+  }
+  async function post(path, fields) {
+    const form = new FormData();
+    for (const [k, v] of Object.entries(fields)) form.append(k, v);
+    const res = await fetch(path, { method: "POST", body: form });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body.detail || `Error ${res.status}`);
+    return body;
+  }
+  async function sendCode() {
+    const email = $("signin-email").value.trim();
+    if (!email) return;
+    $("send-code").disabled = $("resend-code").disabled = true;
+    try {
+      const r = await post("/auth/start", { email });
+      $("signin-email-form").classList.add("hidden");
+      $("signin-code-form").classList.remove("hidden");
+      $("code-sent-to").textContent = r.mode === "demo" ? `Code created for ${r.email}. It expires in 10 minutes.`
+        : `We sent a code to ${email}. It expires in 10 minutes; check your spam folder if it doesn't arrive.`;
+      $("demo-inbox").classList.toggle("hidden", r.mode !== "demo");
+      $("demo-code").textContent = r.demo_code || "";
+      $("signin-code").value = "";
+      $("signin-code").focus();
+    } catch (e) { toast(String(e.message || e)); }
+    finally { $("send-code").disabled = $("resend-code").disabled = false; }
+  }
+  $("signin-email-form").addEventListener("submit", (e) => { e.preventDefault(); sendCode(); });
+  $("resend-code").addEventListener("click", sendCode);
+  $("change-email").addEventListener("click", () => {
+    $("signin-code-form").classList.add("hidden");
+    $("signin-email-form").classList.remove("hidden");
+    $("signin-email").focus();
+  });
+  $("signin-code-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    $("verify-code").disabled = true;
+    try {
+      const r = await post("/auth/verify", { email: $("signin-email").value.trim(), code: $("signin-code").value });
+      setMe({ signed_in: true, ...r });
+      $("signin-code-form").classList.add("hidden");
+      $("signin-email-form").classList.remove("hidden");
+      toast(`Signed in as ${r.email}`);
+      const next = afterSignIn; afterSignIn = null;
+      if (next) next(); else show(["upload"]);
+    } catch (err) { toast(String(err.message || err)); }
+    finally { $("verify-code").disabled = false; }
+  });
+  // ---- Supabase (Google / email link). Our server checks the token once and starts its own session.
+  const SUPABASE_JS = { src: "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js",
+                        integrity: "sha384-GFr3yTh5lJznCbZfpTtXnwboFsxqtTQoeTZCRHhE0579KrRmlCzen5AA8ohaB5ug" };
+  let sb = null;
+  const returnUrl = () => location.origin + location.pathname + location.search;
+  function loadScript({ src, integrity }) {
+    return new Promise((resolve, reject) => {
+      const tag = document.createElement("script");
+      Object.assign(tag, { src, integrity, crossOrigin: "anonymous", onload: resolve, onerror: () => reject(new Error("Could not load the sign-in library")) });
+      document.head.append(tag);
+    });
+  }
+  let exchanging = null;  // getSession() and the SIGNED_IN event can both report the same sign-in
+  function exchange(session) {
+    if (!session || (me && me.signed_in)) return Promise.resolve();
+    exchanging = exchanging || doExchange(session).finally(() => { exchanging = null; });
+    return exchanging;
+  }
+  async function doExchange(session) {
+    try {
+      const r = await post("/auth/supabase", { access_token: session.access_token });
+      setMe({ signed_in: true, ...r });
+      toast(`Signed in as ${r.email}`);
+    } catch (e) { toast(String(e.message || e)); }
+    if (location.hash.includes("access_token")) history.replaceState(null, "", returnUrl());
+  }
+  async function setUpSupabase(cfg) {
+    $("signin-local").classList.add("hidden");
+    $("signin-supabase").classList.remove("hidden");
+    $("google-signin").classList.toggle("hidden", !cfg.providers.includes("google"));
+    $("magic-form").classList.toggle("hidden", !cfg.providers.includes("email"));
+    try {
+      await loadScript(SUPABASE_JS);
+      sb = window.supabase.createClient(cfg.supabase_url, cfg.supabase_anon_key, { auth: { persistSession: true, detectSessionInUrl: true } });
+      const { data } = await sb.auth.getSession();
+      await exchange(data.session);
+      // Supabase re-announces SIGNED_IN every time the tab becomes visible again (it re-checks the session),
+      // so only a real new sign-in may change the screen; a scan in progress or an open report must stay put.
+      sb.auth.onAuthStateChange((event, session) => {
+        if (event !== "SIGNED_IN" || (me && me.signed_in)) return;
+        exchange(session).then(() => {
+          if (!(me && me.signed_in) || $("signin").classList.contains("hidden")) return;
+          const next = afterSignIn; afterSignIn = null;
+          if (next) next(); else show(["upload"]);
+        });
+      });
+    } catch (e) {
+      $("google-signin").disabled = true;
+      toast(String(e.message || e));
+    }
+  }
+  $("google-signin").addEventListener("click", async () => {
+    if (!sb) return;
+    const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: returnUrl() } });
+    if (error) toast(error.message);
+  });
+  $("magic-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!sb) return;
+    $("magic-send").disabled = true;
+    const email = $("magic-email").value.trim();
+    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: returnUrl() } });
+    $("magic-send").disabled = false;
+    if (error) { toast(error.message); return; }
+    $("magic-sent").textContent = `We sent a sign-in link to ${email}. Open it in this browser to continue.`;
+    $("magic-sent").classList.remove("hidden");
+  });
+
+  $("sign-out").addEventListener("click", async () => {
+    if (sb) await sb.auth.signOut().catch(() => {});
+    await fetch("/auth/logout", { method: "POST" }).catch(() => {});
+    setMe({ signed_in: false });
+    history.replaceState(null, "", "/app");
+    show(["upload"]);
+  });
+
+  // ---------------------------------------------------------------- free-tier limits
+  let maxUploadMb = 150;
+  function showLimits(l) {
+    if (!l || l.enabled === false) return;
+    if (l.max_upload_mb) { maxUploadMb = l.max_upload_mb; $("max-mb").textContent = maxUploadMb; }
+    if (l.left_today === undefined) return;  // not signed in yet
+    if (l.unlimited) {
+      document.querySelectorAll("[data-free-left]").forEach((p) => { p.textContent = "Unlimited scans on this account."; p.classList.remove("none-left"); });
+      return;
+    }
+    const hours = Math.max(1, Math.round(l.resets_in_seconds / 3600));
+    const text = l.left_today > 0
+      ? `Free scans left today: ${l.left_today} of ${l.free_scans_per_day}. Scanning the same app again is free.`
+      : `You have used today's ${l.free_scans_per_day} free scans. They reset in about ${hours} hour${hours === 1 ? "" : "s"}; apps you already scanned can still be opened.`;
+    document.querySelectorAll("[data-free-left]").forEach((p) => { p.textContent = text; p.classList.toggle("none-left", l.left_today === 0); });
+  }
+  const refreshLimits = () => fetch("/limits").then((r) => r.json()).then(showLimits).catch(() => {});
+  // Who is signed in decides whether the upload form or the sign-in form is shown.
+  const ready = (async () => {
+    try {
+      const [l, m, cfg] = await Promise.all(["/limits", "/auth/me", "/auth/config"].map((u) => fetch(u).then((r) => r.json())));
+      authRequired = l.enabled !== false;
+      showLimits(l);
+      setMe(m);
+      if (cfg.mode === "supabase") await setUpSupabase(cfg);  // also finishes a Google / email-link sign-in
+      // Reopened or reloaded while a scan runs: follow it instead of showing an empty form.
+      if (me && me.signed_in && !new URLSearchParams(location.search).get("report") && location.hash !== "#example") {
+        const { active } = await fetch("/scans/active").then((r) => r.json());
+        if (active && active.running) { showActiveScan(active); return; }
+      }
+      if (!$("upload").classList.contains("hidden") || !$("web").classList.contains("hidden")) show(["upload"]);
+    } catch { /* the page still works for the example report */ }
+  })();
+
+  // ---------------------------------------------------------------- cancelling a scan
+  // The server stops the scan and every program it started (decompiler, scanners, browser); the page then
+  // stops waiting. Cancelling is only offered for free scans, not for a paid fixing run.
+  let currentXhr = null;
+  $("cancel-scan").addEventListener("click", async () => {
+    $("cancel-scan").disabled = true;
+    try {
+      const res = await fetch("/scans/cancel", { method: "POST" });
+      if (res.status === 401) { needSignIn(null); return; }
+    } catch { /* the page stops waiting either way */ }
+    finally { $("cancel-scan").disabled = false; }
+    stopFollowing();
+    clearInterval(timer);
+    if (currentXhr) { const x = currentXhr; currentXhr = null; x.abort(); }
+    $("cancel-row").classList.add("hidden");
+    show(["upload"]);
+    refreshLimits();
+    toast("Scan cancelled. No free scan was used.");
+  });
+
+  // ---------------------------------------------------------------- a scan that is still running
+  // The server remembers each account's running scan, so a reload (or a second click) follows it.
+  let activePoll = null, activeTick = null;
+  const EXPECTED = { rea: 730, jadx: 35, web: 30, source: 15 };
+  function stopFollowing() { clearInterval(activePoll); clearInterval(activeTick); activePoll = activeTick = null; }
+  function showActiveScan(info) {
+    stopFollowing();
+    const deep = info.engine === "rea";
+    const expected = EXPECTED[info.kind === "apk" ? (info.engine || "jadx") : info.kind] || 60;
+    const startedAt = Date.now() - info.elapsed_seconds * 1000;
+    $("progress-title").textContent = deep ? "Your deep scan is still running" : "Your scan is still running";
+    $("progress-sub").textContent = "You can leave this page or switch apps. The report opens here when it's done.";
+    $("steps").replaceChildren(el("li", { class: "active" }, `${deep ? "VibeGuard deep engine" : "Scanning"}: ${info.name}`));
+    const tick = () => {
+      const secs = (Date.now() - startedAt) / 1000;
+      $("bar").style.width = `${10 + 85 * (1 - Math.exp(-secs / (expected / 2)))}%`;
+      const m = Math.floor(secs / 60), sec = Math.round(secs % 60);
+      $("elapsed").textContent = `${m ? `${m} min ` : ""}${sec} s so far` + (deep ? " · a deep scan takes about 13 minutes" : "");
+    };
+    tick();
+    activeTick = setInterval(tick, 1000);
+    $("cancel-row").classList.remove("hidden");
+    show(["progress"]);
+    activePoll = setInterval(async () => {
+      try {
+        const res = await fetch("/scans/active");
+        const { active } = await res.json();
+        if (active && active.running) return;
+        stopFollowing();
+        if (active && active.report_id) openSavedReport(active.report_id);
+        else showError((active && active.error) || "The scan is no longer running. Please start it again.");
+      } catch { /* try again on the next tick */ }
+    }, 4000);
+  }
+
+  // ---------------------------------------------------------------- free result and payment
+  function renderAny(body) {
+    showingExample = false;
+    stopFollowing();
+    currentXhr = null;
+    $("cancel-row").classList.add("hidden");
+    // Keep the report in the address bar so a refresh, or coming back from checkout, reopens it.
+    if (body.report_id) history.replaceState(null, "", `/app?report=${encodeURIComponent(body.report_id)}`);
+    if (body.limits) showLimits(body.limits); else refreshLimits();
+    if (body.paid_pending) { openSavedReport(body.report_id); return; }
+    if (body.status === "running") { renderFixProgress(body); return; }
+    if (body.status === "failed") { showError(body.progress.error); return; }
+    if (body.report.target === "source" || body.report.kind === "fix") { body.report.locked ? renderSourcePreview(body) : renderFixResult(body); return; }
+    if (body.report.locked) renderLocked(body); else renderReport(body, false);
+  }
+
+  // ---------------------------------------------------------------- Bug fixing: preview, progress, result
+  function planCards(body, kind) {
+    // For an app or website scan the $50 plan needs the source code, so its button opens the upload tab.
+    const plans = (body.plans || []).filter((p) => kind === "source" ? p.id !== "report" : true);
+    return el("div", { class: "plans" }, ...plans.map((p) => {
+      const forThis = p.needs === kind;
+      let button;
+      if (!p.available) button = el("button", { disabled: "" }, "Coming soon");
+      else if (forThis) button = el("button", { class: "primary", onclick: (e) => checkout(body.report_id, p.id, e.target) },
+        `${{ fix: "Fix it", improve: "Improve it" }[p.id] || "Unlock"} for ${money(p.price_cents, p.currency)}`);
+      else button = el("button", { onclick: () => { history.replaceState(null, "", "/app"); setMode("src"); window.scrollTo(0, 0); } }, "Upload your source code");
+      return el("div", { class: `card plan${forThis && p.available ? " featured" : ""}` },
+        el("h3", {}, p.name), el("p", { class: "price" }, money(p.price_cents, p.currency)), el("p", { class: "small" }, p.includes), button);
+    }));
+  }
+
+  function coverageNote(cov) {
+    const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+    const skipped = cov.not_checked || cov.kotlin_files_not_checked || [];
+    const parts = [];
+    if (cov.java_files) parts.push(plural(cov.java_files, "Java file"));
+    if (cov.kotlin_files) parts.push(plural(cov.kotlin_files, "Kotlin file"));
+    if (cov.web_files) parts.push(plural(cov.web_files, "JavaScript/TypeScript file"));
+    if (cov.manifests.length) parts.push(`${cov.manifests.length} AndroidManifest.xml`);
+    const list = parts.length > 1 ? `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}` : (parts[0] || "no code files");
+    return `Checked ${list}` +
+      (skipped.length ? `. Not checked: ${plural(skipped.length, "build script")} (.kts).` : ".");
+  }
+
+  function renderSourcePreview(body) {
+    lastResponse = body;
+    const r = body.report, c = r.counts, root = $("report");
+    const total = c.critical + c.warning + c.smell;
+    root.replaceChildren();
+    root.append(el("div", { class: "card" },
+      el("p", { class: "muted small" }, `Free source scan · ${r.project}`),
+      body.reused ? el("p", { class: "reused" }, "You scanned this exact project before, so this is the saved result. No free scan was used.") : null,
+      el("h2", {}, total ? `We found ${total} problem${total === 1 ? "" : "s"} in your code` : "No problems found in your code"),
+      el("div", { class: "glance" },
+        tile("critical", c.critical, "Critical"), tile("warning", c.warning, "Warnings"), tile("smell", c.smell, "Code smells")),
+      el("p", {}, r.fixable_issues
+        ? `Bug fixing would work on ${r.fixable_issues} issue${r.fixable_issues === 1 ? "" : "s"} (${r.fixable_occurrences} place${r.fixable_occurrences === 1 ? "" : "s"}) and keep only fixes a re-scan proves.`
+        : "There are no critical issues or warnings to fix."),
+      r.manual_actions ? el("p", { class: "small" }, `${r.manual_actions} leaked key${r.manual_actions === 1 ? "" : "s"} must be revoked by you; we explain how.`) : null,
+      el("p", { class: "meta" }, `Result fingerprint ${r.result_fingerprint} · ${coverageNote(r.coverage)}`),
+      (r.coverage.sensitive_files_left_out || []).length ? el("p", { class: "reused" },
+        `For your safety we did not keep ${r.coverage.sensitive_files_left_out.length} secret file` +
+        `${r.coverage.sensitive_files_left_out.length === 1 ? "" : "s"} from the zip (signing keys, local settings): ` +
+        r.coverage.sensitive_files_left_out.join(", ")) : null));
+
+    for (const [key, label, advice, icon] of GROUPS) {
+      const issues = r.issues.filter((i) => i.severity === key);
+      if (!issues.length) continue;
+      root.append(el("div", { class: "group-head" }, el("h2", {}, `${icon} ${label}`), el("span", { class: "muted" }, `${advice} · ${issues.length}`)));
+      for (const i of issues) {
+        const tag = i.rule_id === "secret" ? ["manual", "You revoke the key"] : i.fixable ? ["fixable", "Both tiers fix this"] : ["later", "Code improvement fixes this"];
+        root.append(el("div", { class: `card issue ${key}` },
+          el("div", { class: "fix-title" }, el("h4", {}, i.title), el("span", { class: `badge ${tag[0]}` }, tag[1])),
+          el("p", { class: "meta" }, `${i.occurrences} place${i.occurrences === 1 ? "" : "s"} in ${i.files} file${i.files === 1 ? "" : "s"}` +
+            (i.standard ? ` · ${i.standard.control} · ${i.standard.cwe}` : ""))));
+      }
+    }
+    const imp = r.improve || { structure: [] };
+    if (imp.structure.length) {
+      root.append(el("div", { class: "group-head" }, el("h2", {}, "📐 Structure"), el("span", { class: "muted" }, `Measured · ${imp.structure.length}`)));
+      for (const st of imp.structure) root.append(el("div", { class: "card issue smell" },
+        el("div", { class: "fix-title" }, el("h4", {}, st.title), el("span", { class: "badge later" }, "Code improvement reviews this")),
+        el("p", { class: "meta" }, `${st.method}() in ${st.file.split("/").pop()} · ${st.lines} lines, ${st.parameters} parameters · ${st.source}`)));
+    }
+    root.append(el("div", { class: "card small" },
+      el("p", {}, el("strong", {}, "Bug fixing ($50): "), `fixes the ${r.fixable_issues} critical issue${r.fixable_issues === 1 ? "" : "s"} and warning${r.fixable_issues === 1 ? "" : "s"} above.`),
+      el("p", {}, el("strong", {}, "Code improvement ($150): "), `also fixes ${imp.smell_issues} smell${imp.smell_issues === 1 ? "" : "s"}, ` +
+        `reviews ${imp.structure_issues} structure problem${imp.structure_issues === 1 ? "" : "s"} with a refactoring plan for each, and gives you a ready-to-open pull request.`)));
+    root.append(el("div", { class: "group-head" }, el("h2", {}, "Fix it"),
+      body.payments_mode === "demo" ? el("span", { class: "demo-badge" }, "Demo payments · no real money") : null));
+    root.append(planCards(body, "source"));
+    root.append(el("div", { class: "actions" }, el("button", { class: "small", onclick: () => { history.replaceState(null, "", "/app"); show(["upload"]); } }, "Scan another project")));
+    show(["report"]);
+    window.scrollTo(0, 0);
+  }
+
+  let fixPoll = null;
+  function renderFixProgress(body) {
+    $("cancel-row").classList.add("hidden");  // a paid fixing run keeps going
+    const p = body.progress || {};
+    $("progress-title").textContent = "Fixing your code…";
+    $("progress-sub").textContent = "Each fix is re-scanned before it is kept. This takes a few minutes; you can leave this tab open.";
+    $("steps").replaceChildren(el("li", { class: "active" }, p.message || "Starting"));
+    $("bar").style.width = `${p.total ? 5 + 90 * (p.done / p.total) : 5}%`;
+    $("elapsed").textContent = p.total > 1 ? `${p.done} of ${p.total} issues done` : "";
+    show(["progress"]);
+    clearTimeout(fixPoll);
+    fixPoll = setTimeout(async () => {
+      try {
+        const res = await fetch(`/reports/${encodeURIComponent(body.report_id)}`);
+        const next = await res.json();
+        if (!res.ok) throw new Error(next.detail || "The fixing run could not be checked.");
+        renderAny(next);
+      } catch (e) { showError(String(e.message || e)); }
+    }, 2000);
+  }
+
+  function diffView(text) {
+    return el("pre", { class: "diff" }, ...text.split("\n").map((line) => el("span", {
+      class: line.startsWith("+++") || line.startsWith("---") ? "d-file" : line.startsWith("+") ? "d-add" : line.startsWith("-") ? "d-del" : line.startsWith("@@") ? "d-hunk" : "",
+    }, line + "\n")));
+  }
+
+  function renderFixResult(body) {
+    lastResponse = body;
+    const r = body.report, root = $("report"), b = r.before.counts, a = r.after.counts, v = r.verification, sm = r.summary;
+    root.replaceChildren();
+    const delta = (key, label) => el("div", { class: `tile ${key}` },
+      el("div", { class: "n" }, el("span", { class: "was" }, `${b[key]} → `), String(a[key])), el("div", { class: "l" }, label));
+    const check = (ok, text) => el("span", { class: `check ${ok ? "ok" : "warn"}` }, `${ok ? "✓" : "⚠"} ${text}`);
+    root.append(el("div", { class: "card" },
+      el("p", { class: "paid-note" }, `✓ Paid · ${r.tier_name || "Bug fixing"}`),
+      el("h2", {}, `${sm.fixed} of ${sm.attempted} issues fixed and proven by a re-scan`),
+      el("div", { class: "glance" }, delta("critical", "Critical"), delta("warning", "Warnings"), delta("smell", "Smells")),
+      el("div", { class: "checks" },
+        check(true, "Re-scanned with the same rules"), check(true, "Syntax checked"),
+        v.interface_checked ? check(true, "No constructor or public method changed") : null,
+        check(r.after.new_problems.length === 0, r.after.new_problems.length ? `New problems: ${r.after.new_problems.join(", ")}` : "No new problems"),
+        check(v.patch_applies_cleanly, v.patch_applies_cleanly ? "Patch applies cleanly to your upload" : "Patch did not apply cleanly"),
+        check(false, "Not compiled here: build and test before release")),
+      el("div", { class: "actions" },
+        el("a", { class: "button primary", href: `/reports/${encodeURIComponent(body.report_id)}/download/patch` }, "Download fixes.patch"),
+        el("a", { class: "button", href: `/reports/${encodeURIComponent(body.report_id)}/download/zip` }, "Download fixed project (.zip)"),
+        r.pull_request ? el("a", { class: "button", href: `/reports/${encodeURIComponent(body.report_id)}/download/pr` }, "Download PR description") : null),
+      el("p", { class: "meta" }, `Apply with: git apply fixes.patch · patch sha256 ${v.patch_sha256.slice(0, 16)}… · before ${r.before.fingerprint} → after ${r.after.fingerprint}`)));
+
+    const label = { fixed: ["fixed", "Fixed ✓"], partly_fixed: ["partly", "Partly fixed"], needs_manual_fix: ["manual", "Needs a manual fix"] };
+    root.append(el("div", { class: "group-head" }, el("h2", {}, "🔧 Changes"), el("span", { class: "muted" }, `${r.fixes.length} issue${r.fixes.length === 1 ? "" : "s"} · review every change`)));
+    for (const f of r.fixes) {
+      const [cls, text] = label[f.status];
+      const note = f.summary.includes("Note:") ? f.summary.slice(f.summary.indexOf("Note:")) : "";
+      root.append(el("div", { class: `card issue ${f.severity}` },
+        el("div", { class: "fix-title" }, el("h4", {}, f.title), el("span", { class: `badge ${cls}` }, text)),
+        el("p", { class: "muted small where" }, `${f.file} · line${f.lines.length === 1 ? "" : "s"} ${f.lines.join(", ")}`),
+        f.summary ? el("p", {}, note ? f.summary.slice(0, f.summary.indexOf("Note:")).trim() : f.summary) : null,
+        note ? el("p", { class: "migration" }, note) : null,
+        f.status !== "fixed" && f.reason ? el("p", { class: "small" }, `Why not: ${f.reason}`) : null,
+        f.status !== "fixed" && f.how_to_fix ? el("p", { class: "small" }, `How to fix it yourself: ${f.how_to_fix}`) : null,
+        f.diff ? el("details", {}, el("summary", {}, "Show the change"), diffView(f.diff)) : null));
+    }
+    if (r.manual_actions.length) {
+      root.append(el("div", { class: "group-head" }, el("h2", {}, "🔑 Do this yourself"), el("span", { class: "muted" }, `${r.manual_actions.length}`)));
+      for (const m of r.manual_actions) root.append(el("div", { class: "card issue critical" },
+        el("h4", {}, m.title), el("p", { class: "muted small where" }, `${m.file} · line ${m.line}`), el("p", {}, m.action)));
+    }
+    if (r.structure) {
+      const st = r.structure;
+      root.append(el("div", { class: "group-head" }, el("h2", {}, "📐 Structure review"), el("span", { class: "muted" }, `${st.issues.length} · suggestions, not applied`)));
+      root.append(el("p", { class: "muted small" }, st.note));
+      if (!st.issues.length) root.append(el("p", { class: "muted" }, `No method is over ${st.limits.method_lines} lines or ${st.limits.parameters} parameters.`));
+      for (const i of st.issues) {
+        const sg = i.suggestion;
+        root.append(el("div", { class: "card issue smell" },
+          el("div", { class: "fix-title" }, el("h4", {}, i.title), el("span", { class: "badge later" }, "Suggestion · not applied")),
+          el("p", { class: "muted small where" }, `${i.file} · ${i.method}() · lines ${i.line}–${i.end_line} · ${i.lines} lines, ${i.parameters} parameters · ${i.source} (${i.limit})`),
+          el("p", { class: "small" }, i.why),
+          sg && sg.steps.length ? el("ol", { class: "plain" }, ...sg.steps.map((step) => el("li", {}, step))) : null,
+          sg && sg.sketch ? el("details", {}, el("summary", {}, "Show a sketch of the new shape"), el("pre", { class: "diff" }, sg.sketch)) : null,
+          sg && sg.risk ? el("p", { class: "migration" }, `Test this: ${sg.risk}`) : null,
+          sg && sg.error ? el("p", { class: "small muted" }, sg.error) : null));
+      }
+    }
+    if (r.pull_request) {
+      const pr = r.pull_request;
+      root.append(el("div", { class: "group-head" }, el("h2", {}, "🔀 Pull request"), el("span", { class: "muted" }, "ready to open")));
+      root.append(el("div", { class: "card" },
+        el("h4", {}, pr.title),
+        el("p", { class: "small" }, "In your project folder, with fixes.patch and commit-message.txt downloaded:"),
+        el("pre", { class: "diff" }, pr.commands.join("\n")),
+        el("div", { class: "actions" },
+          el("button", { class: "small", onclick: () => copy(`# ${pr.title}\n\n${pr.body}`) }, "Copy PR description"),
+          el("a", { class: "button", href: `/reports/${encodeURIComponent(body.report_id)}/download/commit` }, "Download commit-message.txt")),
+        el("details", {}, el("summary", {}, "Preview the PR description"), el("pre", { class: "diff" }, pr.body))));
+    }
+    if (r.not_in_this_tier.length) {
+      root.append(el("div", { class: "card small" }, el("strong", {}, `${r.not_in_this_tier.length} smell${r.not_in_this_tier.length === 1 ? "" : "s"} left as they were: `),
+        r.not_in_this_tier.map((x) => x.title).join(" · "), el("span", { class: "muted" }, " (cleaned up in the Code improvement tier)")));
+    }
+    root.append(el("div", { class: "card small muted" },
+      el("p", {}, `${coverageNote(r.coverage)} Fixes written by ${r.ai.model} · severity policy ${r.policy_version} · took ${Math.round(r.seconds)}s`),
+      el("p", {}, r.disclaimer)));
+    root.append(el("div", { class: "actions" }, el("button", { class: "small", onclick: () => { history.replaceState(null, "", "/app"); show(["upload"]); } }, "Scan another project")));
+    show(["report"]);
+    window.scrollTo(0, 0);
+  }
+
+  const tile = (key, n, label) => el("div", { class: `tile ${key}` }, el("div", { class: "n" }, String(n)), el("div", { class: "l" }, label));
+  const SEV_LABEL = { critical: "Critical", warning: "Warning", smell: "Smell" };
+  const engineName = (e) => ({ jadx: "the fast engine (jadx)", rea: "the VibeGuard deep engine",
+    direct: "VibeGuard's direct fetch" }[e] || e || "?");
+
+  const money = (cents, currency) => new Intl.NumberFormat("en-US", { style: "currency", currency, minimumFractionDigits: 0 }).format(cents / 100);
+
+  function renderLocked(body) {
+    lastResponse = body;
+    const r = body.report, c = r.counts, s = r.scan, root = $("report");
+    const what = r.target === "web" ? "website" : "app";
+    const total = c.critical + c.warning + c.smell;
+    root.replaceChildren();
+    root.append(el("div", { class: "card" },
+      el("p", { class: "muted small" }, `Free scan · ${r.target === "web" ? s.url : s.apk_name}`),
+      body.reused ? el("p", { class: "reused" }, "You scanned this exact file before, so this is the saved result. No free scan was used.") : null,
+      el("h2", {}, total ? `We found ${total} problem${total === 1 ? "" : "s"} in your ${what}` : `No problems found in your ${what}`),
+      el("p", { class: "muted small where" }, r.app.package_name),
+      el("div", { class: "glance" },
+        tile("critical", c.critical, "Critical"), tile("warning", c.warning, "Warnings"), tile("smell", c.smell, "Code smells")),
+      el("p", { class: "meta" }, `Result fingerprint ${r.result_fingerprint} · the paid report has exactly these issues and this fingerprint`)));
+
+    for (const [key, label, advice, icon] of GROUPS) {
+      const issues = r.issues[key] || [];
+      if (!issues.length) continue;
+      root.append(el("div", { class: "group-head" },
+        el("h2", {}, `${icon} ${label}`), el("span", { class: "muted" }, `${advice} · ${issues.length}`)));
+      for (const issue of issues) {
+        root.append(el("div", { class: `card issue ${key}` },
+          el("div", { class: "fix-title" }, el("h4", {}, issue.title), el("span", { class: `sev ${key}` }, SEV_LABEL[key])),
+          el("p", { class: "meta" }, `${issue.occurrences} place${issue.occurrences === 1 ? "" : "s"} · ${issue.standard.control} · ${issue.standard.cwe}`),
+          el("p", { class: "locked-line" }, "🔒 Where it is, why it matters and how to fix it")));
+      }
+    }
+
+    const plans = body.plans || [];
+    root.append(el("div", { class: "group-head" }, el("h2", {}, "Get the full report"),
+      body.payments_mode === "demo" ? el("span", { class: "demo-badge" }, "Demo payments · no real money") : null));
+    root.append(planCards({ ...body, plans }, "scan"));
+
+    root.append(el("div", { class: "actions" },
+      el("button", { class: "small", onclick: () => { history.replaceState(null, "", "/app"); show(["upload"]); window.scrollTo(0, 0); } }, `Scan another ${what}`)));
+    root.append(el("div", { class: "card small muted" },
+      el("p", {}, `Decompiled with ${engineName((s.reverse_engineering || {}).engine)}${(s.reverse_engineering || {}).coverage ? ` · ${s.reverse_engineering.coverage}` : ""} · engine ${s.engine_version} · severity policy ${s.policy_version} (${r.target === "web" ? "OWASP ASVS 4.0" : "OWASP MASVS v2"}, CWE)` +
+        (s.seconds_total ? ` · took ${Math.round(s.seconds_total)}s` : "")),
+      ...(r.warnings || []).map((w) => el("p", {}, `Note: ${w}`)),
+      el("p", {}, r.disclaimer)));
+    show(["report"]);
+    window.scrollTo(0, 0);
+  }
+
+  async function checkout(reportId, plan, button) {
+    button.disabled = true;
+    try {
+      const form = new FormData();
+      form.append("report_id", reportId);
+      form.append("plan", plan);
+      const res = await fetch("/checkout", { method: "POST", body: form });
+      const body = await res.json();
+      if (res.status === 401) { needSignIn(() => openSavedReport(reportId)); return; }
+      if (!res.ok) throw new Error(body.detail || "Checkout failed");
+      location.href = body.checkout_url || body.report_url;
+    } catch (e) { toast(String(e.message || e)); button.disabled = false; }
+  }
+
+  async function openSavedReport(id) {
+    $("cancel-row").classList.add("hidden");
+    $("progress-title").textContent = "Opening your report…";
+    $("progress-sub").textContent = "A newly paid report is written by the AI first, which takes about a minute.";
+    $("steps").replaceChildren(el("li", { class: "active" }, "Writing plain-English explanations for your issues"));
+    $("bar").style.width = "30%";
+    $("elapsed").textContent = "";
+    show(["progress"]);
+    try {
+      const res = await fetch(`/reports/${encodeURIComponent(id)}`);
+      const body = await res.json();
+      if (res.status === 401) { needSignIn(() => openSavedReport(id)); return; }
+      if (!res.ok) throw new Error(body.detail || "This report could not be opened.");
+      $("progress-title").textContent = "Scanning…";
+      $("progress-sub").textContent = "Keep this tab open until the report appears.";
+      renderAny(body);
+    } catch (e) {
+      history.replaceState(null, "", "/app");
+      showError(String(e.message || e));
+    }
+  }
+  const savedReport = new URLSearchParams(location.search).get("report");
+  if (savedReport) ready.then(() => openSavedReport(savedReport));
+
+  // ---------------------------------------------------------------- report
+  function renderReport(response, isExample) {
+    lastResponse = response;
+    const r = response.report, app = r.app, c = r.counts, s0 = r.scan;
+    const root = $("report");
+    root.replaceChildren();
+
+    root.append(el("div", { class: "card" },
+      isExample ? el("p", { class: "muted small" }, "Example report · F-Droid, an open-source app store") : null,
+      r.target === "web" ? el("p", { class: "muted small" }, `Website scan · ${s0.url || app.package_name}`) : null,
+      el("h2", {}, app.one_liner),
+      el("p", { class: "muted small where" }, app.package_name),
+      el("div", { class: "glance" },
+        tile("critical", c.critical, "Critical"), tile("warning", c.warning, "Warnings"), tile("smell", c.smell, "Code smells")),
+      response.paid ? el("p", { class: "paid-note" }, "✓ Paid · full report unlocked") : null,
+      el("p", { class: "meta" }, `Result fingerprint ${r.result_fingerprint} · the same app always gives the same issues and fingerprint`),
+      el("div", { class: "actions" },
+        el("button", { class: "primary small", onclick: () => copy(fixPrompt(r)) }, "Copy all fixes for my AI tool"),
+        el("button", { class: "small", onclick: () => download(`${app.package_name}-report.txt`, response.report_text || "", "text/plain") }, "Download text"),
+        el("button", { class: "small", onclick: () => download(`${app.package_name}-report.json`, JSON.stringify(r, null, 2), "application/json") }, "Download JSON"),
+        el("button", { class: "small", onclick: () => { history.replaceState(null, "", "/app"); show(["upload"]); window.scrollTo(0, 0); } }, "Scan another app"))));
+
+    if (!r.scan.ai) {
+      root.append(el("div", { class: "card banner small" },
+        el("strong", {}, "AI explanations were not used for this report. "),
+        "The issues and their severity are exactly the same as with AI - they come from fixed scanner rules. " +
+        "The descriptions below are the rules' standard wording instead of explanations written for your code."));
+    }
+
+    if (app.what_it_does || app.how_it_works.length) {
+      root.append(el("div", { class: "card" },
+        el("h2", {}, r.target === "web" ? "How this website works" : "How this app works"),
+        app.what_it_does ? el("p", {}, app.what_it_does) : null,
+        list("What it does, step by step", app.how_it_works),
+        list("Personal data it can access", app.personal_data),
+        list("Who it talks to", app.talks_to)));
+    }
+
+    for (const [key, label, advice, icon] of GROUPS) {
+      const issues = r.issues[key] || [];
+      root.append(el("div", { class: "group-head" },
+        el("h2", {}, `${icon} ${label}`), el("span", { class: "muted" }, `${advice} · ${issues.length}`)));
+      if (!issues.length) root.append(el("p", { class: "muted" }, "Nothing found."));
+      for (const issue of issues) root.append(issueCard(issue, key));
+    }
+
+    if (r.ai_suggestions.length) {
+      root.append(el("div", { class: "group-head" },
+        el("h2", {}, "💡 AI suggestions"), el("span", { class: "muted" }, `Not verified · not counted above · ${r.ai_suggestions.length}`)));
+      root.append(el("p", { class: "muted small" },
+        "Possible problems the AI noticed while reading the code. No scanner rule confirms them, so check them before acting."));
+      for (const s of r.ai_suggestions) root.append(suggestionCard(s));
+    }
+
+    const s = r.scan;
+    root.append(el("div", { class: "card small muted" },
+      el("p", {}, `Scanned ${r.target === "web" ? s.url : (s.apk_name || "the app")} · ${s.raw_findings.total} raw findings · ` +
+        (s.ai ? `explained by ${s.ai.model}` : "scanner rule text (no AI)") + (s.seconds_total ? ` · took ${Math.round(s.seconds_total)}s` : "")),
+      ...(s.apk_signature ? [el("p", {}, signatureText(s.apk_signature))] : []),
+      el("p", {}, `Decompiled with ${engineName((s.reverse_engineering || {}).engine)}${(s.reverse_engineering || {}).coverage ? ` · ${s.reverse_engineering.coverage}` : ""} · engine ${s.engine_version || "?"} · severity policy ${s.policy_version} (${r.target === "web" ? "OWASP ASVS 4.0" : "OWASP MASVS v2"}, CWE)` +
+        (s.tool_versions ? " · " + Object.entries(s.tool_versions).map(([k, v]) => `${k === "rea" ? "deep engine" : k} ${v}`).join(", ") : "")),
+      ...(r.warnings || []).map((w) => el("p", {}, `Note: ${w}`)),
+      el("p", {}, r.disclaimer)));
+
+    show(["report"]);
+    window.scrollTo(0, 0);
+  }
+
+  function signatureText(sig) {
+    if (!sig.verified) return `Signature: not valid (checked with ${sig.checked_by})`;
+    const c = sig.signers[0] || {};
+    return `Signature: valid · schemes ${sig.schemes.join(", ")} · ${c.key_algorithm || "?"} ${c.key_bits || "?"}-bit key · ` +
+      `certificate sha256 ${(c.sha256 || "").slice(0, 16)}… (checked with ${sig.checked_by})`;
+  }
+
+  function list(title, items) {
+    if (!items || !items.length) return null;
+    return [el("h3", {}, title), el("ul", { class: "plain" }, items.map((x) => el("li", {}, x)))];
+  }
+
+  function issueCard(issue, severity) {
+    const where = issue.locations.slice(0, 3).map((l) =>
+      `${l.file.replace(/^sources\//, "")}:${l.line}${l.in ? ` (${l.in})` : ""}`);
+    const more = issue.more_locations_count + Math.max(0, issue.locations.length - 3);
+    return el("div", { class: `card issue ${severity}` },
+      el("div", { class: "fix-title" }, el("h4", {}, issue.title), el("span", { class: `sev ${severity}` }, SEV_LABEL[severity])),
+      el("p", {}, issue.explanation),
+      issue.secret_preview ? el("p", { class: "meta" }, `Secret (shortened): ${issue.secret_preview}`) : null,
+      issue.fix ? el("div", { class: "fix" },
+        el("div", { class: "fix-head" },
+          el("strong", { class: "small" }, "How to fix"),
+          el("button", { class: "small", onclick: () => copy(singleFixPrompt(issue)) }, "Copy")),
+        el("p", { class: "small" }, issue.fix)) : null,
+      reviewNote(issue.ai_review),
+      el("p", { class: "meta" }, [issue.kind_label, issue.standard.control, issue.standard.cwe, `found by ${issue.found_by}`]
+        .filter(Boolean).join(" · ") + (issue.occurrences > 1 ? ` · ${issue.occurrences} places` : "")),
+      where.length ? el("details", {},
+        el("summary", {}, "Where in the code"),
+        el("ul", { class: "plain meta where" },
+          where.map((w) => el("li", {}, w)),
+          more ? el("li", {}, `and ${more} more place${more === 1 ? "" : "s"}`) : null)) : null);
+  }
+
+  const REVIEW_TEXT = {
+    likely_false_alarm: "AI review: probably a false alarm here",
+    partly_false_alarm: "AI review: some of these places are probably false alarms",
+  };
+  function reviewNote(review) {
+    if (!review || !REVIEW_TEXT[review.verdict]) return null;
+    return el("p", { class: "review" }, el("strong", {}, `${REVIEW_TEXT[review.verdict]}: `), review.reason,
+      el("span", { class: "muted" }, " Still counted until a person checks it."));
+  }
+
+  function suggestionCard(s) {
+    return el("div", { class: "card issue suggestion" },
+      el("h4", {}, s.title),
+      el("p", {}, s.explanation),
+      s.fix ? el("div", { class: "fix" }, el("strong", { class: "small" }, "Possible fix"), el("p", { class: "small" }, s.fix)) : null,
+      el("p", { class: "meta" }, `${s.found_by} · AI rates it ${s.suggested_severity} · confidence ${s.confidence}` +
+        (s.locations.length ? ` · ${s.locations.map((l) => `${l.file.replace(/^sources\//, "")}:${l.line}`).join(", ")}` : "")));
+  }
+
+  // Prompts the user can paste straight into Cursor / Claude Code / Lovable etc.
+  function singleFixPrompt(issue) {
+    const where = issue.locations.map((l) => `${l.file}:${l.line}`).join(", ");
+    const what = lastResponse && lastResponse.report.target === "web" ? "website" : "Android app";
+    return `Please fix this problem in my ${what}.\n\nProblem: ${issue.title}\n${issue.explanation}\n\n` +
+      `Suggested fix: ${issue.fix}\n` + (where ? `Where (${what === "website" ? "code my site sends to browsers" : "decompiled code, names may differ in my source"}): ${where}\n` : "");
+  }
+
+  function fixPrompt(r) {
+    const what = r.target === "web" ? "website" : "Android app";
+    const lines = [`A security scan of my ${what} (${r.app.package_name}) found these problems. ` +
+      "Please fix them in my source code, most important first. " + (r.target === "web"
+        ? "File locations are in the code my site sends to browsers (it may be bundled or minified), so find the matching place in my project.\n"
+        : "File locations are from decompiled code, so names may differ slightly in my project.\n")];
+    let n = 0;
+    for (const [key, label] of GROUPS) {
+      for (const i of r.issues[key] || []) {
+        if (!i.fix) continue;
+        n += 1;
+        lines.push(`${n}. [${label}] ${i.title}\n   ${i.explanation}\n   Fix: ${i.fix}` +
+          (i.locations.length ? `\n   Where: ${i.locations.map((l) => `${l.file}:${l.line}`).join(", ")}` : "") + "\n");
+      }
+    }
+    return n ? lines.join("\n") : "No issues with suggested fixes were found.";
+  }
+})();
+</script>
+</body>
+</html>

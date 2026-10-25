@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VibeGuard</title>
+<meta name="description" content="You built it with AI. VibeGuard checks it for leaked keys, open data and bugs, and tells you in plain words what to fix.">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #f5f7f2; --card: #ffffff; --surface-2: #eef3e9; --panel: #0c120b; --panel-fg: #cfe6b8;
+    --text: #141a12; --muted: #56624c; --faint: #808c76; --border: #dbe2d4;
+    --accent: #3f7d1e; --accent-bright: #6fbf33; --accent-text: #ffffff; --accent-soft: #e3f0d6;
+    --critical: #c0392b; --critical-bg: #fbe4e1; --warning: #b0700e; --warning-bg: #fbeed7;
+    --smell: #3a5a93; --smell-bg: #e2e9f5; --sun: #fff4cf;
+    --shadow: 0 1px 2px rgba(16,24,16,.05), 0 12px 32px rgba(16,24,16,.08);
+    --display: "Archivo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #0a0e09; --card: #121810; --surface-2: #0f150d; --panel: #050804;
+    --text: #e9eee4; --muted: #a0ad93; --faint: #6f7c65; --border: #263021;
+    --accent: #8fd14f; --accent-bright: #a6e85f; --accent-text: #0a1204; --accent-soft: #1c2a12;
+    --critical: #ef7b70; --critical-bg: #3a1f1d; --warning: #e0aa48; --warning-bg: #352a16;
+    --smell: #7aa0dd; --smell-bg: #1b2740; --sun: #2a2614;
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 14px 36px rgba(0,0,0,.5);
+    color-scheme: dark;
+  } }
+  :root[data-theme="dark"] {
+    --bg: #0a0e09; --card: #121810; --surface-2: #0f150d; --panel: #050804;
+    --text: #e9eee4; --muted: #a0ad93; --faint: #6f7c65; --border: #263021;
+    --accent: #8fd14f; --accent-bright: #a6e85f; --accent-text: #0a1204; --accent-soft: #1c2a12;
+    --critical: #ef7b70; --critical-bg: #3a1f1d; --warning: #e0aa48; --warning-bg: #352a16;
+    --smell: #7aa0dd; --smell-bg: #1b2740; --sun: #2a2614;
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 14px 36px rgba(0,0,0,.5);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.6 var(--body); -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 max(18px, env(safe-area-inset-left, 0px)); }
+  h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; letter-spacing: -.02em; line-height: 1.1; }
+  a { color: var(--accent); }
+  .muted { color: var(--muted); }
+
+  /* nav */
+  nav { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 86%, transparent);
+        backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid transparent; transition: border-color .2s; }
+  nav.scrolled { border-bottom-color: var(--border); }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 14px; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
+  .brand svg { width: 28px; height: 33px; }
+  .brand b { font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: -.02em; }
+  .brand b span { color: var(--accent); }
+  .links { display: flex; gap: 22px; align-items: center; }
+  .links a { color: var(--muted); text-decoration: none; font-weight: 600; font-size: 15px; }
+  .links a:hover { color: var(--text); }
+  @media (max-width: 760px) { .links a.hide-sm { display: none; } }
+  .links .btn.sm { white-space: nowrap; }
+  @media (max-width: 460px) {
+    .brand b { display: none; }   /* the shield alone, so the button keeps one line */
+    .links { gap: 10px; }
+    .links .btn.sm { padding: 8px 12px; font-size: 13.5px; }
+  }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font: 700 16px var(--display);
+         text-decoration: none; border-radius: 14px; padding: 15px 26px; border: 1px solid var(--border); color: var(--text);
+         background: var(--card); transition: transform .1s, filter .15s, box-shadow .15s; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent);
+                 box-shadow: 0 10px 24px color-mix(in srgb, var(--accent) 30%, transparent); }
+  .btn.primary:hover { filter: brightness(1.06); }
+  .btn.sm { padding: 9px 16px; font-size: 14px; border-radius: 11px; box-shadow: none; }
+
+  /* hero */
+  .hero { position: relative; padding: 56px 0 40px; overflow: hidden; }
+  .blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: .55; pointer-events: none; }
+  .blob.a { width: 420px; height: 420px; background: color-mix(in srgb, var(--accent-bright) 45%, transparent); top: -120px; right: -80px; }
+  .blob.b { width: 300px; height: 300px; background: color-mix(in srgb, var(--warning) 25%, transparent); bottom: -140px; left: -80px; }
+  .hero .wrap { position: relative; display: grid; grid-template-columns: 1.05fr .95fr; gap: 44px; align-items: center; }
+  .hero .wrap > * { min-width: 0; }
+  @media (max-width: 900px) { .hero .wrap { grid-template-columns: 1fr; gap: 34px; } }
+  .kicker { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; color: var(--accent);
+            background: var(--accent-soft); border-radius: 999px; padding: 6px 14px; }
+  .hero h1 { font-size: clamp(40px, 6.2vw, 66px); font-weight: 900; margin: 18px 0 18px; }
+  .hero h1 .g { color: var(--accent); }
+  .hero p.lead { font-size: 19.5px; color: var(--muted); max-width: 48ch; margin: 0 0 28px; }
+  .cta { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .fine { font-size: 14.5px; color: var(--faint); margin-top: 16px; }
+  .fine b { color: var(--muted); font-weight: 600; }
+
+  /* check-up card */
+  .checkup { position: relative; background: var(--card); border: 1px solid var(--border); border-radius: 24px; box-shadow: var(--shadow);
+             padding: 22px; overflow: hidden; }
+  .checkup .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+  .checkup .top b { font-family: var(--display); font-size: 17px; }
+  .checkup .top span { font-size: 12.5px; color: var(--faint); }
+  .scanline { position: absolute; left: 0; right: 0; height: 80px; top: -80px; pointer-events: none;
+              background: linear-gradient(180deg, transparent, rgba(111,191,51,.16), transparent); animation: scan 3.8s ease-in-out infinite; }
+  @keyframes scan { 0% { top: -80px; } 60%, 100% { top: 100%; } }
+  .lights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .light { border-radius: 16px; padding: 12px; text-align: left; }
+  .light .n { font: 900 32px/1 var(--display); }
+  .light .l { font-size: 13px; font-weight: 600; margin-top: 4px; }
+  .light.red { background: var(--critical-bg); color: var(--critical); }
+  .light.amber { background: var(--warning-bg); color: var(--warning); }
+  .light.blue { background: var(--smell-bg); color: var(--smell); }
+  .item { display: flex; gap: 12px; align-items: flex-start; padding: 12px; border-radius: 14px; background: var(--surface-2); margin-top: 8px; }
+  .item .dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 8px; flex: none; background: var(--critical); }
+  .item p { margin: 0; font-weight: 600; font-size: 15px; }
+  .plain { margin-top: 12px; background: var(--sun); border-radius: 14px; padding: 12px 14px; font-size: 14.5px; }
+  .plain b { display: block; font-size: 12.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--warning); margin-bottom: 2px; }
+  .copychip { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; font-weight: 700; font-size: 14px;
+              color: var(--accent-text); background: var(--accent); border-radius: 10px; padding: 8px 12px; }
+  .demo-label { font-size: 12.5px; color: var(--faint); margin-top: 10px; }
+
+  /* tools strip */
+  .tools { padding: 10px 0 36px; text-align: center; }
+  .tools p { margin: 0 0 14px; color: var(--muted); font-weight: 600; }
+  .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+  .chips span { font-weight: 700; font-size: 15px; padding: 8px 14px; border-radius: 999px; background: var(--card); border: 1px solid var(--border); }
+
+  section { padding: 70px 0; }
+  section.alt { background: var(--surface-2); }
+  .head { max-width: 660px; margin: 0 auto 36px; text-align: center; }
+  .head h2 { font-size: clamp(30px, 4.2vw, 44px); font-weight: 900; margin: 0 0 12px; }
+  .head p { color: var(--muted); font-size: 18px; margin: 0; }
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  @media (max-width: 960px) { .grid4 { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 760px) { .grid3 { grid-template-columns: 1fr; } }
+  @media (max-width: 560px) { .grid4 { grid-template-columns: 1fr; } }
+  .grid4 > *, .grid3 > * { min-width: 0; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 22px; padding: 24px; box-shadow: var(--shadow); }
+  .card h3 { font-size: 20px; font-weight: 800; margin: 14px 0 8px; }
+  .card p { color: var(--muted); margin: 0; font-size: 16px; }
+  .emoji { font-size: 34px; line-height: 1; width: 58px; height: 58px; border-radius: 18px; display: grid; place-items: center; background: var(--surface-2); }
+  section.alt .emoji { background: var(--bg); }
+  .step .num { font: 900 15px var(--display); width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center;
+               background: var(--accent); color: var(--accent-text); }
+
+  /* example to-do */
+  .two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 36px; align-items: center; }
+  @media (max-width: 900px) { .two { grid-template-columns: minmax(0, 1fr); } }
+  .two h2 { font-size: clamp(30px, 4.2vw, 42px); font-weight: 900; margin: 0 0 14px; }
+  .two .lead2 { color: var(--muted); font-size: 18px; margin: 0 0 18px; }
+  .todo { background: var(--card); border: 1px solid var(--border); border-left: 6px solid var(--critical); border-radius: 22px; padding: 22px; box-shadow: var(--shadow); }
+  .todo .tag { display: inline-block; font-weight: 800; font-size: 12.5px; letter-spacing: .04em; text-transform: uppercase;
+               color: var(--critical); background: var(--critical-bg); border-radius: 8px; padding: 3px 9px; }
+  .todo h3 { font-size: 21px; font-weight: 800; margin: 12px 0 8px; }
+  .todo .label { font-weight: 800; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--faint); margin-top: 14px; }
+  .todo p { margin: 4px 0 0; }
+  .prompt { margin-top: 14px; background: var(--panel); color: var(--panel-fg); border-radius: 14px; padding: 14px 16px;
+            font: 13.5px/1.6 var(--mono); white-space: pre-wrap; }
+  .prompt .hd { color: #8fd14f; font-weight: 600; }
+  .ticks { list-style: none; padding: 0; margin: 0; }
+  .ticks li { position: relative; padding: 8px 0 8px 36px; font-size: 17px; }
+  .ticks li::before { content: "✓"; position: absolute; left: 0; top: 7px; width: 25px; height: 25px; border-radius: 8px;
+                      background: var(--accent-soft); color: var(--accent); font-weight: 900; display: grid; place-items: center; font-size: 14px; }
+
+  /* pricing */
+  .plans { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  @media (max-width: 960px) { .plans { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .plans { grid-template-columns: 1fr; } }
+  .plans > * { min-width: 0; }
+  .plan { display: flex; flex-direction: column; gap: 10px; }
+  .plan.featured { border: 2px solid var(--accent); position: relative; }
+  .plan.featured .badge { position: absolute; top: -12px; left: 20px; font-weight: 800; font-size: 12px;
+                          background: var(--accent); color: var(--accent-text); padding: 4px 10px; border-radius: 999px; }
+  .plan .name { font: 800 18px var(--display); }
+  .plan .tagline { color: var(--muted); font-size: 15px; margin-top: -4px; }
+  .plan .price { font: 900 42px/1 var(--display); letter-spacing: -.03em; }
+  .plan .price small { font: 600 14px var(--body); color: var(--faint); letter-spacing: 0; margin-left: 4px; }
+  .plan ul { flex: 1; margin: 0; padding-left: 20px; color: var(--muted); font-size: 15.5px; }
+  .plan ul li { margin: 5px 0; }
+  .demo-note { font-size: 14px; color: var(--warning); background: var(--warning-bg); border-radius: 12px; padding: 9px 14px; display: inline-block; margin-top: 20px; }
+  .center { text-align: center; }
+
+  /* faq */
+  .faq { max-width: 760px; margin: 0 auto; }
+  details { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 18px 22px; margin: 10px 0; }
+  details summary { cursor: pointer; font: 800 18px var(--display); list-style: none; display: flex; justify-content: space-between; gap: 14px; }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::after { content: "+"; color: var(--accent); font-size: 24px; line-height: 1; transition: transform .2s; }
+  details[open] summary::after { transform: rotate(45deg); }
+  details p { color: var(--muted); margin: 10px 0 0; }
+
+  .final { text-align: center; padding: 84px 0; }
+  .final .box { background: var(--accent); color: var(--accent-text); border-radius: 30px; padding: 56px 24px; position: relative; overflow: hidden; }
+  .final h2 { font-size: clamp(32px, 4.6vw, 50px); font-weight: 900; margin: 0 0 12px; }
+  .final p { font-size: 19px; margin: 0 0 28px; opacity: .9; }
+  .final .btn { background: var(--card); color: var(--text); border-color: transparent; box-shadow: none; }
+  footer { padding: 26px 0 44px; font-size: 13.5px; color: var(--faint); }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+  .reveal { opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .scanline { display: none; } .reveal { opacity: 1; transform: none; transition: none; } html { scroll-behavior: auto; } .btn:hover { transform: none; }
+  }
+</style>
+<script src="/static/i18n-de.js"></script>
+<script src="/static/i18n.js"></script>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="VibeGuard home">
+      <svg viewBox="0 0 34 40" fill="none" aria-hidden="true">
+        <path d="M17 2 31 7v13c0 9-6 15-14 18C9 35 3 29 3 20V7z" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>
+        <path d="m11 21 4 4 8-8" stroke="var(--accent)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <b>Vibe<span>Guard</span></b>
+    </a>
+    <div class="links" data-lang-host>
+      <a class="hide-sm" href="#how">How it works</a>
+      <a class="hide-sm" href="#pricing">Pricing</a>
+      <a class="hide-sm" href="#faq">Questions</a>
+      <a class="btn primary sm" href="/app" id="nav-cta">Check my app free</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="blob a"></div><div class="blob b"></div>
+  <div class="wrap">
+    <div>
+      <span class="kicker">✨ Made for people who build with AI</span>
+      <h1>You built it with AI.<br><span class="g">Now make sure it's safe.</span></h1>
+      <p class="lead">Drop in your app or paste your website link. VibeGuard checks it for leaked keys, open data
+        and hidden bugs, and tells you in plain words what to fix. No coding knowledge needed.</p>
+      <div class="cta">
+        <a class="btn primary" href="/app" id="hero-cta">Check my app free →</a>
+        <a class="btn" href="/app#example">See an example</a>
+      </div>
+      <p class="fine" id="free-line">Free · about a minute · no card needed</p>
+    </div>
+
+    <div class="checkup reveal" aria-label="An example check-up">
+      <div class="scanline" aria-hidden="true"></div>
+      <div class="top"><b>Your check-up</b><span>example</span></div>
+      <div class="lights">
+        <div class="light red"><div class="n" data-count="4">4</div><div class="l">Fix right away</div></div>
+        <div class="light amber"><div class="n" data-count="9">9</div><div class="l">Fix soon</div></div>
+        <div class="light blue"><div class="n" data-count="4">4</div><div class="l">Tidy up later</div></div>
+      </div>
+      <div class="item"><span class="dot"></span><p>A secret key is visible in the website's code</p></div>
+      <div class="item"><span class="dot"></span><p>The Supabase admin key is in the website's code</p></div>
+      <div class="item"><span class="dot"></span><p>The website's .env file can be downloaded</p></div>
+      <div class="plain"><b>What this means</b>Everything a website sends to the browser can be read by anyone, so this key is public. Attackers can use it to run up bills or reach your data.</div>
+      <span class="copychip">📋 Copy the fix for my AI tool</span>
+      <p class="demo-label">A real check of our demo website, which has problems planted on purpose.</p>
+    </div>
+  </div>
+</header>
+
+<div class="tools">
+  <div class="wrap">
+    <p>Built it with any of these? VibeGuard checks what they made.</p>
+    <div class="chips" data-no-i18n><span>Lovable</span><span>Bolt</span><span>Cursor</span><span>Replit</span><span>v0</span><span>Windsurf</span><span>ChatGPT</span><span>Claude</span></div>
+  </div>
+</div>
+
+<section class="alt" id="risks">
+  <div class="wrap">
+    <div class="head reveal">
+      <h2>What can go wrong (and nobody tells you)</h2>
+      <p>AI tools build fast, but they don't warn you about these. VibeGuard does.</p>
+    </div>
+    <div class="grid4">
+      <div class="card reveal"><div class="emoji">🔑</div><h3>Your secret keys are public</h3>
+        <p>AI often puts API keys straight into your app. Anyone can copy them and run up your bill.</p></div>
+      <div class="card reveal"><div class="emoji">👀</div><h3>Strangers can see your data</h3>
+        <p>A leaked admin key or settings file can let anyone read, change or delete your users' data.</p></div>
+      <div class="card reveal"><div class="emoji">🔓</div><h3>Logins that can be stolen</h3>
+        <p>Login details kept in the wrong place can be grabbed by a single bad script.</p></div>
+      <div class="card reveal"><div class="emoji">🐞</div><h3>Bugs that crash or leak</h3>
+        <p>Small mistakes that make your app crash, freeze, or quietly lose data.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="head reveal">
+      <h2>Three steps. About a minute.</h2>
+      <p>No setup, nothing to install, no technical words.</p>
+    </div>
+    <div class="grid3">
+      <div class="card step reveal"><div class="num">1</div><h3>Drop it in</h3>
+        <p>Your Android app file, your website's address, or a zip of your project.</p></div>
+      <div class="card step reveal"><div class="num">2</div><h3>We check it</h3>
+        <p>Security checks a professional would run: leaked keys, unsafe settings, open data and common bugs.</p></div>
+      <div class="card step reveal"><div class="num">3</div><h3>Get a simple to-do list</h3>
+        <p>Free: see what's wrong. For $9, every problem in plain words with a fix you can paste into your AI tool. Or we fix it for you.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="example">
+  <div class="wrap two">
+    <div class="reveal">
+      <h2>A to-do list you'll actually understand</h2>
+      <p class="lead2">Every problem says what it is, why it matters and exactly what to do. Not sure how? Copy the
+        ready-made instructions and paste them into the AI tool you built with.</p>
+      <ul class="ticks">
+        <li>Sorted by what to fix first</li>
+        <li>Explained in everyday words</li>
+        <li>One click to copy the fix for your AI tool</li>
+      </ul>
+    </div>
+    <div class="todo reveal">
+      <span class="tag">Fix right away</span>
+      <h3>A secret key is visible in the website's code</h3>
+      <div class="label">Why it matters</div>
+      <p>Everything a website sends to the browser can be read by anyone, so this key is public. Attackers can use it to run up bills or reach your data.</p>
+      <div class="label">What to do</div>
+      <p>Revoke and replace the key now, then move the call that needs it into a server-side function (for example an API route or edge function). Only keys meant to be public belong in the browser.</p>
+      <div class="prompt" data-no-i18n><span class="hd">📋 Paste this into your AI tool:</span>
+<span class="vg-prompt">Please fix this problem in my website: a secret key is visible in the website's code (app.js, line 3). Move the call that needs it into a server-side function and load the key from an environment variable there.</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="trust">
+  <div class="wrap">
+    <div class="head reveal">
+      <h2>Why you can trust the results</h2>
+    </div>
+    <div class="grid3">
+      <div class="card reveal"><div class="emoji">🎯</div><h3>No guessing</h3>
+        <p>Problems are found by proven security checks, not by an AI's opinion. The AI only explains them.</p></div>
+      <div class="card reveal"><div class="emoji">🔁</div><h3>Same app, same answer</h3>
+        <p>Check the same app again and you get exactly the same result, every time.</p></div>
+      <div class="card reveal"><div class="emoji">🛡️</div><h3>Your code stays yours</h3>
+        <p>Uploads are deleted after 24 hours, and secret files are never kept. You can only check what you own.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="pricing">
+  <div class="wrap">
+    <div class="head reveal">
+      <h2>Start free. Pay only if you need more.</h2>
+      <p>No subscription. Every check is free to try.</p>
+    </div>
+    <div class="plans">
+      <div class="card plan reveal">
+        <div class="name">Free check</div><div class="tagline">See what's wrong</div>
+        <div class="price">$0</div>
+        <ul><li>How many problems, and what they are</li><li><span id="free-per-day">5</span> free checks a day</li><li>Checking the same app again is free</li></ul>
+        <a class="btn" href="/app">Start free</a>
+      </div>
+      <div class="card plan reveal" data-plan="report">
+        <div class="name">Bug report</div><div class="tagline">Know exactly what to fix</div>
+        <div class="price">$9<small>once</small></div>
+        <ul><li>Where each problem is</li><li>Why it matters, in plain words</li><li>A ready-made fix for your AI tool</li></ul>
+        <a class="btn" href="/app">Check, then unlock</a>
+      </div>
+      <div class="card plan featured reveal" data-plan="fix">
+        <span class="badge">Recommended</span>
+        <div class="name">Bug fixing</div><div class="tagline">We fix it for you</div>
+        <div class="price">$50<small>once</small></div>
+        <ul><li>The serious problems fixed in your code</li><li>Every fix double-checked</li><li>Download your fixed project</li></ul>
+        <a class="btn primary" href="/app">Fix my app</a>
+      </div>
+      <div class="card plan reveal" data-plan="improve">
+        <div class="name">Code improvement</div><div class="tagline">Fix it and tidy it up</div>
+        <div class="price">$150<small>once</small></div>
+        <ul><li>Everything in Bug fixing</li><li>Messy code cleaned up too</li><li>A pull request ready to open</li></ul>
+        <a class="btn" href="/app">Fix and tidy up</a>
+      </div>
+    </div>
+    <div class="center"><span class="demo-note" id="demo-note" hidden>Hackathon demo: payments are simulated, so no real money is taken.</span></div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="head reveal"><h2>Questions</h2></div>
+    <div class="faq">
+      <details><summary>I'm not a developer. Will I understand the results?</summary>
+        <p>Yes. Every problem is explained in everyday words: what it is, what could happen, and what to do. You can
+          also copy the fix and paste it straight into the AI tool you built with.</p></details>
+      <details><summary>Does it work with Lovable, Bolt, Cursor or Replit?</summary>
+        <p>Yes. VibeGuard checks what you ship: your Android app file, your live website, or your project's code. It
+          doesn't matter which tool wrote it.</p></details>
+      <details><summary>Do I have to upload my code?</summary>
+        <p>No. The free check and the $9 report only need your app file or your website's address. You only upload
+          your code if you want us to fix things for you.</p></details>
+      <details><summary>Is it safe to upload my app or code?</summary>
+        <p>Uploads are deleted after 24 hours, and secret files such as signing keys and .env files are never kept.
+          You can only check apps and websites you own or have permission to test.</p></details>
+      <details><summary>What if it finds something serious?</summary>
+        <p>Start with the items marked "Fix right away". The report tells you exactly what to do, or choose Bug
+          fixing and we fix it in your code for you. Every fix is checked again before you get it.</p></details>
+      <details><summary>Will the fixes break my app?</summary>
+        <p>Every fix is checked again before you get it, and fixes that could break other parts of your app are
+          rejected. We can't run your app, so try it once before you publish; the report reminds you.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="final">
+  <div class="wrap reveal">
+    <div class="box">
+      <h2>Check your app before your users find the problems.</h2>
+      <p>Free, about a minute, no card needed.</p>
+      <a class="btn" href="/app">Check my app free →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© VibeGuard · Only check apps and websites you own or may test.</span>
+    <span>For the technical folks: findings follow OWASP MASVS / ASVS and CWE; built on jadx, Semgrep, Gitleaks and apksig plus VibeGuard's own deep engine.</span>
+  </div>
+</footer>
+
+<script>
+(() => {
+  "use strict";
+  // An old Supabase sign-in redirect may land here: hand it to the scanner page, which finishes it.
+  if (location.hash.includes("access_token")) { location.replace("/app" + location.hash); return; }
+
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const nav = document.getElementById("nav");
+  addEventListener("scroll", () => nav.classList.toggle("scrolled", scrollY > 8), { passive: true });
+
+  function countUp(el) {
+    const target = Number(el.dataset.count);
+    if (reduce || !target) { el.textContent = String(target); return; }
+    const start = performance.now(), ms = 900;
+    const tick = (t) => {
+      const p = Math.min(1, (t - start) / ms);
+      el.textContent = String(Math.round(target * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+  const seen = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      e.target.classList.add("in");
+      e.target.querySelectorAll("[data-count]").forEach(countUp);
+      seen.unobserve(e.target);
+    }
+  }, { threshold: 0.15 });
+  document.querySelectorAll(".reveal").forEach((el) => seen.observe(el));
+
+  // The example prompt is code-like text the page skips when translating, so it has its own German copy.
+  const PROMPT_DE = "Bitte behebe dieses Problem auf meiner Website: Ein geheimer Schlüssel ist im Code der Website sichtbar " +
+    "(app.js, Zeile 3). Verlege den Aufruf, der ihn braucht, in eine serverseitige Funktion und lade den Schlüssel dort aus einer Umgebungsvariable.";
+  const promptEl = document.querySelector(".vg-prompt"), promptEn = promptEl.textContent;
+  const promptHead = document.querySelector(".prompt .hd");
+  const setPrompt = () => {
+    const de = window.VG && VG.lang() === "de";
+    promptEl.textContent = de ? PROMPT_DE : promptEn;
+    promptHead.textContent = de ? "📋 Füge das in dein KI-Tool ein:" : "📋 Paste this into your AI tool:";
+  };
+  setPrompt();
+  window.addEventListener("vg-lang", setPrompt);
+
+  // Signed-in visitors get a way straight back to their scans.
+  function signedIn(l) {
+    document.getElementById("nav-cta").textContent = "Open VibeGuard";
+    document.getElementById("hero-cta").textContent = "Open VibeGuard →";
+    const left = l.unlimited ? " · unlimited scans" : l.left_today === undefined ? "" : ` · ${l.left_today} of ${l.free_scans_per_day} free scans left today`;
+    document.getElementById("free-line").textContent = `You're signed in${left}`;
+  }
+
+  // Prices, free allowance and demo-payment note come from the server, so they never drift from the app.
+  fetch("/health").then((r) => r.json()).then((h) => {
+    const money = (c) => `$${(c / 100).toFixed(c % 100 ? 2 : 0)}`;
+    for (const p of h.plans || []) {
+      const card = document.querySelector(`.plan[data-plan="${p.id}"] .price`);
+      if (card) card.firstChild.textContent = money(p.price_cents);
+    }
+    if (h.payments_mode === "demo") document.getElementById("demo-note").hidden = false;
+    return fetch("/limits").then((r) => r.json());
+  }).then((l) => {
+    if (l && l.signed_in) signedIn(l);
+    if (l && l.free_scans_per_day && !l.signed_in) document.getElementById("free-per-day").textContent = l.free_scans_per_day;
+  }).catch(() => {});
+})();
+</script>
+</body>
+</html>

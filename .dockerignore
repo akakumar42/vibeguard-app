@@ -1,0 +1,16 @@
+# Never put secrets or local state into the image
+.env
+.verify-secret
+data/
+.venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+# Not used by the local edition (the deep engine is left out)
+tools/rea/
+# Big samples that aren't needed in the image
+samples/fdroid-latest.apk
+samples/fdroidclient-*.zip
+samples/android-demo-src/
+.git/
+team.env

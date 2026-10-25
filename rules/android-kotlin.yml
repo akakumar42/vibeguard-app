@@ -1,0 +1,304 @@
+# Kotlin versions of rules/android.yml, for scanning source projects (the APK scan sees decompiled Java only).
+# Same rule ids, so scanner/policy.py gives them the same severity, standard and fix text.
+# Not ported: string-compared-with-equals-sign (in Kotlin, == on strings compares the text, which is correct).
+
+rules:
+  # ---------------------------------------------------------------- security: network / TLS
+  - id: trust-all-certificates
+    languages: [kotlin]
+    severity: ERROR
+    message: A custom TrustManager accepts every TLS certificate, so anyone on the network can intercept "secure" HTTPS traffic.
+    metadata: {category: security, cwe: "CWE-295"}
+    pattern-either:
+      - pattern: |
+          fun checkServerTrusted(...) {}
+      - pattern: |
+          fun checkServerTrusted(...) = Unit
+      - pattern: |
+          fun getAcceptedIssuers(): $T = null
+      - pattern: |
+          fun getAcceptedIssuers(): $T { return null }
+
+  - id: hostname-verifier-allow-all
+    languages: [kotlin]
+    severity: ERROR
+    message: Hostname verification is disabled, so the app will talk to an impostor server that presents any valid certificate.
+    metadata: {category: security, cwe: "CWE-297"}
+    pattern-either:
+      - pattern: |
+          fun verify($H: String?, $S: SSLSession?): Boolean = true
+      - pattern: |
+          fun verify($H: String, $S: SSLSession): Boolean = true
+      - pattern: |
+          fun verify($H: String?, $S: SSLSession?): Boolean { return true }
+      - pattern: HostnameVerifier { $A, $B -> true }
+      - pattern: $X.hostnameVerifier { $A, $B -> true }
+      - pattern: $X.setHostnameVerifier { $A, $B -> true }
+      - pattern: NoopHostnameVerifier.INSTANCE
+      - pattern: NoopHostnameVerifier()
+
+  - id: webview-ignores-ssl-errors
+    languages: [kotlin]
+    severity: ERROR
+    message: The WebView is told to continue loading pages even when their HTTPS certificate is invalid.
+    metadata: {category: security, cwe: "CWE-295"}
+    patterns:
+      - pattern-inside: |
+          fun onReceivedSslError(...) { ... }
+      - pattern: $HANDLER?.proceed()
+
+  - id: weak-tls-version
+    languages: [kotlin]
+    severity: WARNING
+    message: An outdated, breakable TLS/SSL protocol version is requested explicitly.
+    metadata: {category: security, cwe: "CWE-327"}
+    patterns:
+      - pattern: SSLContext.getInstance($P)
+      - metavariable-regex:
+          metavariable: $P
+          regex: (?i)^"(SSL|SSLv2|SSLv3|TLSv1|TLSv1\.1)"$
+
+  # ---------------------------------------------------------------- security: WebView
+  - id: webview-javascript-enabled
+    languages: [kotlin]
+    severity: INFO
+    message: JavaScript is enabled in a WebView. Fine for trusted pages, risky if it can load untrusted content.
+    metadata: {category: security, cwe: "CWE-79"}
+    pattern-either:
+      - pattern: $S.javaScriptEnabled = true
+      - pattern: $S.setJavaScriptEnabled(true)
+
+  - id: webview-javascript-interface
+    languages: [kotlin]
+    severity: WARNING
+    message: A Kotlin object is exposed to JavaScript in a WebView. Any page loaded there can call into the app's code.
+    metadata: {category: security, cwe: "CWE-749"}
+    pattern: $W.addJavascriptInterface(...)
+
+  - id: webview-file-access
+    languages: [kotlin]
+    severity: WARNING
+    message: The WebView is allowed to read local files, which a malicious page could use to steal app data.
+    metadata: {category: security, cwe: "CWE-200"}
+    pattern-either:
+      - pattern: $S.allowFileAccessFromFileURLs = true
+      - pattern: $S.allowUniversalAccessFromFileURLs = true
+      - pattern: $S.allowFileAccess = true
+      - pattern: $S.setAllowFileAccess(true)
+
+  # ---------------------------------------------------------------- security: crypto
+  - id: weak-hash
+    languages: [kotlin]
+    severity: WARNING
+    message: A broken hash algorithm (MD5/SHA-1) is used. Unsafe for passwords, signatures or integrity checks.
+    metadata: {category: security, cwe: "CWE-328"}
+    patterns:
+      - pattern: MessageDigest.getInstance($ALG, ...)
+      - metavariable-regex:
+          metavariable: $ALG
+          regex: (?i)^"(md2|md4|md5|sha-?1)"$
+
+  - id: weak-cipher
+    languages: [kotlin]
+    severity: WARNING
+    message: A weak encryption mode is used (DES/RC4, or ECB mode which leaks patterns in the data).
+    metadata: {category: security, cwe: "CWE-327"}
+    patterns:
+      - pattern: Cipher.getInstance($T, ...)
+      - metavariable-regex:
+          metavariable: $T
+          regex: (?i)^"(AES|DES.*|RC2.*|RC4.*|ARCFOUR.*|Blowfish.*|[^"]*/ECB/[^"]*)"$
+
+  - id: hardcoded-crypto-key-or-iv
+    languages: [kotlin]
+    severity: ERROR
+    message: An encryption key or IV is written directly in the code, so anyone with the APK can decrypt the data.
+    metadata: {category: security, cwe: "CWE-321"}
+    pattern-either:
+      - pattern: SecretKeySpec("...".toByteArray(...), ...)
+      - pattern: SecretKeySpec(byteArrayOf(...), ...)
+      - pattern: IvParameterSpec("...".toByteArray(...))
+      - pattern: IvParameterSpec(byteArrayOf(...))
+      - pattern: IvParameterSpec(ByteArray($N))
+
+  # ---------------------------------------------------------------- security: data storage
+  - id: world-readable-file
+    languages: [kotlin]
+    severity: ERROR
+    message: Data is saved in a mode that lets every other app on the phone read or change it.
+    metadata: {category: security, cwe: "CWE-276"}
+    patterns:
+      - pattern-either:
+          - pattern: $C.getSharedPreferences($N, $MODE)
+          - pattern: $C.openFileOutput($N, $MODE)
+          - pattern: $C.openOrCreateDatabase($N, $MODE, ...)
+      - metavariable-regex:
+          metavariable: $MODE
+          regex: ^(1|2|3|.*MODE_WORLD_(READABLE|WRITEABLE))$
+
+  - id: external-storage
+    languages: [kotlin]
+    severity: INFO
+    message: Files are written to shared external storage, where other apps (and the user) can read them.
+    metadata: {category: security, cwe: "CWE-922"}
+    pattern-either:
+      - pattern: Environment.getExternalStorageDirectory()
+      - pattern: Environment.getExternalStoragePublicDirectory(...)
+
+  - id: sensitive-data-logged
+    languages: [kotlin]
+    severity: WARNING
+    message: Something that looks like a password, token or key is written to the system log, which other tools can read.
+    metadata: {category: security, cwe: "CWE-532"}
+    patterns:
+      - pattern-either:
+          - pattern: Log.$F($T, $MSG, ...)
+          - pattern: println($MSG)
+      - metavariable-regex:
+          metavariable: $MSG
+          regex: (?i).*(password|passwd|secret|token|api_?key|credential|session_?id|bearer).*
+
+  - id: sql-string-concatenation
+    languages: [kotlin]
+    severity: WARNING
+    message: A database query is built by gluing strings together. If any part comes from the user, this allows SQL injection.
+    metadata: {category: security, cwe: "CWE-89"}
+    patterns:
+      - pattern-either:
+          - pattern: $DB.rawQuery($Q, ...)
+          - pattern: $DB.execSQL($Q, ...)
+          - pattern: $DB.execSQL($Q)
+      # Glued with + or built with a "$value" / "${...}" string template.
+      - metavariable-regex:
+          metavariable: $Q
+          regex: (?s)^(.*"\s*\+.*|.*\+\s*".*|".*\$[\w{].*")$
+
+  - id: zip-path-traversal
+    languages: [kotlin]
+    severity: ERROR
+    message: Files from a ZIP archive are extracted using the name stored inside the archive. A malicious ZIP can overwrite any of the app's files ("Zip Slip").
+    metadata: {category: security, cwe: "CWE-22"}
+    patterns:
+      - pattern-either:
+          - pattern: File($D, $Z.name)
+          - pattern: File($D, $Z.getName())
+      # Only inside code that is reading a zip archive.
+      - pattern-either:
+          - pattern-inside: |
+              fun $F(..., $P: ZipInputStream, ...) { ... }
+          - pattern-inside: |
+              fun $F(..., $P: ZipFile, ...) { ... }
+          - pattern-inside: |
+              var $E = $X.nextEntry
+              ...
+          - pattern-inside: |
+              val $E = $X.nextEntry
+              ...
+          - pattern-inside: |
+              ZipInputStream(...).use { ... }
+          - pattern-inside: |
+              ZipFile(...).use { ... }
+          - pattern-inside: |
+              for ($E in $X.entries()) { ... }
+      # Not when the next statements check that the resolved path stays inside the target folder.
+      - pattern-not-inside: |
+          val $OUT = File(...)
+          ...
+          if (<... $OUT.canonicalPath.startsWith(...) ...>) { ... }
+      - pattern-not-inside: |
+          val $OUT = File(...)
+          ...
+          if (<... $OUT.canonicalFile.toPath().startsWith(...) ...>) { ... }
+      - pattern-not-inside: |
+          val $OUT = File(...)
+          ...
+          if (<... $OUT.toPath().normalize().startsWith(...) ...>) { ... }
+      - pattern-not-inside: |
+          val $OUT = File(...)
+          ...
+          val $S = $OUT.canonicalPath
+          ...
+          if (<... $S.startsWith(...) ...>) { ... }
+      - pattern-not-inside: |
+          val $OUT = File(...)
+          ...
+          val $S = $OUT.canonicalFile
+          ...
+          if (<... $S.toPath().startsWith(...) ...>) { ... }
+      - pattern-not-inside: |
+          val $OUT = File(...)
+          ...
+          require(<... $OUT.canonicalPath.startsWith(...) ...>) { ... }
+      - pattern-not-inside: |
+          val $OUT = File(...)
+          ...
+          require(<... $OUT.canonicalPath.startsWith(...) ...>)
+      - pattern-not-inside: |
+          val $OUT = File(...)
+          ...
+          check(<... $OUT.canonicalPath.startsWith(...) ...>) { ... }
+
+  # ---------------------------------------------------------------- security: code execution
+  - id: runtime-exec
+    languages: [kotlin]
+    severity: WARNING
+    message: The app runs shell commands. If any part of the command comes from outside, this allows command injection.
+    metadata: {category: security, cwe: "CWE-78"}
+    pattern-either:
+      - pattern: Runtime.getRuntime().exec(...)
+      - pattern: ProcessBuilder(...)
+
+  - id: dynamic-code-loading
+    languages: [kotlin]
+    severity: WARNING
+    message: The app loads extra code at runtime. If that code file can be swapped, an attacker can run their own code inside the app.
+    metadata: {category: security, cwe: "CWE-94"}
+    pattern-either:
+      - pattern: DexClassLoader(...)
+      - pattern: PathClassLoader(...)
+      - pattern: InMemoryDexClassLoader(...)
+
+  # ---------------------------------------------------------------- likely bugs
+  - id: handler-without-looper
+    languages: [kotlin]
+    severity: INFO
+    message: Handler() without a Looper is deprecated and crashes if created on a background thread.
+    metadata: {category: bug}
+    pattern: Handler()
+
+  - id: catch-null-pointer
+    languages: [kotlin]
+    severity: INFO
+    message: The code catches NullPointerException instead of checking for missing values, which hides real bugs.
+    metadata: {category: bug, cwe: "CWE-395"}
+    pattern-either:
+      - pattern: |
+          try { ... } catch ($E: NullPointerException) { ... }
+      - pattern: |
+          try { ... } catch ($E: KotlinNullPointerException) { ... }
+
+  # ---------------------------------------------------------------- code smells
+  - id: empty-catch-block
+    languages: [kotlin]
+    severity: INFO
+    message: An error is caught and silently ignored, so failures here will go unnoticed.
+    metadata: {category: smell, cwe: "CWE-390"}
+    pattern: |
+      try { ... } catch ($E: $T) {}
+
+  - id: print-stack-trace
+    languages: [kotlin]
+    severity: INFO
+    message: Errors are printed to the console instead of being handled or reported.
+    metadata: {category: smell}
+    pattern: $E.printStackTrace()
+
+  - id: system-exit
+    languages: [kotlin]
+    severity: INFO
+    message: The app force-quits itself with System.exit() or exitProcess(), which Android apps should not do.
+    metadata: {category: smell}
+    pattern-either:
+      - pattern: System.exit(...)
+      - pattern: exitProcess(...)
+      - pattern: kotlin.system.exitProcess(...)

@@ -1,0 +1,112 @@
+# Semgrep rules for a website's shipped JavaScript (what the browser actually downloads).
+# Severity shown in reports comes from scanner/policy.py, not from the `severity` here.
+rules:
+  - id: web-innerhtml-assignment
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: HTML built from a variable is written into the page, which can let attackers inject scripts (XSS).
+    metadata: {category: security, cwe: "CWE-79"}
+    patterns:
+      - pattern-either:
+          - pattern: $EL.innerHTML = $VALUE
+          - pattern: $EL.outerHTML = $VALUE
+          - pattern: $EL.insertAdjacentHTML($POS, $VALUE)
+      - pattern-not: $EL.innerHTML = "..."
+      - pattern-not: $EL.outerHTML = "..."
+      - pattern-not: $EL.insertAdjacentHTML($POS, "...")
+      - pattern-not: $EL.innerHTML = `...`
+
+  - id: web-document-write
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: document.write() with a variable can inject scripts into the page (XSS).
+    metadata: {category: security, cwe: "CWE-79"}
+    patterns:
+      - pattern-either:
+          - pattern: document.write($X)
+          - pattern: document.writeln($X)
+      - pattern-not: document.write("...")
+      - pattern-not: document.writeln("...")
+
+  - id: web-dangerously-set-inner-html
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: React's dangerouslySetInnerHTML is used with a variable, which can inject scripts (XSS).
+    metadata: {category: security, cwe: "CWE-79"}
+    pattern-either:
+      - pattern: "{dangerouslySetInnerHTML: {__html: $X}}"
+      - pattern: "<$EL dangerouslySetInnerHTML={{__html: $X}} />"
+
+  - id: web-eval
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: Text is run as code (eval / new Function / string timer); if any of it comes from outside, attackers can run their own code.
+    metadata: {category: security, cwe: "CWE-95"}
+    patterns:
+      - pattern-either:
+          - pattern: eval($X)
+          - pattern: new Function(...)
+          - pattern: setTimeout("...", ...)
+          - pattern: setInterval("...", ...)
+      - pattern-not: eval("...")
+
+  - id: web-token-in-localstorage
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: A login token or secret is saved in localStorage, where any injected script can read it.
+    metadata: {category: security, cwe: "CWE-922"}
+    patterns:
+      - pattern-either:
+          - pattern: localStorage.setItem($KEY, $VALUE)
+          - pattern: sessionStorage.setItem($KEY, $VALUE)
+          - pattern: window.localStorage.setItem($KEY, $VALUE)
+      - metavariable-regex:
+          metavariable: $KEY
+          regex: (?i).*(token|jwt|auth|session|secret|password|apikey|api_key).*
+
+  - id: web-postmessage-no-origin-check
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: The page accepts messages from any website without checking who sent them.
+    metadata: {category: security, cwe: "CWE-346"}
+    patterns:
+      - pattern-either:
+          - pattern: $W.addEventListener("message", $HANDLER, ...)
+          - pattern: addEventListener("message", $HANDLER, ...)
+      # The handler's own code never reads the sender's origin.
+      - metavariable-regex:
+          metavariable: $HANDLER
+          regex: ^(?![\s\S]*\.origin\b)[\s\S]*\{[\s\S]*$
+
+  - id: web-postmessage-wildcard
+    languages: [javascript, typescript]
+    severity: INFO
+    message: Data is sent with postMessage to "*", so any website embedding this page can receive it.
+    metadata: {category: security, cwe: "CWE-345"}
+    pattern: $W.postMessage($MSG, "*")
+
+  - id: web-insecure-http-request
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: The app calls a server over plain http://, so the data can be read or changed on the network.
+    metadata: {category: security, cwe: "CWE-319"}
+    patterns:
+      - pattern-either:
+          - pattern: fetch("$URL", ...)
+          - pattern: axios.$METHOD("$URL", ...)
+          - pattern: $XHR.open($VERB, "$URL", ...)
+          - pattern: new WebSocket("$URL", ...)
+      - metavariable-regex:
+          metavariable: $URL
+          regex: ^(http|ws)://(?!localhost|127\.0\.0\.1|\[::1\])
+
+  - id: web-sensitive-console-log
+    languages: [javascript, typescript]
+    severity: INFO
+    message: A token or password is printed to the browser console, where extensions and screen-sharers can see it.
+    metadata: {category: smell, cwe: "CWE-532"}
+    patterns:
+      - pattern: console.$LOG(..., $X.$FIELD, ...)
+      - metavariable-regex:
+          metavariable: $FIELD
+          regex: (?i)^(token|access_token|accesstoken|jwt|password|secret|apikey|api_key)$

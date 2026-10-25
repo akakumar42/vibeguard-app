@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VibeGuard Checkout</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #f1f4ef; --card: #ffffff; --surface-2: #f4f7f1; --text: #141a12; --muted: #58634f; --faint: #828e78; --border: #d7ddd2;
+    --accent: #3f7d1e; --accent-text: #ffffff; --accent-soft: #e3f0d6;
+    --warning: #9a6a12; --warning-bg: #f6ebd6; --fine: #3f7d1e; --fine-bg: #e3f0d6; --critical: #b4322a; --critical-bg: #f7e2e0;
+    --shadow: 0 1px 2px rgba(16,24,16,.06), 0 8px 24px rgba(16,24,16,.07);
+    --display: "Archivo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #0a0e09; --card: #121810; --surface-2: #0e130c; --text: #e7ece2; --muted: #9aa78d; --faint: #6a7760; --border: #242c1f;
+    --accent: #8fd14f; --accent-text: #0a1204; --accent-soft: #1c2a12;
+    --warning: #d9a23f; --warning-bg: #352a16; --fine: #8fd14f; --fine-bg: #1c2a12; --critical: #e86b62; --critical-bg: #3a1f1d;
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 12px 34px rgba(0,0,0,.55); color-scheme: dark;
+  } }
+  :root[data-theme="dark"] {
+    --bg: #0a0e09; --card: #121810; --surface-2: #0e130c; --text: #e7ece2; --muted: #9aa78d; --faint: #6a7760; --border: #242c1f;
+    --accent: #8fd14f; --accent-text: #0a1204; --accent-soft: #1c2a12;
+    --warning: #d9a23f; --warning-bg: #352a16; --fine: #8fd14f; --fine-bg: #1c2a12; --critical: #e86b62; --critical-bg: #3a1f1d;
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 12px 34px rgba(0,0,0,.55); color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 var(--body); -webkit-font-smoothing: antialiased; }
+  main { max-width: 480px; margin: 0 auto; padding: 32px 16px 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .brand svg { width: 26px; height: 31px; }
+  .brand b { font-family: var(--display); font-weight: 800; font-size: 20px; letter-spacing: -.02em; }
+  .brand b span { color: var(--accent); }
+  .brand .tag { font: 12px var(--mono); color: var(--faint); text-transform: uppercase; letter-spacing: .08em; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin: 16px 0; box-shadow: var(--shadow); }
+  .demo { background: var(--warning-bg); color: var(--warning); border-radius: 10px; padding: 12px 14px; font-weight: 600; }
+  .demo span { display: block; font-weight: 400; font-size: 13.5px; }
+  h1 { font-family: var(--display); font-size: 22px; font-weight: 800; margin: 0 0 4px; }
+  .muted { color: var(--muted); }
+  .small { font-size: 14px; }
+  .line { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+  .line:last-child { border-bottom: none; }
+  .line span:first-child { font: 12px var(--mono); text-transform: uppercase; letter-spacing: .05em; color: var(--faint); padding-top: 2px; }
+  .line span:last-child { text-align: right; overflow-wrap: anywhere; }
+  .total { font-family: var(--display); font-size: 24px; font-weight: 800; }
+  .mono { font-family: var(--mono); font-size: 13px; }
+  button { font: 600 15px var(--body); border-radius: 10px; padding: 12px 18px; cursor: pointer; border: 1px solid var(--border);
+           background: var(--card); color: var(--text); width: 100%; margin-top: 10px; transition: transform .08s, filter .15s; }
+  button.primary { font-family: var(--display); font-weight: 700; background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  button.primary:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.05); }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .status { border-radius: 10px; padding: 12px 14px; margin-top: 12px; }
+  .status.ok { background: var(--fine-bg); color: var(--fine); }
+  .status.bad { background: var(--critical-bg); color: var(--critical); }
+  .hidden { display: none; }
+</style>
+<script src="/static/i18n-de.js"></script>
+<script src="/static/i18n.js"></script>
+</head>
+<body>
+<main>
+  <div class="brand">
+    <svg viewBox="0 0 34 40" fill="none" aria-hidden="true">
+      <path d="M17 2 31 7v13c0 9-6 15-14 18C9 35 3 29 3 20V7z" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>
+      <path d="m11 21 4 4 8-8" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <b>Vibe<span>Guard</span></b><span class="tag">checkout</span><span style="margin-left:auto" data-lang-host></span>
+  </div>
+  <div class="demo" role="note">Demo checkout: no real payment
+    <span>This is a hackathon demo. No card details are collected and no money is taken. Pressing Pay marks the order as paid.</span>
+  </div>
+
+  <div class="card" id="order-card">
+    <h1 id="plan">Loading order…</h1>
+    <div id="lines"></div>
+    <button class="primary" id="pay" disabled>Pay</button>
+    <button id="cancel" disabled>Cancel and go back</button>
+    <div class="status hidden" id="status" aria-live="polite"></div>
+  </div>
+</main>
+<script>
+(() => {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const orderId = location.pathname.split("/").pop();
+  let order = null;
+
+  const money = (cents, currency) => new Intl.NumberFormat("en-US", { style: "currency", currency }).format(cents / 100);
+  function line(label, value, cls) {
+    const row = document.createElement("div");
+    row.className = "line";
+    const a = document.createElement("span"), b = document.createElement("span");
+    a.textContent = label; b.textContent = value;
+    if (cls) b.className = cls;
+    row.append(a, b);
+    return row;
+  }
+  function status(text, ok) {
+    $("status").textContent = text;
+    $("status").className = `status ${ok ? "ok" : "bad"}`;
+  }
+
+  function render() {
+    $("plan").textContent = order.plan_name;
+    const c = order.counts;
+    $("lines").replaceChildren(
+      line("Scan", order.scanned || "?"),
+      line("Issues found", `${c.critical} critical · ${c.warning} warnings · ${c.smell} smells`),
+      line("Result fingerprint", order.result_fingerprint, "mono"),
+      line("Order", order.id, "mono"),
+      line("Total", money(order.price_cents, order.currency), "total"));
+    $("pay").textContent = `Pay ${money(order.price_cents, order.currency)} (demo)`;
+    const open = order.status === "open";
+    $("pay").disabled = !open;
+    $("cancel").disabled = !open;
+    if (order.status === "paid") {
+      status("Payment received. Opening your full report…", true);
+      setTimeout(() => { location.href = order.report_url; }, 900);
+    } else if (order.status === "cancelled") {
+      status("This order was cancelled.", false);
+      $("cancel").disabled = false;
+      $("cancel").textContent = "Back to the free result";
+    }
+  }
+
+  async function call(path, method) {
+    const res = await fetch(path, { method });
+    const body = await res.json();
+    if (!res.ok) throw new Error(body.detail || "Something went wrong");
+    return body;
+  }
+
+  $("pay").addEventListener("click", async () => {
+    $("pay").disabled = $("cancel").disabled = true;
+    $("pay").textContent = "Processing…";
+    try { order = await call(`/orders/${encodeURIComponent(orderId)}/complete`, "POST"); render(); }
+    catch (e) { status(String(e.message || e), false); $("pay").disabled = $("cancel").disabled = false; }
+  });
+  $("cancel").addEventListener("click", async () => {
+    if (order.status === "open") {
+      try { order = await call(`/orders/${encodeURIComponent(orderId)}/cancel`, "POST"); } catch { /* go back anyway */ }
+    }
+    location.href = order.report_url;
+  });
+
+  call(`/orders/${encodeURIComponent(orderId)}`, "GET")
+    .then((o) => { order = o; render(); })
+    .catch((e) => { $("plan").textContent = "Order not found"; status(String(e.message || e), false); });
+})();
+</script>
+</body>
+</html>

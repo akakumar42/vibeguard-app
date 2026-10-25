@@ -1,0 +1,3 @@
+# Deliberately exposed environment file (test fixture - fake values)
+DATABASE_URL=postgres://taskpal:hunter2@db.taskpal-demo.com:5432/taskpal
+STRIPE_SECRET_KEY=sk_live_51NzQ8kLp4XwT9vB2mRcY7dHs

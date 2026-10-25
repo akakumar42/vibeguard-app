@@ -1,0 +1,260 @@
+# Android-focused Semgrep rules, written against jadx-decompiled Java.
+# metadata.category is one of: security | bug | smell  (used later to group the report)
+# Note: jadx inlines constants, so e.g. Context.MODE_WORLD_READABLE shows up as the number 1.
+
+rules:
+  # ---------------------------------------------------------------- security: network / TLS
+  - id: trust-all-certificates
+    languages: [java]
+    severity: ERROR
+    message: A custom TrustManager accepts every TLS certificate, so anyone on the network can intercept "secure" HTTPS traffic.
+    metadata: {category: security, cwe: "CWE-295"}
+    pattern-either:
+      - pattern: |
+          void checkServerTrusted(...) {}
+      - pattern: |
+          X509Certificate[] getAcceptedIssuers() { return null; }
+
+  - id: hostname-verifier-allow-all
+    languages: [java]
+    severity: ERROR
+    message: Hostname verification is disabled, so the app will talk to an impostor server that presents any valid certificate.
+    metadata: {category: security, cwe: "CWE-297"}
+    pattern-either:
+      - pattern: |
+          boolean verify(String $H, SSLSession $S) { return true; }
+      - pattern: $X.hostnameVerifier(($H, $S) -> true)
+      - pattern: $X.setHostnameVerifier(($H, $S) -> true)
+      - pattern: SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER
+      - pattern: new AllowAllHostnameVerifier()
+      - pattern: NoopHostnameVerifier.INSTANCE
+      - pattern: new NoopHostnameVerifier()
+
+  - id: webview-ignores-ssl-errors
+    languages: [java]
+    severity: ERROR
+    message: The WebView is told to continue loading pages even when their HTTPS certificate is invalid.
+    metadata: {category: security, cwe: "CWE-295"}
+    patterns:
+      - pattern-inside: |
+          $RET onReceivedSslError(...) { ... }
+      - pattern: $HANDLER.proceed();
+
+  - id: weak-tls-version
+    languages: [java]
+    severity: WARNING
+    message: An outdated, breakable TLS/SSL protocol version is requested explicitly.
+    metadata: {category: security, cwe: "CWE-327"}
+    patterns:
+      - pattern: SSLContext.getInstance($P)
+      - metavariable-regex:
+          metavariable: $P
+          regex: (?i)^"(SSL|SSLv2|SSLv3|TLSv1|TLSv1\.1)"$
+
+  # ---------------------------------------------------------------- security: WebView
+  - id: webview-javascript-enabled
+    languages: [java]
+    severity: INFO
+    message: JavaScript is enabled in a WebView. Fine for trusted pages, risky if it can load untrusted content.
+    metadata: {category: security, cwe: "CWE-79"}
+    pattern: $S.setJavaScriptEnabled(true)
+
+  - id: webview-javascript-interface
+    languages: [java]
+    severity: WARNING
+    message: A Java object is exposed to JavaScript in a WebView. Any page loaded there can call into the app's code.
+    metadata: {category: security, cwe: "CWE-749"}
+    pattern: $W.addJavascriptInterface(...)
+
+  - id: webview-file-access
+    languages: [java]
+    severity: WARNING
+    message: The WebView is allowed to read local files, which a malicious page could use to steal app data.
+    metadata: {category: security, cwe: "CWE-200"}
+    pattern-either:
+      - pattern: $S.setAllowFileAccessFromFileURLs(true)
+      - pattern: $S.setAllowUniversalAccessFromFileURLs(true)
+      - pattern: $S.setAllowFileAccess(true)
+
+  # ---------------------------------------------------------------- security: crypto
+  - id: weak-hash
+    languages: [java]
+    severity: WARNING
+    message: A broken hash algorithm (MD5/SHA-1) is used. Unsafe for passwords, signatures or integrity checks.
+    metadata: {category: security, cwe: "CWE-328"}
+    patterns:
+      - pattern: MessageDigest.getInstance($ALG, ...)
+      - metavariable-regex:
+          metavariable: $ALG
+          regex: (?i)^"(md2|md4|md5|sha-?1)"$
+
+  - id: weak-cipher
+    languages: [java]
+    severity: WARNING
+    message: A weak encryption mode is used (DES/RC4, or ECB mode which leaks patterns in the data).
+    metadata: {category: security, cwe: "CWE-327"}
+    patterns:
+      - pattern: Cipher.getInstance($T, ...)
+      - metavariable-regex:
+          metavariable: $T
+          # bare "AES" defaults to ECB on Android
+          regex: (?i)^"(AES|DES.*|RC2.*|RC4.*|ARCFOUR.*|Blowfish.*|[^"]*/ECB/[^"]*)"$
+
+  - id: hardcoded-crypto-key-or-iv
+    languages: [java]
+    severity: ERROR
+    message: An encryption key or IV is written directly in the code, so anyone with the APK can decrypt the data.
+    metadata: {category: security, cwe: "CWE-321"}
+    pattern-either:
+      - pattern: new SecretKeySpec("...".getBytes(...), ...)
+      - pattern: new SecretKeySpec(new byte[]{...}, ...)
+      - pattern: new IvParameterSpec("...".getBytes(...))
+      - pattern: new IvParameterSpec(new byte[]{...})
+      - pattern: new IvParameterSpec(new byte[$N])
+
+  # ---------------------------------------------------------------- security: data storage
+  - id: world-readable-file
+    languages: [java]
+    severity: ERROR
+    message: Data is saved in a mode that lets every other app on the phone read or change it.
+    metadata: {category: security, cwe: "CWE-276"}
+    patterns:
+      - pattern-either:
+          - pattern: $C.getSharedPreferences($N, $MODE)
+          - pattern: $C.openFileOutput($N, $MODE)
+          - pattern: $C.openOrCreateDatabase($N, $MODE, ...)
+      - metavariable-regex:
+          metavariable: $MODE
+          regex: ^(1|2|3|.*MODE_WORLD_(READABLE|WRITEABLE))$
+
+  - id: external-storage
+    languages: [java]
+    severity: INFO
+    message: Files are written to shared external storage, where other apps (and the user) can read them.
+    metadata: {category: security, cwe: "CWE-922"}
+    pattern-either:
+      - pattern: Environment.getExternalStorageDirectory()
+      - pattern: Environment.getExternalStoragePublicDirectory(...)
+
+  - id: sensitive-data-logged
+    languages: [java]
+    severity: WARNING
+    message: Something that looks like a password, token or key is written to the system log, which other tools can read.
+    metadata: {category: security, cwe: "CWE-532"}
+    patterns:
+      - pattern-either:
+          - pattern: Log.$F($T, $MSG, ...)
+          - pattern: System.out.println($MSG)
+      - metavariable-regex:
+          metavariable: $MSG
+          regex: (?i).*(password|passwd|secret|token|api_?key|credential|session_?id|bearer).*
+
+  - id: sql-string-concatenation
+    languages: [java]
+    severity: WARNING
+    message: A database query is built by gluing strings together. If any part comes from the user, this allows SQL injection.
+    metadata: {category: security, cwe: "CWE-89"}
+    pattern-either:
+      - pattern: $DB.rawQuery($A + $B, ...)
+      - pattern: $DB.execSQL($A + $B, ...)
+      - pattern: $DB.execSQL($A + $B)
+
+  - id: zip-path-traversal
+    languages: [java]
+    severity: ERROR
+    message: Files from a ZIP archive are extracted using the name stored inside the archive. A malicious ZIP can overwrite any of the app's files ("Zip Slip").
+    metadata: {category: security, cwe: "CWE-22"}
+    patterns:
+      - pattern-either:
+          - pattern: new File($D, (ZipEntry $Z).getName())
+          - pattern: new File($D + $SEP + (ZipEntry $Z).getName())
+          - pattern: new File($D + (ZipEntry $Z).getName())
+      # Not when the method checks that the resolved path stays inside the target folder (the standard fix).
+      - pattern-not-inside: |
+          $RT $M(...) { ... if (<... $X.getCanonicalPath().startsWith(...) ...>) $BODY; ... }
+      - pattern-not-inside: |
+          $RT $M(...) { ... if (<... $X.getCanonicalFile().toPath().startsWith(...) ...>) $BODY; ... }
+      - pattern-not-inside: |
+          $RT $M(...) { ... if (<... $X.toPath().normalize().startsWith(...) ...>) $BODY; ... }
+      - pattern-not-inside: |
+          $RT $M(...) { ... $S = $X.getCanonicalPath(); ... if (<... $S.startsWith(...) ...>) $BODY; ... }
+      - pattern-not-inside: |
+          $RT $M(...) { ... $S = $X.getCanonicalFile(); ... if (<... $S.toPath().startsWith(...) ...>) $BODY; ... }
+      - pattern-not-inside: |
+          $RT $M(...) { ... $S = $X.getCanonicalFile(); ... if (<... $S.getPath().startsWith(...) ...>) $BODY; ... }
+      - pattern-not-inside: |
+          $RT $M(...) { ... $S = $X.toPath().normalize(); ... if (<... $S.startsWith(...) ...>) $BODY; ... }
+
+  # ---------------------------------------------------------------- security: code execution
+  - id: runtime-exec
+    languages: [java]
+    severity: WARNING
+    message: The app runs shell commands. If any part of the command comes from outside, this allows command injection.
+    metadata: {category: security, cwe: "CWE-78"}
+    pattern-either:
+      - pattern: Runtime.getRuntime().exec(...)
+      - pattern: new ProcessBuilder(...)
+
+  - id: dynamic-code-loading
+    languages: [java]
+    severity: WARNING
+    message: The app loads extra code at runtime. If that code file can be swapped, an attacker can run their own code inside the app.
+    metadata: {category: security, cwe: "CWE-94"}
+    pattern-either:
+      - pattern: new DexClassLoader(...)
+      - pattern: new PathClassLoader(...)
+      - pattern: new InMemoryDexClassLoader(...)
+
+  # ---------------------------------------------------------------- likely bugs
+  - id: string-compared-with-equals-sign
+    languages: [java]
+    severity: WARNING
+    message: Text is compared with == instead of .equals(). This often gives the wrong answer even when the text matches.
+    metadata: {category: bug, cwe: "CWE-597"}
+    pattern-either:
+      - pattern: (String $A) == "..."
+      - pattern: '"..." == (String $A)'
+      - pattern: (String $A) != "..."
+      - pattern: '"..." != (String $A)'
+
+  - id: handler-without-looper
+    languages: [java]
+    severity: INFO
+    message: new Handler() without a Looper is deprecated and crashes if created on a background thread.
+    metadata: {category: bug}
+    pattern: new Handler()
+
+  - id: catch-null-pointer
+    languages: [java]
+    severity: INFO
+    message: The code catches NullPointerException instead of checking for missing values, which hides real bugs.
+    metadata: {category: bug, cwe: "CWE-395"}
+    pattern: |
+      try { ... } catch (NullPointerException $E) { ... }
+
+  # ---------------------------------------------------------------- code smells
+  - id: empty-catch-block
+    languages: [java]
+    severity: INFO
+    message: An error is caught and silently ignored, so failures here will go unnoticed.
+    metadata: {category: smell, cwe: "CWE-390"}
+    patterns:
+      - pattern: |
+          try { ... } catch ($T $E) {}
+      # Kotlin generates these for every `when` over an enum - not written by the developer.
+      - pattern-not: |
+          try { ... } catch (NoSuchFieldError $E) {}
+
+  - id: print-stack-trace
+    languages: [java]
+    severity: INFO
+    message: Errors are printed to the console instead of being handled or reported.
+    metadata: {category: smell}
+    pattern: $E.printStackTrace()
+
+  - id: system-exit
+    languages: [java]
+    severity: INFO
+    message: The app force-quits itself with System.exit(), which Android apps should not do.
+    metadata: {category: smell}
+    pattern: System.exit(...)

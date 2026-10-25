@@ -1,0 +1,19 @@
+# VibeGuard local edition:  docker compose up   then open http://127.0.0.1:8000
+services:
+  vibeguard:
+    build: .
+    image: vibeguard:local
+    ports:
+      - "127.0.0.1:8000:8000"   # VibeGuard (only reachable from this computer)
+      - "127.0.0.1:8100:8100"   # demo website for the Website tab
+    volumes:
+      - vibeguard-data:/data     # accounts, saved scans, orders survive restarts
+    # Optional settings from a .env file next to this one: OPENROUTER_API_KEY for the AI, SUPABASE_URL and
+    # SUPABASE_ANON_KEY for Google sign-in, UNLIMITED_ACCOUNTS, WEB_VERIFY_EXEMPT_HOSTS. Without it VibeGuard
+    # still runs: email sign-in with the code on the page, and scans without AI wording.
+    env_file:
+      - path: .env
+        required: false
+    restart: unless-stopped
+volumes:
+  vibeguard-data:
