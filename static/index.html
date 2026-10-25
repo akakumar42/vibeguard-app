@@ -651,6 +651,27 @@
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
 
+  // The paid report as an HTML file, in the page's language. Fetched and saved like the text download: a
+  // navigation to the file is easy for the browser to hold back (an .html download) and shows raw errors.
+  async function downloadHtmlReport(response, button) {
+    const lang = window.VG && VG.lang() === "de" ? "de" : "en";
+    button.disabled = true;
+    toast("Preparing your report. The first download in a new language takes about 30 seconds.");
+    try {
+      const res = await fetch(`/reports/${encodeURIComponent(response.report_id)}/download/html?lang=${lang}`);
+      if (res.status === 401) { needSignIn(null); return; }
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).detail || "The report could not be downloaded.");
+      const name = (/filename="([^"]+)"/.exec(res.headers.get("content-disposition") || "") || [])[1]
+        || `${response.report.app.package_name}-report-${lang}.html`;
+      download(name, await res.text(), "text/html");
+      toast("Report downloaded");
+    } catch (err) {
+      toast(String(err.message || err));
+    } finally {
+      button.disabled = false;
+    }
+  }
+
   let mode = "apk";
   let me = null, authRequired = false, afterSignIn = null;
   function show(section) {
@@ -1421,11 +1442,8 @@
       : locked ? `Free scan · ${r.target === "web" ? s.url : s.apk_name}`
       : response.paid ? "✓ Paid · full report unlocked" : (r.target === "web" ? "Website scan" : "App scan");
     main.append(dashHead(badge, r.app.one_liner, r.app.package_name, [
-      !locked && response.paid && response.report_id ? el("button", { class: "small", onclick: () => {
-        const lang = window.VG && VG.lang() === "de" ? "de" : "en";
-        toast("Preparing your report. The first download in a new language takes about 30 seconds.");
-        location.href = `/reports/${encodeURIComponent(response.report_id)}/download/html?lang=${lang}`;
-      } }, "Download report (HTML)") : null,
+      !locked && response.paid && response.report_id ? el("button", { class: "small", onclick: (e) => downloadHtmlReport(response, e.currentTarget) },
+        "Download report (HTML)") : null,
       locked ? null : el("button", { class: "small", onclick: () => download(`${r.app.package_name}-report.txt`, response.report_text || "", "text/plain") }, "Download text"),
       locked ? null : el("button", { class: "small", onclick: () => download(`${r.app.package_name}-report.json`, JSON.stringify(r, null, 2), "application/json") }, "Download JSON"),
       scanAnother(what),
