@@ -542,6 +542,38 @@ window.VG_DE = {
 "Secret (shortened):": "Geheimnis (gekürzt):",
 "Note:": "Hinweis:",
 "Preparing your report. The first download in a new language takes about 30 seconds.": "Dein Bericht wird vorbereitet. Der erste Download in einer neuen Sprache dauert etwa 30 Sekunden.",
+"New": "Neu",
+"Security check for AI-built apps": "Sicherheitscheck für mit KI gebaute Apps",
+"Find what's wrong": "Finde, was nicht stimmt,",
+"before your users do.": "bevor es deine Nutzer tun.",
+"Live scan": "Live-Scan",
+"Report sections": "Abschnitte des Berichts",
+"Overview": "Übersicht",
+"All issues": "Alle Probleme",
+"False alarms": "Fehlalarme",
+"Problem to fix": "Problem zu beheben",
+"Problems to fix": "Probleme zu beheben",
+"Fix now": "Jetzt beheben",
+"Later": "Später",
+"Where the problems are": "Wo die Probleme liegen",
+"By area": "Nach Bereich",
+"By kind": "Nach Art",
+"Places": "Stellen",
+"Other": "Sonstiges",
+"Fix these first": "Das zuerst beheben",
+"Nothing to fix. Nice work.": "Nichts zu beheben. Gute Arbeit.",
+"Unlock the full report": "Vollständigen Bericht freischalten",
+"Findings": "Befunde",
+"Open any issue to see why it matters and how to fix it.": "Öffne ein Problem, um zu sehen, warum es wichtig ist und wie du es behebst.",
+"Unlock the full report to see where each one is and how to fix it.": "Schalte den vollständigen Bericht frei, um zu sehen, wo jedes Problem steckt und wie du es behebst.",
+"Filter issues": "Probleme filtern",
+"Search issues": "Probleme suchen",
+"Search issues, CWE, file…": "Probleme, CWE, Datei suchen…",
+"All": "Alle",
+"No issues match.": "Keine passenden Probleme.",
+"Probably a false alarm": "Wahrscheinlich ein Fehlalarm",
+"Where it is, why it matters and how to fix it": "Wo es steckt, warum es wichtig ist und wie du es behebst",
+"1 place": "1 Stelle",
 "Please sign in with your email to scan. It's free and takes a minute.": "Bitte melde dich mit deiner E-Mail-Adresse an, um zu scannen. Es ist kostenlos und dauert eine Minute.",
 "Scan refused: you must confirm you own this app or have permission to test it (i_am_authorized=true).": "Scan abgelehnt: Du musst bestätigen, dass dir diese App gehört oder du sie testen darfst.",
 "The deep engine is not installed on this server; choose Fast · jadx.": "Die gründliche Engine ist auf diesem Server nicht installiert; wähle Schnell · jadx.",
@@ -1036,6 +1068,22 @@ window.VG_DE = {
 [
 "Not counted above · (\\d[\\d,]*)",
 "Oben nicht mitgezählt · $1"
+],
+[
+"(\\d[\\d,]*) places",
+"$1 Stellen"
+],
+[
+"1 place · (CWE-\\d+)",
+"1 Stelle · $1"
+],
+[
+"(\\d[\\d,]*) places · (CWE-\\d+)",
+"$1 Stellen · $2"
+],
+[
+"What we found in your (app|website)",
+"Was wir in deiner $1 gefunden haben"
 ],
 [
 "Not counted: (\\d[\\d,]*) probable false alarms \\(listed below the issues\\)",

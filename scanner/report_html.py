@@ -206,36 +206,39 @@ def render_html(report: dict, language: str = "en", paid_plan: str | None = None
 
 
 CSS = """
-:root { --bg: #f1f4ef; --card: #fff; --text: #141a12; --muted: #58634f; --border: #d7ddd2; --code-bg: #f4f7f1;
-  --accent: #3f7d1e; --critical: #b4322a; --critical-bg: #f7e2e0; --warning: #9a6a12; --warning-bg: #f6ebd6;
-  --smell: #3a5a93; --smell-bg: #e2e9f5; color-scheme: light; }
+:root { --bg: #f5f7fc; --card: #fff; --text: #0d1222; --muted: #5a6277; --border: #e3e7f0; --code-bg: #f3f5fb;
+  --accent: #1f4fe0; --accent-soft: #e9efff; --critical: #d0342c; --critical-bg: #fde9e8; --warning: #b36b00; --warning-bg: #fff3dc;
+  --smell: #5b50d6; --smell-bg: #eeecff; color-scheme: light; }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--text);
-  font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+body { margin: 0; background: radial-gradient(rgba(31,79,224,.08) 1px, transparent 1.2px) 0 0 / 22px 22px, var(--bg); color: var(--text);
+  font: 15px/1.55 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+h1, h2, h4 { font-family: "Inter Tight", Inter, -apple-system, "Segoe UI", sans-serif; letter-spacing: -.02em; }
 main { max-width: 860px; margin: 0 auto; padding: 28px 16px 48px; }
 .brand { font: 600 12px ui-monospace, Menlo, monospace; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); margin: 0 0 18px; }
-header, .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 20px 22px; margin-bottom: 18px; }
-h1 { font-size: 22px; line-height: 1.3; margin: 4px 0 4px; } h2 { font-size: 18px; margin: 0; } h3 { font-size: 14px; margin: 16px 0 6px; }
+header, .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 22px 24px; margin-bottom: 18px;
+  box-shadow: 0 1px 2px rgba(13,18,34,.04), 0 10px 30px rgba(31,79,224,.07); }
+h1 { font-size: 26px; line-height: 1.2; margin: 8px 0 4px; font-weight: 800; } h2 { font-size: 18px; margin: 0; } h3 { font-size: 14px; margin: 16px 0 6px; }
 h4 { font-size: 15px; margin: 0; }
 .eyebrow, .muted, .meta { color: var(--muted); font-size: 13px; } .eyebrow { margin: 0; }
 .where, .meta, code { font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; overflow-wrap: anywhere; }
 .where { color: var(--muted); margin: 0 0 14px; padding-left: 18px; }
 .glance { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 14px 0; }
-.tile { border: 1px solid var(--border); border-top-width: 3px; border-radius: 12px; padding: 12px 14px; }
+.tile { border: 1px solid var(--border); border-radius: 16px; padding: 14px 16px; }
+.tile.critical { background: var(--critical-bg); border-color: transparent; }
+.tile.warning { background: var(--warning-bg); border-color: transparent; }
+.tile.smell { background: var(--smell-bg); border-color: transparent; }
 .tile .n { font-size: 28px; font-weight: 800; line-height: 1; } .tile .l { font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-top: 6px; }
-.tile.critical { border-top-color: var(--critical); } .tile.critical .n { color: var(--critical); }
-.tile.warning { border-top-color: var(--warning); } .tile.warning .n { color: var(--warning); }
-.tile.smell { border-top-color: var(--smell); } .tile.smell .n { color: var(--smell); }
+.tile.critical .n { color: var(--critical); } .tile.warning .n { color: var(--warning); } .tile.smell .n { color: var(--smell); }
 .banner { background: var(--warning-bg); border-radius: 10px; padding: 10px 12px; font-size: 13.5px; }
 .group-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 26px 0 10px; }
-.issue { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--border); border-radius: 12px; padding: 14px 16px; margin: 0 0 12px; break-inside: avoid; }
+.issue { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--border); border-radius: 16px; padding: 16px 18px; margin: 0 0 12px; break-inside: avoid; }
 .issue.critical { border-left-color: var(--critical); } .issue.warning { border-left-color: var(--warning); } .issue.smell { border-left-color: var(--smell); }
 .issue.suggestion { border-left-color: var(--accent); }
 .title { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
-.sev { font: 600 11px ui-monospace, Menlo, monospace; text-transform: uppercase; border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+.sev { font: 600 11px Inter, -apple-system, sans-serif; border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
 .sev.critical { color: var(--critical); background: var(--critical-bg); } .sev.warning { color: var(--warning); background: var(--warning-bg); }
 .sev.smell { color: var(--smell); background: var(--smell-bg); }
-.fix { background: var(--code-bg); border-radius: 10px; padding: 10px 12px; margin: 10px 0; font-size: 14px; } .fix p { margin: 4px 0 0; }
+.fix { background: var(--accent-soft); border-radius: 12px; padding: 10px 12px; margin: 10px 0; font-size: 14px; } .fix p { margin: 4px 0 0; }
 .review { background: var(--warning-bg); border-radius: 10px; padding: 8px 12px; font-size: 13.5px; }
 details summary { cursor: pointer; color: var(--muted); font-size: 13px; }
 .about ul { padding-left: 18px; font-size: 13.5px; }

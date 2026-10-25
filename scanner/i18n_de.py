@@ -897,6 +897,10 @@ PATTERNS = [
     (rf"and {N} more places?", "und $1 weitere Stelle(n)"),
     (rf"Not verified · not counted above · {N}", "Nicht bestätigt · oben nicht mitgezählt · $1"),
     (rf"Not counted above · {N}", "Oben nicht mitgezählt · $1"),
+    (rf"{N} places", "$1 Stellen"),
+    (r"1 place · (CWE-\d+)", "1 Stelle · $1"),
+    (rf"{N} places · (CWE-\d+)", "$1 Stellen · $2"),
+    (r"What we found in your (app|website)", "Was wir in deiner $1 gefunden haben"),
     (rf"Not counted: {N} probable false alarms \(listed below the issues\)",
      "Nicht gezählt: $1 wahrscheinliche Fehlalarme (unter den Problemen aufgeführt)"),
     (r"(.+?) · AI rates it (\w+) · confidence (\w+)(.*)", "$1 · KI-Einschätzung: $2 · Sicherheit: $3$4"),
@@ -957,7 +961,7 @@ def exact() -> dict[str, str]:
     """Every English sentence the pages can show, with its German text."""
     from scanner.policy import RULES as POLICY
 
-    out = {**PAGES, **LANDING, **LANDING_FRIENDLY, **LANDING_WAITLIST, **REPORT_DOWNLOAD, **SERVER, **STRUCTURE, **WORDS}
+    out = {**PAGES, **LANDING, **LANDING_FRIENDLY, **LANDING_WAITLIST, **REPORT_DOWNLOAD, **DASHBOARD, **SERVER, **STRUCTURE, **WORDS}
     for rule_id, (title, risk, fix) in RULES.items():
         if rule_id in POLICY:
             p = POLICY[rule_id]
@@ -1247,6 +1251,45 @@ REPORT_DOWNLOAD = {
     "Note:": "Hinweis:",
     "Preparing your report. The first download in a new language takes about 30 seconds.":
         "Dein Bericht wird vorbereitet. Der erste Download in einer neuen Sprache dauert etwa 30 Sekunden.",
+}
+
+
+# The report dashboard and the scanning page's hero (static/index.html).
+DASHBOARD = {
+    "New": "Neu",
+    "Security check for AI-built apps": "Sicherheitscheck für mit KI gebaute Apps",
+    "Find what's wrong": "Finde, was nicht stimmt,",
+    "before your users do.": "bevor es deine Nutzer tun.",
+    "Live scan": "Live-Scan",
+    "Report sections": "Abschnitte des Berichts",
+    "Overview": "Übersicht",
+    "All issues": "Alle Probleme",
+    "False alarms": "Fehlalarme",
+    "Problem to fix": "Problem zu beheben",
+    "Problems to fix": "Probleme zu beheben",
+    "Fix now": "Jetzt beheben",
+    "Later": "Später",
+    "Where the problems are": "Wo die Probleme liegen",
+    "By area": "Nach Bereich",
+    "By kind": "Nach Art",
+    "Places": "Stellen",
+    "Other": "Sonstiges",
+    "Fix these first": "Das zuerst beheben",
+    "Nothing to fix. Nice work.": "Nichts zu beheben. Gute Arbeit.",
+    "Unlock the full report": "Vollständigen Bericht freischalten",
+    "Findings": "Befunde",
+    "Open any issue to see why it matters and how to fix it.":
+        "Öffne ein Problem, um zu sehen, warum es wichtig ist und wie du es behebst.",
+    "Unlock the full report to see where each one is and how to fix it.":
+        "Schalte den vollständigen Bericht frei, um zu sehen, wo jedes Problem steckt und wie du es behebst.",
+    "Filter issues": "Probleme filtern",
+    "Search issues": "Probleme suchen",
+    "Search issues, CWE, file…": "Probleme, CWE, Datei suchen…",
+    "All": "Alle",
+    "No issues match.": "Keine passenden Probleme.",
+    "Probably a false alarm": "Wahrscheinlich ein Fehlalarm",
+    "Where it is, why it matters and how to fix it": "Wo es steckt, warum es wichtig ist und wie du es behebst",
+    "1 place": "1 Stelle",
 }
 
 

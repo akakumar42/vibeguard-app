@@ -5,43 +5,46 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>VibeGuard</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
-  /* VibeGuard design tokens (light; dark below). */
+  /* VibeGuard design tokens (light; dark below). Royal blue on white, like the landing page's dashboard look. */
   :root {
-    --bg: #f1f4ef; --card: #ffffff; --surface-2: #f4f7f1; --panel: #0c120b; --panel-fg: #cfe6b8;
-    --text: #141a12; --muted: #58634f; --faint: #828e78; --border: #d7ddd2;
-    --accent: #3f7d1e; --accent-bright: #6fbf33; --accent-text: #ffffff; --accent-soft: #e3f0d6;
-    --critical: #b4322a; --critical-bg: #f7e2e0;
-    --warning: #9a6a12; --warning-bg: #f6ebd6;
-    --smell: #3a5a93; --smell-bg: #e2e9f5;
-    --fine: #3f7d1e; --fine-bg: #e3f0d6; --code-bg: #f4f7f1;
-    --shadow: 0 1px 2px rgba(16,24,16,.06), 0 8px 24px rgba(16,24,16,.07);
-    --display: "Archivo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --bg: #f5f7fc; --card: #ffffff; --surface-2: #f3f5fb; --panel: #0b1020; --panel-fg: #c9d6ff;
+    --text: #0d1222; --muted: #5a6277; --faint: #8a91a5; --border: #e3e7f0;
+    --accent: #1f4fe0; --accent-bright: #4c7bff; --accent-text: #ffffff; --accent-soft: #e9efff;
+    --critical: #d0342c; --critical-bg: #fde9e8;
+    --warning: #b36b00; --warning-bg: #fff3dc;
+    --smell: #5b50d6; --smell-bg: #eeecff;
+    --fine: #16803c; --fine-bg: #e3f6ea; --code-bg: #f3f5fb;
+    --shadow: 0 1px 2px rgba(13,18,34,.04), 0 10px 30px rgba(31,79,224,.07);
+    --display: "Inter Tight", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --dots: radial-gradient(rgba(31,79,224,.10) 1px, transparent 1.2px);
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-    --bg: #0a0e09; --card: #121810; --surface-2: #0e130c; --panel: #050804;
-    --text: #e7ece2; --muted: #9aa78d; --faint: #6a7760; --border: #242c1f;
-    --accent: #8fd14f; --accent-bright: #a6e85f; --accent-text: #0a1204; --accent-soft: #1c2a12;
-    --critical: #e86b62; --critical-bg: #3a1f1d; --warning: #d9a23f; --warning-bg: #352a16;
-    --smell: #7aa0dd; --smell-bg: #1b2740; --fine: #8fd14f; --fine-bg: #1c2a12; --code-bg: #0e130c;
-    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 12px 34px rgba(0,0,0,.55);
+    --bg: #080b16; --card: #10152a; --surface-2: #0c1122; --panel: #050813;
+    --text: #e8ecf8; --muted: #9aa3bd; --faint: #6b7390; --border: #1f2742;
+    --accent: #6d8dff; --accent-bright: #8fa8ff; --accent-text: #08102b; --accent-soft: #17204a;
+    --critical: #ff7a70; --critical-bg: #3a1a1d; --warning: #f0b14a; --warning-bg: #33260f;
+    --smell: #a49bff; --smell-bg: #221d4a; --fine: #4fd17f; --fine-bg: #10301d; --code-bg: #0c1122;
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 12px 34px rgba(0,0,0,.5);
+    --dots: radial-gradient(rgba(109,141,255,.10) 1px, transparent 1.2px);
     color-scheme: dark;
   } }
   :root[data-theme="dark"] {
-    --bg: #0a0e09; --card: #121810; --surface-2: #0e130c; --panel: #050804;
-    --text: #e7ece2; --muted: #9aa78d; --faint: #6a7760; --border: #242c1f;
-    --accent: #8fd14f; --accent-bright: #a6e85f; --accent-text: #0a1204; --accent-soft: #1c2a12;
-    --critical: #e86b62; --critical-bg: #3a1f1d; --warning: #d9a23f; --warning-bg: #352a16;
-    --smell: #7aa0dd; --smell-bg: #1b2740; --fine: #8fd14f; --fine-bg: #1c2a12; --code-bg: #0e130c;
-    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 12px 34px rgba(0,0,0,.55);
+    --bg: #080b16; --card: #10152a; --surface-2: #0c1122; --panel: #050813;
+    --text: #e8ecf8; --muted: #9aa3bd; --faint: #6b7390; --border: #1f2742;
+    --accent: #6d8dff; --accent-bright: #8fa8ff; --accent-text: #08102b; --accent-soft: #17204a;
+    --critical: #ff7a70; --critical-bg: #3a1a1d; --warning: #f0b14a; --warning-bg: #33260f;
+    --smell: #a49bff; --smell-bg: #221d4a; --fine: #4fd17f; --fine-bg: #10301d; --code-bg: #0c1122;
+    --shadow: 0 1px 2px rgba(0,0,0,.5), 0 12px 34px rgba(0,0,0,.5);
+    --dots: radial-gradient(rgba(109,141,255,.10) 1px, transparent 1.2px);
     color-scheme: dark;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 var(--body); -webkit-font-smoothing: antialiased; }
+  body { margin: 0; background: var(--dots) 0 0 / 22px 22px, var(--bg); color: var(--text); font: 15px/1.55 var(--body); -webkit-font-smoothing: antialiased; }
   main { max-width: 860px; margin: 0 auto; padding: 28px max(16px, env(safe-area-inset-left, 0px)) 64px; }
   h1, h2, h3, h4 { text-wrap: balance; font-family: var(--display); }
   h2 { font-size: 20px; font-weight: 800; margin: 0 0 6px; letter-spacing: -.01em; }
@@ -130,18 +133,21 @@
   .switch input:disabled + label { opacity: .45; cursor: not-allowed; }
 
   /* progress */
-  #progress-title::before { content: ""; display: inline-block; width: 16px; height: 16px; margin-right: 10px; vertical-align: -2px;
-    border: 2.5px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .bar { height: 8px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 99px; overflow: hidden; margin: 14px 0; }
   .bar > div { height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-bright)); transition: width .4s; }
-  .steps { list-style: none; padding: 0; margin: 12px 0 0; }
-  .steps li { padding: 5px 0 5px 28px; position: relative; color: var(--faint); }
-  .steps li::before { content: "○"; position: absolute; left: 4px; }
-  .steps li.active { color: var(--text); font-weight: 600; }
-  .steps li.active::before { content: "◐"; color: var(--accent); }
+  /* scan steps: a vertical timeline */
+  .steps { list-style: none; padding: 0; margin: 18px 0 0; position: relative; }
+  .steps li { padding: 9px 12px 9px 44px; position: relative; color: var(--faint); border-radius: 12px; }
+  .steps li + li { margin-top: 4px; }
+  .steps li::before { content: ""; position: absolute; left: 12px; top: 50%; width: 18px; height: 18px; margin-top: -9px; border-radius: 50%;
+                      border: 2px solid var(--border); background: var(--card); box-sizing: border-box; }
+  .steps li:not(:last-child)::after { content: ""; position: absolute; left: 20px; top: calc(50% + 9px); height: calc(100% - 14px); width: 2px; background: var(--border); }
+  .steps li.active { color: var(--text); font-weight: 600; background: var(--accent-soft); }
+  .steps li.active::before { border-color: var(--accent); border-top-color: transparent; animation: spin .8s linear infinite; }
   .steps li.done { color: var(--muted); }
-  .steps li.done::before { content: "✓"; color: var(--accent); }
+  .steps li.done::before { border-color: var(--fine); background: var(--fine) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m4 8.5 2.5 2.5L12 5.5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 14px no-repeat; }
+  .steps li.done::after { background: var(--fine); }
   #elapsed { font-family: var(--mono); font-size: 12px; }
   .error { border-color: transparent; background: var(--critical-bg); color: var(--critical); }
 
@@ -223,7 +229,154 @@
   .toast.show { opacity: 1; }
   footer.foot { margin-top: 40px; font-size: 12px; color: var(--faint); line-height: 1.6; }
   footer.foot code { font-family: var(--mono); background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
-  @media (prefers-reduced-motion: reduce) { #progress-title::before { animation: none; } button.primary:hover { transform: none; } }
+  /* ---------------------------------------------------------------- look: pills, hero, cards */
+  .card { border-radius: 18px; }
+  button, a.button { border-radius: 999px; }
+  button.primary, a.button.primary { box-shadow: 0 6px 18px rgba(31,79,224,.28); }
+  .tabs { border-radius: 999px; padding: 5px; background: var(--card); box-shadow: var(--shadow); }
+  .tabs button { border-radius: 999px; }
+  .tabs button[aria-selected="true"] { background: var(--accent); color: var(--accent-text); box-shadow: 0 4px 12px rgba(31,79,224,.3); }
+  .pill-badge { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px 4px 4px; border-radius: 999px; background: var(--card);
+                border: 1px solid var(--border); box-shadow: var(--shadow); font: 500 12.5px var(--body); color: var(--text); }
+  .pill-badge b { background: var(--accent); color: var(--accent-text); border-radius: 999px; padding: 2px 9px; font-weight: 600; font-size: 11.5px; }
+  .pill-badge.live { padding-left: 12px; }
+  .pill-badge.live i, .pill-badge.dot i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .pill-badge.live i { box-shadow: 0 0 0 0 rgba(31,79,224,.5); animation: pulse 1.6s infinite; }
+  .pill-badge.dot { padding-left: 12px; }
+  @keyframes pulse { 70% { box-shadow: 0 0 0 8px rgba(31,79,224,0); } 100% { box-shadow: 0 0 0 0 rgba(31,79,224,0); } }
+  .hero { text-align: center; padding: 26px 0 8px; }
+  .hero-title { font: 800 clamp(30px, 5.4vw, 46px)/1.08 var(--display); letter-spacing: -.035em; margin: 16px auto 0; max-width: 16ch; }
+  .grad { background: linear-gradient(90deg, var(--accent), var(--accent-bright)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero .lede { margin: 14px auto 26px; }
+  main:has(#report:not(.hidden)) .hero, main:has(#progress:not(.hidden)) .hero { display: none; }
+  .scan-card { padding: 26px; }
+  .scan-card h2 { font-size: 24px; letter-spacing: -.02em; margin-top: 14px; }
+  .bar { height: 10px; border: none; background: var(--accent-soft); }
+  .bar > div { background: linear-gradient(90deg, var(--accent), var(--accent-bright)); border-radius: 99px; }
+
+  /* ---------------------------------------------------------------- report dashboard */
+  main:has(#report:not(.hidden)) { max-width: 1160px; }
+  .dash { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 20px; align-items: start; margin-top: 18px; }
+  .rail { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 6px; padding: 12px 8px; border-radius: 20px;
+          background: linear-gradient(180deg, var(--accent), #1638b8); box-shadow: 0 12px 30px rgba(31,79,224,.3); }
+  .rail button { position: relative; width: 48px; height: 44px; padding: 0; border: none; border-radius: 12px; display: grid; place-items: center;
+                 background: transparent; color: rgba(255,255,255,.75); }
+  .rail button:hover, .rail button[aria-current="true"] { background: rgba(255,255,255,.18); color: #fff; }
+  .rail button .n { position: absolute; top: 3px; right: 3px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 99px; background: #fff;
+                    color: var(--accent); font: 700 10px/16px var(--body); }
+  .rail .logo-dot { width: 48px; height: 44px; display: grid; place-items: center; margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,.18); }
+  .ico { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .dash-main { min-width: 0; }
+  .dash-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+  .dash-head h2 { font: 800 clamp(22px, 3vw, 30px)/1.15 var(--display); letter-spacing: -.03em; margin: 10px 0 4px; max-width: 30ch; }
+  .dash-head .where { color: var(--muted); }
+  .dash-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 20px 0; }
+  .stat { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 16px 16px 14px; box-shadow: var(--shadow); min-width: 0; }
+  .stat.hero-stat { background: linear-gradient(135deg, var(--accent), #1638b8); color: #fff; border-color: transparent; }
+  .stat-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .stat .bubble { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+  .stat.hero-stat .bubble { background: rgba(255,255,255,.2); color: #fff; }
+  .stat.critical .bubble { background: var(--critical-bg); color: var(--critical); }
+  .stat.warning .bubble { background: var(--warning-bg); color: var(--warning); }
+  .stat.smell .bubble { background: var(--smell-bg); color: var(--smell); }
+  .trend { font: 600 11px var(--body); border-radius: 999px; padding: 3px 8px; background: var(--surface-2); color: var(--muted); white-space: nowrap; }
+  .stat.hero-stat .trend { background: rgba(255,255,255,.95); color: var(--accent); }
+  .stat .big { font: 800 32px/1 var(--display); letter-spacing: -.03em; margin: 16px 0 4px; font-variant-numeric: tabular-nums; }
+  .stat .lbl { font-size: 13px; color: var(--muted); }
+  .stat.hero-stat .lbl { color: rgba(255,255,255,.85); }
+  .row2 { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 16px; }
+  .panel { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 18px 20px; box-shadow: var(--shadow); min-width: 0; }
+  .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .panel-head h3 { margin: 0; font: 700 16px var(--display); }
+  .seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--border); }
+  .seg button { border: none; background: none; padding: 5px 12px; font-size: 12.5px; color: var(--muted); }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); }
+  .chart { position: relative; display: flex; align-items: flex-end; gap: 10px; height: 220px; padding: 8px 4px 0; border-bottom: 1px solid var(--border);
+           background: repeating-linear-gradient(to top, transparent 0 54px, var(--border) 54px 55px); }
+  .chart .col { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; cursor: pointer;
+                border-radius: 10px 10px 0 0; outline: none; }
+  .chart .stack { width: min(34px, 70%); display: flex; flex-direction: column-reverse; border-radius: 8px 8px 3px 3px; overflow: hidden;
+                  transition: transform .15s, filter .15s; transform-origin: bottom; animation: grow .6s cubic-bezier(.2,.8,.2,1) both; }
+  .chart .col:hover .stack, .chart .col:focus-visible .stack { filter: brightness(1.08); transform: scaleX(1.12); }
+  .chart .seg-critical { background: var(--critical); } .chart .seg-warning { background: #f0a020; } .chart .seg-smell { background: var(--accent-bright); }
+  .chart-x { display: flex; gap: 10px; padding: 8px 4px 0; }
+  .chart-x span { flex: 1; min-width: 0; text-align: center; font: 500 11px var(--body); color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tip { position: absolute; z-index: 3; min-width: 170px; padding: 10px 12px; border-radius: 12px; background: var(--card); border: 1px solid var(--border);
+         box-shadow: 0 12px 30px rgba(13,18,34,.14); pointer-events: none; font-size: 12.5px; transform: translate(-50%, -100%); }
+  .tip h5 { margin: 0 0 6px; font: 700 13px var(--display); }
+  .tip .tr { display: flex; justify-content: space-between; gap: 14px; margin: 2px 0; color: var(--muted); }
+  .tip .tr b { color: var(--text); }
+  .tip i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; color: var(--muted); }
+  .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  @keyframes grow { from { transform: scaleY(0); } }
+  .todo { display: flex; flex-direction: column; gap: 10px; }
+  .todo button.item { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 11px 12px; border-radius: 14px;
+                      border: 1px solid var(--border); background: var(--card); font: inherit; color: var(--text); }
+  .todo button.item:hover { border-color: var(--accent); }
+  .todo .bubble { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; flex: none; }
+  .todo .bubble.critical { background: var(--critical-bg); color: var(--critical); } .todo .bubble.warning { background: var(--warning-bg); color: var(--warning); }
+  .todo .bubble.smell { background: var(--smell-bg); color: var(--smell); }
+  .todo .t { flex: 1; min-width: 0; } .todo .t b { display: block; font: 600 13.5px/1.3 var(--body); }
+  .todo .t span { font-size: 11.5px; color: var(--faint); }
+  .status { font: 600 11px var(--body); border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
+  .status::before { content: "●"; margin-right: 4px; font-size: 9px; vertical-align: 1px; }
+  .status.critical { background: var(--critical-bg); color: var(--critical); } .status.warning { background: var(--warning-bg); color: var(--warning); }
+  .status.smell { background: var(--smell-bg); color: var(--smell); } .status.alarm { background: var(--surface-2); color: var(--muted); }
+  .status.fine { background: var(--fine-bg); color: var(--fine); }
+  .wide-btn { width: 100%; margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .sec-head { text-align: center; margin: 44px 0 18px; }
+  .sec-head h2 { font: 800 clamp(24px, 3.4vw, 32px)/1.15 var(--display); letter-spacing: -.03em; margin: 12px 0 6px; }
+  .sec-head p { color: var(--muted); margin: 0 auto; max-width: 56ch; }
+  .filters { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .search { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--card);
+            min-width: 220px; flex: 1; max-width: 320px; color: var(--faint); }
+  .search input { border: none; outline: none; background: none; font: 14px var(--body); color: var(--text); width: 100%; }
+  .search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .seg .c { margin-left: 5px; opacity: .7; font-variant-numeric: tabular-nums; }
+  details.acc { background: var(--card); border: 1px solid var(--border); border-radius: 16px; margin: 10px 0; box-shadow: var(--shadow); overflow: hidden; }
+  details.acc[open] { border-color: color-mix(in srgb, var(--accent) 35%, var(--border)); }
+  details.acc > summary { list-style: none; display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer; color: var(--text); margin: 0;
+                          font-size: inherit; font-weight: inherit; }
+  details.acc > summary::-webkit-details-marker { display: none; }
+  details.acc > summary .bubble { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; flex: none; }
+  details.acc.critical .bubble { background: var(--critical-bg); color: var(--critical); } details.acc.warning .bubble { background: var(--warning-bg); color: var(--warning); }
+  details.acc.smell .bubble { background: var(--smell-bg); color: var(--smell); } details.acc.alarm .bubble { background: var(--surface-2); color: var(--muted); }
+  details.acc .sum { flex: 1; min-width: 0; }
+  details.acc .sum b { display: block; font: 650 15px/1.35 var(--body); }
+  details.acc .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 5px; }
+  details.acc .tags span { font: 500 11px var(--mono); color: var(--muted); background: var(--surface-2); border-radius: 6px; padding: 1px 7px; }
+  details.acc .chev { transition: transform .2s; color: var(--faint); }
+  details.acc[open] .chev { transform: rotate(180deg); }
+  details.acc .body { padding: 0 16px 16px 64px; }
+  details.acc .body > p:first-child { margin-top: 0; }
+  details.acc.flash { animation: flash 1.6s ease; }
+  @keyframes flash { 0%, 40% { box-shadow: 0 0 0 3px var(--accent); } 100% { box-shadow: var(--shadow); } }
+  .lock { display: inline-flex; align-items: center; gap: 6px; color: var(--faint); font-size: 12.5px; }
+  .empty { text-align: center; color: var(--muted); padding: 26px; border: 1.5px dashed var(--border); border-radius: 16px; }
+  @media (max-width: 900px) {
+    .dash { grid-template-columns: minmax(0, 1fr); }
+    .rail { position: sticky; top: 0; z-index: 5; flex-direction: row; overflow-x: auto; padding: 6px; border-radius: 16px; }
+    .rail .logo-dot { display: none; }
+    .rail button { flex: none; }
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .row2 { grid-template-columns: minmax(0, 1fr); }
+  }
+  .filters .seg, .rail { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .filters .seg::-webkit-scrollbar, .rail::-webkit-scrollbar { display: none; }
+  .filters .seg button { flex: none; white-space: nowrap; }
+  @media (max-width: 520px) {
+    .stats { gap: 10px; } .stat .big { font-size: 26px; } .stat { padding: 14px 12px 12px; }
+    details.acc > summary { gap: 10px; padding: 12px; }
+    details.acc > summary .status { display: none; }  /* the icon colour already says it on a phone */
+    details.acc .body { padding: 0 14px 14px; }
+    .search { max-width: none; min-width: 0; }
+    .chart { gap: 6px; } .chart-x { gap: 6px; }
+    .panel { padding: 16px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) { .steps li.active::before, .pill-badge.live i, .chart .stack { animation: none; } button.primary:hover { transform: none; } }
 </style>
 <script src="/static/i18n-de.js"></script>
 <script src="/static/i18n.js"></script>
@@ -247,8 +400,12 @@
       </div>
       </div>
     </div>
-    <p class="lede">Point VibeGuard at an app or website you built and own. It finds the security holes, bugs and code
-      smells that AI coding tools leave behind, explains each one in plain English, and can fix them in your code.</p>
+    <div class="hero">
+      <span class="pill-badge"><b>New</b> Security check for AI-built apps</span>
+      <h2 class="hero-title">Find what's wrong <span class="grad">before your users do.</span></h2>
+      <p class="lede">Point VibeGuard at an app or website you built and own. It finds the security holes, bugs and code
+        smells that AI coding tools leave behind, explains each one in plain English, and can fix them in your code.</p>
+    </div>
   </header>
 
   <!-- 0. sign in -->
@@ -385,7 +542,8 @@
   </section>
 
   <!-- 2. progress -->
-  <section id="progress" class="card hidden" aria-live="polite">
+  <section id="progress" class="card scan-card hidden" aria-live="polite">
+    <span class="pill-badge live"><i></i>Live scan</span>
     <h2 id="progress-title">Scanning…</h2>
     <p class="muted small" id="progress-sub">Keep this tab open until the report appears.</p>
     <div class="bar"><div id="bar"></div></div>
@@ -1179,46 +1337,298 @@
   // A plan priced differently for Android projects shows both prices until a project decides which applies.
   const priceText = (p) => p.price_android_cents ? `${money(p.price_cents, p.currency)}–${money(p.price_android_cents, p.currency)}` : money(p.price_cents, p.currency);
 
-  function renderLocked(body) {
-    lastResponse = body;
-    const r = body.report, c = r.counts, s = r.scan, root = $("report");
-    const what = r.target === "web" ? "website" : "app";
-    const total = c.critical + c.warning + c.smell;
-    root.replaceChildren();
-    root.append(el("div", { class: "card" },
-      el("p", { class: "muted small" }, `Free scan · ${r.target === "web" ? s.url : s.apk_name}`),
-      body.reused ? el("p", { class: "reused" }, "You scanned this exact file before, so this is the saved result. No free scan was used.") : null,
-      el("h2", {}, total ? `We found ${total} problem${total === 1 ? "" : "s"} in your ${what}` : `No problems found in your ${what}`),
-      el("p", { class: "muted small where" }, r.app.package_name),
-      el("div", { class: "glance" },
-        tile("critical", c.critical, "Critical"), tile("warning", c.warning, "Warnings"), tile("smell", c.smell, "Code smells")),
-      el("p", { class: "meta" }, `Result fingerprint ${r.result_fingerprint} · the paid report has these issues and this fingerprint; any the AI judges false alarms are listed separately and not counted`)));
+  // ---------------------------------------------------------------- report dashboard
+  // Icons are fixed markup from this file (never report content).
+  const ICONS = {
+    shield: '<path d="M12 3 19 6v6c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6z"/><path d="m9 12 2 2 4-4"/>',
+    grid: '<rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/>',
+    list: '<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01"/>',
+    critical: '<path d="M10.3 4.2 2.6 17.6A2 2 0 0 0 4.3 20.6h15.4a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0z"/><path d="M12 9.5v4"/><path d="M12 17h.01"/>',
+    warning: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5"/><path d="M12 16h.01"/>',
+    smell: '<path d="m15 4 5 5"/><path d="m17.5 6.5-8 8"/><path d="M9.5 14.5 4 20h5l3-3"/><path d="m8 13 3 3"/>',
+    alarm: '<path d="M8.7 3.6A6 6 0 0 1 18 8c0 3 .7 5.1 1.4 6.5"/><path d="M17 17H3s3-2 3-9c0-.5 0-1 .2-1.5"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/><path d="m3 3 18 18"/>',
+    bulb: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0 0 12 3z"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>',
+    target: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".6"/>',
+    copy: '<rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
+    chev: '<path d="m6 9 6 6 6-6"/>',
+    search: '<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/>',
+    lock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  };
+  function icon(name, cls = "ico") {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("class", cls);
+    svg.setAttribute("aria-hidden", "true");
+    svg.innerHTML = ICONS[name];
+    return svg;
+  }
+  const places = (n) => (n === 1 ? "1 place" : `${n} places`);
+  const KIND_NAME = { secret: "Leaked secret", security: "Security", bug: "Likely bug", smell: "Code quality" };
 
-    for (const [key, label, advice, icon] of GROUPS) {
-      const issues = r.issues[key] || [];
-      if (!issues.length) continue;
-      root.append(el("div", { class: "group-head" },
-        el("h2", {}, `${icon} ${label}`), el("span", { class: "muted" }, `${advice} · ${issues.length}`)));
-      for (const issue of issues) {
-        root.append(el("div", { class: `card issue ${key}` },
-          el("div", { class: "fix-title" }, el("h4", {}, issue.title), el("span", { class: `sev ${key}` }, SEV_LABEL[key])),
-          el("p", { class: "meta" }, `${issue.occurrences} place${issue.occurrences === 1 ? "" : "s"} · ${issue.standard.control} · ${issue.standard.cwe}`),
-          el("p", { class: "locked-line" }, "🔒 Where it is, why it matters and how to fix it")));
-      }
+  // The free (locked) and the paid report share one layout: a section rail, stat cards, a chart of where the
+  // problems are, the three to fix first, and the issue list with filters. Paid issues open to show the details.
+  function dashboard(r, { response, locked = false, isExample = false }) {
+    const what = r.target === "web" ? "website" : "app";
+    const items = [];
+    for (const [key] of GROUPS) for (const issue of r.issues[key] || []) items.push({ issue, sev: key, alarm: false });
+    for (const issue of r.false_alarms || []) items.push({ issue, sev: issue.severity, alarm: true });
+    const counted = items.filter((x) => !x.alarm), alarms = items.length - counted.length;
+    const c = r.counts, total = c.critical + c.warning + c.smell;
+    const allPlaces = counted.reduce((n, x) => n + (x.issue.occurrences || 1), 0);
+    const s = r.scan || {};
+    const main = el("div", { class: "dash-main", id: "dash-top" });
+
+    // ---- header
+    const badge = isExample ? "Example report · F-Droid, an open-source app store"
+      : locked ? `Free scan · ${r.target === "web" ? s.url : s.apk_name}`
+      : response.paid ? "✓ Paid · full report unlocked" : (r.target === "web" ? "Website scan" : "App scan");
+    const actions = locked ? [] : [
+      response.paid && response.report_id ? el("button", { class: "small", onclick: () => {
+        const lang = window.VG && VG.lang() === "de" ? "de" : "en";
+        toast("Preparing your report. The first download in a new language takes about 30 seconds.");
+        location.href = `/reports/${encodeURIComponent(response.report_id)}/download/html?lang=${lang}`;
+      } }, "Download report (HTML)") : null,
+      el("button", { class: "small", onclick: () => download(`${r.app.package_name}-report.txt`, response.report_text || "", "text/plain") }, "Download text"),
+      el("button", { class: "small", onclick: () => download(`${r.app.package_name}-report.json`, JSON.stringify(r, null, 2), "application/json") }, "Download JSON"),
+    ];
+    main.append(el("div", { class: "dash-head" },
+      el("div", {},
+        el("span", { class: "pill-badge dot" }, el("i"), badge),
+        el("h2", {}, r.app.one_liner),
+        el("p", { class: "where small" }, r.app.package_name),
+        response.reused ? el("p", { class: "reused" }, "You scanned this exact file before, so this is the saved result. No free scan was used.") : null),
+      el("div", { class: "dash-actions" }, ...actions,
+        el("button", { class: "small", onclick: () => { history.replaceState(null, "", "/app"); show(["upload"]); window.scrollTo(0, 0); } }, `Scan another ${what}`))));
+
+    // ---- stat cards
+    const stat = (cls, ico, big, label, trend) => el("div", { class: `stat ${cls}` },
+      el("div", { class: "stat-top" }, el("div", { class: "bubble" }, icon(ico)), el("span", { class: "trend" }, trend)),
+      el("div", { class: "big" }, String(big)), el("div", { class: "lbl" }, label));
+    main.append(el("div", { class: "stats" },
+      stat("hero-stat", "target", total, total === 1 ? "Problem to fix" : "Problems to fix", places(allPlaces)),
+      stat("critical", "critical", c.critical, "Critical", "Fix now"),
+      stat("warning", "warning", c.warning, "Warnings", "Fix soon"),
+      stat("smell", "smell", c.smell, "Code smells", "Later")));
+    if (alarms) main.append(el("p", { class: "muted small" }, alarms === 1
+      ? "Not counted: 1 probable false alarm (listed below the issues)"
+      : `Not counted: ${alarms} probable false alarms (listed below the issues)`));
+
+    // ---- chart + fix these first
+    const listApi = {};
+    main.append(el("div", { class: "row2" }, chartPanel(counted, (name) => listApi.search(name)),
+      firstPanel(r, counted, locked, (issue) => listApi.open(issue))));
+
+    if (!locked && !s.ai) {
+      main.append(el("div", { class: "card banner small" },
+        el("strong", {}, "AI explanations were not used for this report. "),
+        "The issues and their severity are exactly the same as with AI - they come from fixed scanner rules. " +
+        "The descriptions below are the rules' standard wording instead of explanations written for your code."));
+    }
+    const app = r.app;
+    if (!locked && (app.what_it_does || app.how_it_works.length)) {
+      main.append(el("div", { class: "panel", style: "margin-top:16px" },
+        el("h3", { style: "margin-top:0" }, r.target === "web" ? "How this website works" : "How this app works"),
+        app.what_it_does ? el("p", {}, app.what_it_does) : null,
+        list("What it does, step by step", app.how_it_works),
+        list("Personal data it can access", app.personal_data),
+        list("Who it talks to", app.talks_to)));
     }
 
-    const plans = body.plans || [];
-    root.append(el("div", { class: "group-head" }, el("h2", {}, "Get the full report"),
-      body.payments_mode === "demo" ? el("span", { class: "demo-badge" }, "Demo payments · no real money") : null));
-    root.append(planCards({ ...body, plans }, "scan"));
+    // ---- issue list
+    main.append(el("div", { class: "sec-head", id: "dash-issues" },
+      el("span", { class: "pill-badge dot" }, el("i"), "Findings"),
+      el("h2", {}, total ? `What we found in your ${what}` : `No problems found in your ${what}`),
+      el("p", {}, locked ? "Unlock the full report to see where each one is and how to fix it."
+        : "Open any issue to see why it matters and how to fix it.")));
+    main.append(issueList(items, locked, listApi));
 
-    root.append(el("div", { class: "actions" },
-      el("button", { class: "small", onclick: () => { history.replaceState(null, "", "/app"); show(["upload"]); window.scrollTo(0, 0); } }, `Scan another ${what}`)));
-    root.append(el("div", { class: "card small muted" },
-      el("p", {}, `Decompiled with ${engineName((s.reverse_engineering || {}).engine)}${(s.reverse_engineering || {}).coverage ? ` · ${s.reverse_engineering.coverage}` : ""} · engine ${s.engine_version} · severity policy ${s.policy_version} (${r.target === "web" ? "OWASP ASVS 4.0" : "OWASP MASVS v2"}, CWE)` +
-        (s.seconds_total ? ` · took ${Math.round(s.seconds_total)}s` : "")),
+    // ---- AI suggestions (paid)
+    const suggestions = (!locked && r.ai_suggestions) || [];
+    if (suggestions.length) {
+      main.append(el("div", { class: "sec-head", id: "dash-ai" },
+        el("span", { class: "pill-badge dot" }, el("i"), `Not verified · not counted above · ${suggestions.length}`),
+        el("h2", {}, "💡 AI suggestions"),
+        el("p", {}, "Possible problems the AI noticed while reading the code. No scanner rule confirms them, so check them before acting.")));
+      for (const sg of suggestions) main.append(suggestionCard(sg));
+    }
+
+    // ---- plans (free) and about this scan
+    if (locked) {
+      main.append(el("div", { class: "sec-head", id: "dash-plans" },
+        response.payments_mode === "demo" ? el("span", { class: "demo-badge" }, "Demo payments · no real money") : null,
+        el("h2", {}, "Get the full report"),
+        el("p", { class: "meta" }, `Result fingerprint ${r.result_fingerprint} · the paid report has these issues and this fingerprint; any the AI judges false alarms are listed separately and not counted`)));
+      main.append(planCards({ ...response, plans: response.plans || [] }, "scan"));
+    }
+    main.append(aboutPanel(r, locked));
+
+    // ---- section rail
+    const go = (id) => () => { const n = document.getElementById(id); if (n) n.scrollIntoView({ behavior: "smooth", block: "start" }); };
+    const filterTo = (f) => () => { listApi.filter(f); go("dash-issues")(); };
+    const railBtn = (ico, label, onclick, n) => el("button", { type: "button", title: label, "aria-label": label, onclick },
+      icon(ico), n ? el("span", { class: "n" }, String(n)) : null);
+    const rail = el("nav", { class: "rail", "aria-label": "Report sections" },
+      el("div", { class: "logo-dot" }, icon("shield")),
+      railBtn("grid", "Overview", go("dash-top")),
+      railBtn("list", "All issues", filterTo("all"), items.length),
+      c.critical ? railBtn("critical", "Critical", filterTo("critical"), c.critical) : null,
+      c.warning ? railBtn("warning", "Warnings", filterTo("warning"), c.warning) : null,
+      c.smell ? railBtn("smell", "Code smells", filterTo("smell"), c.smell) : null,
+      alarms ? railBtn("alarm", "False alarms", filterTo("alarm"), alarms) : null,
+      suggestions.length ? railBtn("bulb", "AI suggestions", go("dash-ai")) : null,
+      locked ? railBtn("lock", "Get the full report", go("dash-plans")) : null,
+      railBtn("info", "About this scan", go("dash-about")));
+    return el("div", { class: "dash" }, rail, main);
+  }
+
+  // Bars: issues per OWASP area (or per kind), stacked by severity, with a tooltip. A click searches the list.
+  function chartPanel(counted, onPick) {
+    const body = el("div", {});
+    const seg = el("div", { class: "seg", role: "group" });
+    const modes = [["area", "By area"], ["kind", "By kind"]];
+    let mode = "area";
+    const draw = () => {
+      seg.replaceChildren(...modes.map(([m, label]) => el("button", { type: "button", "aria-pressed": String(m === mode),
+        onclick: () => { mode = m; draw(); } }, label)));
+      const groups = new Map();
+      for (const { issue, sev } of counted) {
+        const name = mode === "area" ? (issue.standard && issue.standard.control) || "Other"
+          : issue.kind_label || KIND_NAME[issue.kind] || "Other";
+        const g = groups.get(name) || { name, critical: 0, warning: 0, smell: 0, total: 0, places: 0 };
+        g[sev] += 1; g.total += 1; g.places += issue.occurrences || 1;
+        groups.set(name, g);
+      }
+      const rows = [...groups.values()].sort((a, b) => b.total - a.total || a.name.localeCompare(b.name)).slice(0, 8);
+      if (!rows.length) { body.replaceChildren(el("p", { class: "empty" }, "Nothing found.")); return; }
+      const max = Math.max(...rows.map((g) => g.total));
+      const tip = el("div", { class: "tip", hidden: "" });
+      const chart = el("div", { class: "chart" });
+      const SEGS = [["critical", "Critical", "var(--critical)"], ["warning", "Warnings", "#f0a020"], ["smell", "Code smells", "var(--accent-bright)"]];
+      const showTip = (g, col) => {
+        tip.replaceChildren(el("h5", {}, g.name),
+          ...SEGS.filter(([k]) => g[k]).map(([k, label, color]) => el("div", { class: "tr" },
+            el("span", {}, el("i", { style: `background:${color}` }), label), el("b", {}, String(g[k])))),
+          el("div", { class: "tr" }, el("span", {}, "Places"), el("b", {}, String(g.places))));
+        tip.hidden = false;
+        const box = chart.getBoundingClientRect(), b = col.querySelector(".stack").getBoundingClientRect();
+        tip.style.left = `${Math.min(Math.max(b.left + b.width / 2 - box.left, 90), box.width - 90)}px`;
+        tip.style.top = `${Math.max(b.top - box.top - 8, tip.offsetHeight + 4)}px`;  // stay inside the chart over the tallest bar
+      };
+      rows.forEach((g, n) => {
+        const stack = el("div", { class: "stack", style: `height:${Math.max(6, (g.total / max) * 100)}%;animation-delay:${n * 60}ms` },
+          ...SEGS.filter(([k]) => g[k]).map(([k]) => el("div", { class: `seg-${k}`, style: `flex:${g[k]}` })));
+        const col = el("div", { class: "col", tabindex: "0", role: "button", "aria-label": `${g.name}: ${g.total}`,
+          onmouseenter: () => showTip(g, col), onfocus: () => showTip(g, col),
+          onmouseleave: () => { tip.hidden = true; }, onblur: () => { tip.hidden = true; }, onclick: () => onPick(g.name),
+          onkeydown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onPick(g.name); } } }, stack);
+        chart.append(col);
+      });
+      chart.append(tip);
+      body.replaceChildren(chart, el("div", { class: "chart-x" }, rows.map((g) => el("span", { title: g.name }, g.name))),
+        el("div", { class: "legend" }, SEGS.map(([, label, color]) => el("span", {}, el("i", { style: `background:${color}` }), label))));
+    };
+    draw();
+    return el("div", { class: "panel" }, el("div", { class: "panel-head" }, el("h3", {}, "Where the problems are"), seg), body);
+  }
+
+  function firstPanel(r, counted, locked, onOpen) {
+    const top = counted.slice(0, 3);
+    return el("div", { class: "panel" },
+      el("div", { class: "panel-head" }, el("h3", {}, "Fix these first")),
+      top.length ? el("div", { class: "todo" }, top.map(({ issue, sev }) => el("button", { type: "button", class: "item", onclick: () => onOpen(issue) },
+        el("div", { class: `bubble ${sev}` }, icon(sev)),
+        el("div", { class: "t" }, el("b", {}, issue.title),
+          el("span", {}, [places(issue.occurrences || 1), issue.standard && issue.standard.cwe].filter(Boolean).join(" · "))),
+        el("span", { class: `status ${sev}` }, SEV_LABEL[sev]))))
+        : el("p", { class: "empty" }, "Nothing to fix. Nice work."),
+      locked
+        ? el("button", { class: "primary wide-btn", onclick: () => document.getElementById("dash-plans").scrollIntoView({ behavior: "smooth" }) },
+          icon("lock"), "Unlock the full report")
+        : el("button", { class: "primary wide-btn", onclick: () => copy(fixPrompt(r)) }, icon("copy"), "Copy all fixes for my AI tool"));
+  }
+
+  // Filter tabs + search over every issue; paid issues open (accordion) to show the details.
+  function issueList(items, locked, api) {
+    let filter = "all", query = "";
+    const cards = items.map((x) => ({ x, node: issueRow(x, locked),
+      text: [x.issue.title, x.issue.rule_id, x.issue.kind_label, KIND_NAME[x.issue.kind], x.issue.standard && x.issue.standard.control,
+        x.issue.standard && x.issue.standard.cwe, ...(x.issue.locations || []).map((l) => l.file)].filter(Boolean).join(" ").toLowerCase() }));
+    const tabs = el("div", { class: "seg", role: "group", "aria-label": "Filter issues" });
+    const empty = el("p", { class: "empty hidden" }, "No issues match.");
+    const input = el("input", { type: "search", placeholder: "Search issues, CWE, file…", "aria-label": "Search issues" });
+    const counts = { all: items.length, critical: 0, warning: 0, smell: 0, alarm: 0 };
+    for (const { x } of cards) counts[x.alarm ? "alarm" : x.sev] += 1;
+    const TABS = [["all", "All"], ["critical", "Critical"], ["warning", "Warnings"], ["smell", "Code smells"], ["alarm", "False alarms"]];
+    const apply = () => {
+      tabs.replaceChildren(...TABS.filter(([k]) => k === "all" || counts[k]).map(([k, label]) => el("button", { type: "button",
+        "aria-pressed": String(k === filter), onclick: () => { filter = k; apply(); } }, label, el("span", { class: "c" }, String(counts[k])))));
+      let shown = 0;
+      for (const card of cards) {
+        const okFilter = filter === "all" || (filter === "alarm" ? card.x.alarm : !card.x.alarm && card.x.sev === filter);
+        const ok = okFilter && (!query || card.text.includes(query));
+        card.node.classList.toggle("hidden", !ok);
+        shown += ok ? 1 : 0;
+      }
+      empty.classList.toggle("hidden", shown > 0);
+    };
+    input.addEventListener("input", () => { query = input.value.trim().toLowerCase(); apply(); });
+    api.filter = (f) => { filter = f; input.value = ""; query = ""; apply(); };
+    api.search = (q) => {
+      filter = "all"; input.value = q; query = q.toLowerCase(); apply();
+      document.getElementById("dash-issues").scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+    api.open = (issue) => {
+      const card = cards.find((cd) => cd.x.issue === issue);
+      if (!card) return;
+      filter = "all"; input.value = ""; query = ""; apply();
+      card.node.open = true;
+      card.node.scrollIntoView({ behavior: "smooth", block: "center" });
+      card.node.classList.remove("flash"); void card.node.offsetWidth; card.node.classList.add("flash");
+    };
+    if (!locked) {
+      const first = cards.find((cd) => !cd.x.alarm);
+      if (first) first.node.open = true;
+    }
+    apply();
+    return el("div", {}, el("div", { class: "filters" }, tabs, el("label", { class: "search" }, icon("search"), input)),
+      ...cards.map((cd) => cd.node), empty);
+  }
+
+  function issueRow({ issue, sev, alarm }, locked) {
+    const std = issue.standard || {};
+    const kind = alarm ? "alarm" : sev;
+    return el("details", { class: `acc ${kind}`, id: `issue-${issue.id}` },
+      el("summary", {},
+        el("div", { class: "bubble" }, icon(kind)),
+        el("div", { class: "sum" }, el("b", {}, issue.title),
+          el("div", { class: "tags" }, [std.control, std.cwe, places(issue.occurrences || 1), issue.kind_label || KIND_NAME[issue.kind]]
+            .filter(Boolean).map((tg) => el("span", {}, tg)))),
+        el("span", { class: `status ${kind}` }, alarm ? "Probably a false alarm" : SEV_LABEL[sev]),
+        icon("chev", "ico chev")),
+      el("div", { class: "body" }, ...(locked
+        ? [el("p", { class: "lock" }, icon("lock"), "Where it is, why it matters and how to fix it")]
+        : issueBody(issue))));
+  }
+
+  function aboutPanel(r, locked) {
+    const s = r.scan;
+    const engineLine = `Decompiled with ${engineName((s.reverse_engineering || {}).engine)}${(s.reverse_engineering || {}).coverage ? ` · ${s.reverse_engineering.coverage}` : ""} · engine ${s.engine_version || "?"} · severity policy ${s.policy_version} (${r.target === "web" ? "OWASP ASVS 4.0" : "OWASP MASVS v2"}, CWE)`;
+    return el("div", { class: "panel small muted", id: "dash-about", style: "margin-top:28px" },
+      el("h3", { style: "margin-top:0;color:var(--text)" }, "About this scan"),
+      locked ? null : el("p", {}, `Scanned ${r.target === "web" ? s.url : (s.apk_name || "the app")} · ${s.raw_findings.total} raw findings · ` +
+        (s.ai ? `explained by ${s.ai.model}` : "scanner rule text (no AI)") + (s.seconds_total ? ` · took ${Math.round(s.seconds_total)}s` : "")),
+      !locked && s.apk_signature ? el("p", {}, signatureText(s.apk_signature)) : null,
+      el("p", {}, locked ? engineLine + (s.seconds_total ? ` · took ${Math.round(s.seconds_total)}s` : "")
+        : engineLine + (s.tool_versions ? " · " + Object.entries(s.tool_versions).map(([k, v]) => `${k === "rea" ? "deep engine" : k} ${v}`).join(", ") : "")),
+      locked ? null : el("p", { class: "meta" }, `Result fingerprint ${r.result_fingerprint} · the same app always gives the same issues and fingerprint`),
       ...(r.warnings || []).map((w) => el("p", {}, `Note: ${w}`)),
-      el("p", {}, r.disclaimer)));
+      el("p", {}, r.disclaimer));
+  }
+
+  function renderLocked(body) {
+    lastResponse = body;
+    $("report").replaceChildren(dashboard(body.report, { response: body, locked: true }));
     show(["report"]);
     window.scrollTo(0, 0);
   }
@@ -1264,85 +1674,7 @@
   // ---------------------------------------------------------------- report
   function renderReport(response, isExample) {
     lastResponse = response;
-    const r = response.report, app = r.app, c = r.counts, s0 = r.scan;
-    const falseAlarms = r.false_alarms || [];  // reports saved before false alarms were split out have none
-    const root = $("report");
-    root.replaceChildren();
-
-    root.append(el("div", { class: "card" },
-      isExample ? el("p", { class: "muted small" }, "Example report · F-Droid, an open-source app store") : null,
-      r.target === "web" ? el("p", { class: "muted small" }, `Website scan · ${s0.url || app.package_name}`) : null,
-      el("h2", {}, app.one_liner),
-      el("p", { class: "muted small where" }, app.package_name),
-      el("div", { class: "glance" },
-        tile("critical", c.critical, "Critical"), tile("warning", c.warning, "Warnings"), tile("smell", c.smell, "Code smells")),
-      falseAlarms.length ? el("p", { class: "muted small" }, falseAlarms.length === 1
-        ? "Not counted: 1 probable false alarm (listed below the issues)"
-        : `Not counted: ${falseAlarms.length} probable false alarms (listed below the issues)`) : null,
-      response.paid ? el("p", { class: "paid-note" }, "✓ Paid · full report unlocked") : null,
-      el("p", { class: "meta" }, `Result fingerprint ${r.result_fingerprint} · the same app always gives the same issues and fingerprint`),
-      el("div", { class: "actions" },
-        el("button", { class: "primary small", onclick: () => copy(fixPrompt(r)) }, "Copy all fixes for my AI tool"),
-        // Built by the server in the language chosen at the moment of the click (EN | DE switch).
-        response.paid && response.report_id ? el("button", { class: "small", onclick: () => {
-          const lang = window.VG && VG.lang() === "de" ? "de" : "en";
-          toast("Preparing your report. The first download in a new language takes about 30 seconds.");
-          location.href = `/reports/${encodeURIComponent(response.report_id)}/download/html?lang=${lang}`;
-        } }, "Download report (HTML)") : null,
-        el("button", { class: "small", onclick: () => download(`${app.package_name}-report.txt`, response.report_text || "", "text/plain") }, "Download text"),
-        el("button", { class: "small", onclick: () => download(`${app.package_name}-report.json`, JSON.stringify(r, null, 2), "application/json") }, "Download JSON"),
-        el("button", { class: "small", onclick: () => { history.replaceState(null, "", "/app"); show(["upload"]); window.scrollTo(0, 0); } }, "Scan another app"))));
-
-    if (!r.scan.ai) {
-      root.append(el("div", { class: "card banner small" },
-        el("strong", {}, "AI explanations were not used for this report. "),
-        "The issues and their severity are exactly the same as with AI - they come from fixed scanner rules. " +
-        "The descriptions below are the rules' standard wording instead of explanations written for your code."));
-    }
-
-    if (app.what_it_does || app.how_it_works.length) {
-      root.append(el("div", { class: "card" },
-        el("h2", {}, r.target === "web" ? "How this website works" : "How this app works"),
-        app.what_it_does ? el("p", {}, app.what_it_does) : null,
-        list("What it does, step by step", app.how_it_works),
-        list("Personal data it can access", app.personal_data),
-        list("Who it talks to", app.talks_to)));
-    }
-
-    for (const [key, label, advice, icon] of GROUPS) {
-      const issues = r.issues[key] || [];
-      root.append(el("div", { class: "group-head" },
-        el("h2", {}, `${icon} ${label}`), el("span", { class: "muted" }, `${advice} · ${issues.length}`)));
-      if (!issues.length) root.append(el("p", { class: "muted" }, "Nothing found."));
-      for (const issue of issues) root.append(issueCard(issue, key));
-    }
-
-    if (falseAlarms.length) {
-      root.append(el("div", { class: "group-head" },
-        el("h2", {}, "🔕 Probably false alarms"), el("span", { class: "muted" }, `Not counted above · ${falseAlarms.length}`)));
-      root.append(el("p", { class: "muted small" },
-        "The scanner rules flagged these, but the AI read the code and judged them safe. Check them once before you ignore them."));
-      for (const issue of falseAlarms) root.append(issueCard(issue, issue.severity));
-    }
-
-    if (r.ai_suggestions.length) {
-      root.append(el("div", { class: "group-head" },
-        el("h2", {}, "💡 AI suggestions"), el("span", { class: "muted" }, `Not verified · not counted above · ${r.ai_suggestions.length}`)));
-      root.append(el("p", { class: "muted small" },
-        "Possible problems the AI noticed while reading the code. No scanner rule confirms them, so check them before acting."));
-      for (const s of r.ai_suggestions) root.append(suggestionCard(s));
-    }
-
-    const s = r.scan;
-    root.append(el("div", { class: "card small muted" },
-      el("p", {}, `Scanned ${r.target === "web" ? s.url : (s.apk_name || "the app")} · ${s.raw_findings.total} raw findings · ` +
-        (s.ai ? `explained by ${s.ai.model}` : "scanner rule text (no AI)") + (s.seconds_total ? ` · took ${Math.round(s.seconds_total)}s` : "")),
-      ...(s.apk_signature ? [el("p", {}, signatureText(s.apk_signature))] : []),
-      el("p", {}, `Decompiled with ${engineName((s.reverse_engineering || {}).engine)}${(s.reverse_engineering || {}).coverage ? ` · ${s.reverse_engineering.coverage}` : ""} · engine ${s.engine_version || "?"} · severity policy ${s.policy_version} (${r.target === "web" ? "OWASP ASVS 4.0" : "OWASP MASVS v2"}, CWE)` +
-        (s.tool_versions ? " · " + Object.entries(s.tool_versions).map(([k, v]) => `${k === "rea" ? "deep engine" : k} ${v}`).join(", ") : "")),
-      ...(r.warnings || []).map((w) => el("p", {}, `Note: ${w}`)),
-      el("p", {}, r.disclaimer)));
-
+    $("report").replaceChildren(dashboard(response.report, { response, isExample }));
     show(["report"]);
     window.scrollTo(0, 0);
   }
@@ -1359,12 +1691,12 @@
     return [el("h3", {}, title), el("ul", { class: "plain" }, items.map((x) => el("li", {}, x)))];
   }
 
-  function issueCard(issue, severity) {
+  // What an opened issue shows: explanation, fix, the AI's review, standards and where it is.
+  function issueBody(issue) {
     const where = issue.locations.slice(0, 3).map((l) =>
       `${l.file.replace(/^sources\//, "")}:${l.line}${l.in ? ` (${l.in})` : ""}`);
     const more = issue.more_locations_count + Math.max(0, issue.locations.length - 3);
-    return el("div", { class: `card issue ${severity}` },
-      el("div", { class: "fix-title" }, el("h4", {}, issue.title), el("span", { class: `sev ${severity}` }, SEV_LABEL[severity])),
+    return [
       el("p", {}, issue.explanation),
       issue.secret_preview ? el("p", { class: "meta" }, `Secret (shortened): ${issue.secret_preview}`) : null,
       issue.fix ? el("div", { class: "fix" },
@@ -1379,7 +1711,8 @@
         el("summary", {}, "Where in the code"),
         el("ul", { class: "plain meta where" },
           where.map((w) => el("li", {}, w)),
-          more ? el("li", {}, `and ${more} more place${more === 1 ? "" : "s"}`) : null)) : null);
+          more ? el("li", {}, `and ${more} more place${more === 1 ? "" : "s"}`) : null)) : null,
+    ];
   }
 
   const REVIEW_TEXT = {
