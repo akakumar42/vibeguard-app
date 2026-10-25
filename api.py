@@ -304,7 +304,7 @@ def scan(
     account = _require_account(request)
     name = _safe_name(file.filename)
     if not name.lower().endswith(".apk"):
-        raise HTTPException(415, "Please upload an Android app file ending in .apk.")
+        raise HTTPException(415, "Please upload a mobile app file ending in .apk.")
 
     chosen = selected_engine(engine)
     running = _running_scan(account["id"] if account else None)
@@ -349,7 +349,7 @@ def scan(
         raise _cancelled_http(owner)
     except IngestError as e:
         log.warning("could not decompile %s: %s", name, e)
-        raise HTTPException(422, "This file couldn't be opened as an Android app. Make sure it's a "
+        raise HTTPException(422, "This file couldn't be opened as a mobile app. Make sure it's a "
                                  "complete, unencrypted .apk file.")
     except HTTPException:
         raise

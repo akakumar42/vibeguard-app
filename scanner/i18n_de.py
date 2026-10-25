@@ -44,6 +44,7 @@ PAGES = {
     "Unlimited scans on this account.": "Unbegrenzte Scans für dieses Konto.",
     # ---------------------------------------------------------------- tabs and forms
     "Android app": "Android-App",
+    "Mobile app": "Mobile App",
     "Website": "Website",
     "Fix my code": "Meinen Code beheben",
     "Choose an APK file": "APK-Datei auswählen",
@@ -710,13 +711,13 @@ SERVER = {
         "Scan abgelehnt: Du musst bestätigen, dass dir diese App gehört oder du sie testen darfst.",
     "The deep engine is not installed on this server; choose Fast · jadx.":
         "Die gründliche Engine ist auf diesem Server nicht installiert; wähle Schnell · jadx.",
-    "Please upload an Android app file ending in .apk.": "Bitte lade eine Android-App-Datei mit der Endung .apk hoch.",
+    "Please upload a mobile app file ending in .apk.": "Bitte lade eine mobile App-Datei mit der Endung .apk hoch.",
     "A deep scan is already running and it needs most of the server's memory. Try again later, or choose Fast · jadx (same issues, about 1 minute).":
         "Ein gründlicher Scan läuft bereits und braucht den Großteil des Server-Speichers. Versuch es später erneut oder wähle Schnell · jadx (dieselben Probleme, etwa 1 Minute).",
     "The scanner is busy with other apps right now. Try again in a minute.":
         "Der Scanner ist gerade mit anderen Apps beschäftigt. Versuch es in einer Minute erneut.",
-    "This file couldn't be opened as an Android app. Make sure it's a complete, unencrypted .apk file.":
-        "Diese Datei ließ sich nicht als Android-App öffnen. Stelle sicher, dass es eine vollständige, unverschlüsselte .apk-Datei ist.",
+    "This file couldn't be opened as a mobile app. Make sure it's a complete, unencrypted .apk file.":
+        "Diese Datei ließ sich nicht als mobile App öffnen. Stelle sicher, dass es eine vollständige, unverschlüsselte .apk-Datei ist.",
     "Something went wrong while scanning this app. Please try again.":
         "Beim Scannen dieser App ist etwas schiefgelaufen. Bitte versuch es erneut.",
     "The scan stopped before it finished. Please try again.": "Der Scan wurde vor dem Ende gestoppt. Bitte versuch es erneut.",
@@ -1133,7 +1134,7 @@ LANDING_WAITLIST = {
     "Try it free": "Kostenlos testen",
     "Building with AI is easy.": "Mit KI zu bauen ist einfach.",
     "Knowing it's safe to ship is the hard part.": "Zu wissen, dass man sicher veröffentlichen kann, ist der schwierige Teil.",
-    "VibeGuard checks the website or Android app you already shipped. Get a report, have us fix it, or get an audit you can show someone else.": "VibeGuard prüft die Website oder Android-App, die du schon veröffentlicht hast. Hol dir einen Bericht, lass sie von uns reparieren oder bekomme ein Audit, das du anderen zeigen kannst.",
+    "VibeGuard checks the website or mobile app you already shipped. Get a report, have us fix it, or get an audit you can show someone else.": "VibeGuard prüft die Website oder mobile App, die du schon veröffentlicht hast. Hol dir einen Bericht, lass sie von uns reparieren oder bekomme ein Audit, das du anderen zeigen kannst.",
     "Free scan · about a minute · no card needed ·": "Kostenloser Scan · etwa eine Minute · keine Karte nötig ·",
     "see an example report": "Beispielbericht ansehen",
     "Three different jobs.": "Drei verschiedene Aufgaben.",

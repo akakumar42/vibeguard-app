@@ -75,7 +75,7 @@ def build_report(app_map: dict, scan_result: dict, triaged: dict, ai_result: dic
         "app": {
             "package_name": app_map["package_name"],
             "one_liner": summary["one_liner"] or (f"Website {app_map['package_name']}" if target == "web"
-                                                  else f"Android app {app_map['package_name']}"),
+                                                  else f"Mobile app {app_map['package_name']}"),
             "what_it_does": summary["what_it_does"],
             "how_it_works": summary["how_it_works"],
             "personal_data": summary["personal_data"],

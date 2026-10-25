@@ -488,7 +488,7 @@
   </section>
 
   <div class="tabs" role="tablist">
-    <button id="tab-apk" role="tab" aria-selected="true" aria-controls="upload">Android app</button>
+    <button id="tab-apk" role="tab" aria-selected="true" aria-controls="upload">Mobile app</button>
     <button id="tab-web" role="tab" aria-selected="false" aria-controls="web">Website</button>
     <button id="tab-src" role="tab" aria-selected="false" aria-controls="source">Fix my code</button>
   </div>
@@ -1856,13 +1856,13 @@
   // Prompts the user can paste straight into Cursor / Claude Code / Lovable etc.
   function singleFixPrompt(issue) {
     const where = issue.locations.map((l) => `${l.file}:${l.line}`).join(", ");
-    const what = lastResponse && lastResponse.report.target === "web" ? "website" : "Android app";
+    const what = lastResponse && lastResponse.report.target === "web" ? "website" : "mobile app";
     return `Please fix this problem in my ${what}.\n\nProblem: ${issue.title}\n${issue.explanation}\n\n` +
       `Suggested fix: ${issue.fix}\n` + (where ? `Where (${what === "website" ? "code my site sends to browsers" : "decompiled code, names may differ in my source"}): ${where}\n` : "");
   }
 
   function fixPrompt(r) {
-    const what = r.target === "web" ? "website" : "Android app";
+    const what = r.target === "web" ? "website" : "mobile app";
     const lines = [`A security scan of my ${what} (${r.app.package_name}) found these problems. ` +
       "Please fix them in my source code, most important first. " + (r.target === "web"
         ? "File locations are in the code my site sends to browsers (it may be bundled or minified), so find the matching place in my project.\n"
