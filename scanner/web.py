@@ -6,7 +6,7 @@
      browser received, the API endpoints in it, the libraries it uses and any public source maps,
      and `export_web_scripts` writes those scripts to disk.
   3. Checks: Semgrep (rules/web.yml) + Gitleaks on the scripts, plus fixed HTTP checks on the
-     response (HTTPS, security headers, cookies, exposed .env / .git, source maps).
+     response (HTTPS, security headers, cookies, exposed .env / .git, directory listings, source maps).
 
 The output is an UnpackedApk-shaped bundle plus a map, so triage, AI and report run unchanged.
 """
@@ -315,7 +315,33 @@ def _exposed_files(origin: str, http_dir: Path) -> list[Finding]:
         (http_dir / "exposed-git.txt").write_text(f"GET {origin}/.git/HEAD -> {status}\n{body[:200].decode('utf-8', 'replace')}")
         findings.append(Finding("http", "web-exposed-git", "security", "http/exposed-git.txt", 1,
                                 f"{origin}/.git/ is publicly downloadable.", "ERROR", extra={"target": "web"}))
+    findings += _directory_listings(origin, http_dir)
     return findings
+
+
+# Folders that often hold libraries, uploads or build output; one plain GET each.
+LISTING_FOLDERS = ("/vendor/", "/assets/", "/static/", "/uploads/", "/files/", "/images/", "/js/", "/css/", "/backup/")
+# nginx/Apache autoindex ("Index of /x/") and Python's http.server ("Directory listing for /x/").
+_LISTING_TITLE = re.compile(r"<title>\s*(?:Index of|Directory listing for)\s+/", re.I)
+
+
+def _directory_listings(origin: str, http_dir: Path) -> list[Finding]:
+    """Folders whose contents the server lists to anyone (directory listing / autoindex)."""
+    listed = []
+    for folder in LISTING_FOLDERS:
+        status, headers, body = _fetch(origin + folder)
+        text = body[:200_000].decode("utf-8", "replace")
+        ctype = next((v for k, v in headers if k.lower() == "content-type"), "html")
+        if status == 200 and "html" in ctype and _LISTING_TITLE.search(text) and "<a href" in text.lower():
+            names = [n for n in re.findall(r'<a href="([^"?#]+)"', text) if n not in ("../", "/")][:10]
+            listed.append((folder, names))
+    if not listed:
+        return []
+    (http_dir / "directory-listing.txt").write_text("\n".join(
+        f"GET {origin}{folder} -> 200 (file list)\n" + "".join(f"  {n}\n" for n in names) for folder, names in listed))
+    folders = ", ".join(folder for folder, _ in listed)
+    return [Finding("http", "web-directory-listing", "security", "http/directory-listing.txt", 1,
+                    f"The server lists the files in {folders} to anyone.", "WARNING", extra={"target": "web"})]
 
 
 # ------------------------------------------------------------------------------ REA browser capture

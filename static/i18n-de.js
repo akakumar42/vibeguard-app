@@ -841,6 +841,9 @@ window.VG_DE = {
 "The website's .git folder can be downloaded": "Der .git-Ordner der Website kann heruntergeladen werden",
 "Anyone can download the full source code history, often including old passwords and keys.": "Jeder kann die komplette Quellcode-Historie herunterladen, oft samt alter Passwörter und Schlüssel.",
 "Block access to `/.git/` on the server (or deploy without it) and rotate any secret ever committed.": "Sperre den Zugriff auf `/.git/` auf dem Server (oder veröffentliche ohne ihn) und erneuere jedes Geheimnis, das je committet wurde.",
+"The server lists the files in some folders": "Der Server zeigt die Dateien in einigen Ordnern an",
+"Anyone can browse these folders and download what is in them, including files that were never linked, such as backups, old builds or uploads.": "Jeder kann diese Ordner durchsuchen und herunterladen, was darin liegt, auch Dateien, die nirgends verlinkt sind, etwa Backups, alte Builds oder Uploads.",
+"Turn off directory listing on the server (nginx `autoindex off;`, Apache `Options -Indexes`) or put an index page in each folder.": "Schalte die Verzeichnisauflistung auf dem Server ab (nginx `autoindex off;`, Apache `Options -Indexes`) oder lege in jeden Ordner eine Indexseite.",
 "The website's original source code is public": "Der ursprüngliche Quellcode der Website ist öffentlich",
 "Source map files rebuild your original, readable code, making it easy to find weaknesses and hidden endpoints.": "Source-Map-Dateien stellen deinen ursprünglichen, lesbaren Code wieder her und machen es leicht, Schwächen und versteckte Endpunkte zu finden.",
 "Stop uploading `.map` files to production, or restrict them to your error-tracking service.": "Lade keine `.map`-Dateien mehr in die Produktion hoch oder beschränke sie auf deinen Fehler-Tracking-Dienst."

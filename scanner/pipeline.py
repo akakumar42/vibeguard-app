@@ -23,7 +23,7 @@ from scanner.signing import APKSIG_VERSION
 from scanner.triage import triage
 
 # Bump when a code change can change which issues are found (rules have their own POLICY_VERSION).
-ENGINE_VERSION = "0.4.0"
+ENGINE_VERSION = "0.5.0"
 RULES_FILE = Path(__file__).resolve().parent.parent / "rules" / "android.yml"
 
 

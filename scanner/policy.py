@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-POLICY_VERSION = "1.3.1"
+POLICY_VERSION = "1.4.0"
 
 FRAMEWORKS = {"MASVS": "OWASP MASVS v2", "ASVS": "OWASP ASVS 4.0"}
 
@@ -324,6 +324,12 @@ WEB_RULES: dict[str, Rule] = {
         "critical", "ASVS-V14", "CWE-527", "The website's .git folder can be downloaded",
         "Anyone can download the full source code history, often including old passwords and keys.",
         "Block access to `/.git/` on the server (or deploy without it) and rotate any secret ever committed."),
+    "web-directory-listing": Rule(
+        "warning", "ASVS-V14", "CWE-548", "The server lists the files in some folders",
+        "Anyone can browse these folders and download what is in them, including files that were never linked, "
+        "such as backups, old builds or uploads.",
+        "Turn off directory listing on the server (nginx `autoindex off;`, Apache `Options -Indexes`) or put an "
+        "index page in each folder."),
     "web-source-map-exposed": Rule(
         "warning", "ASVS-V14", "CWE-540", "The website's original source code is public",
         "Source map files rebuild your original, readable code, making it easy to find weaknesses "

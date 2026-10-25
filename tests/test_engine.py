@@ -162,6 +162,30 @@ class WebSafetyTests(unittest.TestCase):
         self.assertEqual([f.rule_id for f in cap["findings"]], ["web-source-map-exposed"])
         self.assertEqual((cap["scripts_linked"], cap["scripts_fetched"]), (2, 2))
 
+    def test_directory_listing(self):
+        from scanner import web
+        html = [("Content-Type", "text/html")]
+        served = {
+            # nginx autoindex: reported
+            "https://myapp.com/vendor/": (200, html, b'<html><head><title>Index of /vendor/</title></head><body><h1>Index of '
+                                                     b'/vendor/</h1><a href="../">../</a><a href="jquery/">jquery/</a></body></html>'),
+            # an ordinary page that only mentions the words: not reported
+            "https://myapp.com/assets/": (200, html, b'<html><head><title>Docs</title></head><body>Index of /assets/ is '
+                                                     b'explained <a href="/help">here</a></body></html>'),
+            # a listing behind a redirect is not followed (only the first answer counts)
+            "https://myapp.com/static/": (301, [("Location", "/static/index.html")], b""),
+        }
+        with tempfile.TemporaryDirectory() as tmp, \
+                unittest.mock.patch.object(web, "_fetch", lambda url: served.get(url, (404, [], b""))):
+            found = web._directory_listings("https://myapp.com", Path(tmp))
+            evidence = (Path(tmp) / "directory-listing.txt").read_text()
+        self.assertEqual([f.rule_id for f in found], ["web-directory-listing"])
+        self.assertIn("/vendor/", found[0].message)
+        self.assertNotIn("/assets/", found[0].message)
+        self.assertIn("jquery/", evidence)
+        self.assertEqual(policy.rule_for({"rule_id": "web-directory-listing", "category": "security",
+                                          "extra": {"target": "web"}}).severity, "warning")
+
     def test_supabase_key_roles(self):
         key = re.search(r'SUPABASE_SERVICE_KEY = "([^"]+)"', (WEB_DEMO / "app.js").read_text()).group(1)
         self.assertEqual(_jwt_claims(key)["jwt_role"], "service_role")
