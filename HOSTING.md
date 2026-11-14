@@ -1,7 +1,21 @@
 # VibeGuard: Free Public Hosting Plan
 
-> Status: **planned, not executed**. Date: 2026-11-13.
-> Repo: `D:\vibeguard-app` (github.com/akakumar42/vibeguard-app), running locally via `docker compose` on port 8000.
+> Status: **executed on a paid VPS** (2026-11-14), adapted from Path A below. Live at **http://77.42.88.27:8000** (plain HTTP; TLS pending a domain — see "Follow-up").
+> Repo: `D:\vibeguard-app` (github.com/akakumar42/vibeguard-app).
+
+## Deployed: VPS setup (what was actually done)
+
+- **Box:** 1 vCPU / 2 GB RAM / 38 GB disk, Ubuntu 26.04 x86_64 @ 77.42.88.27. RAM is half the plan's assumption — mitigations below.
+- **Docker:** `docker.io` + `docker-compose-v2` from Ubuntu repos; app runs from `/opt/vibeguard` via `docker-compose.prod.yml`.
+- **Memory mitigations (required on 2 GB):** 4 GB swapfile (`/swapfile`, in fstab); `JAVA_OPTS=-Xmx768m` in the server `.env` (default 1536m starves everything else); deep REA engine disabled via `REA_BIN=/nonexistent` in `docker-compose.prod.yml` so `/health` reports `rea:false` and the UI hides Deep (it needs ~6 GB and would be OOM-killed).
+- **Hardening:** ufw allows 22/80/443/8000 only; `WEB_ALLOW_LOCAL=false`; SSH key-only (`PasswordAuthentication no`, `PermitRootLogin prohibit-password`); deploy key `~/.ssh/vibeguard_vps` on this PC with `Host vibeguard-vps` in `~/.ssh/config`; server `.env` is `chmod 600`.
+- **Secrets:** server `.env` holds `OPENAI_API_KEY`, `LLM_PROVIDER=openai`, `LLM_MODEL=gpt-4.1-mini` + fallbacks (scp'd from the local copy, never committed).
+- **Verification (2026-11-14):** `/health` all tools true (rea false by design); demo sign-in works; web scan of `demo.owasp-juice.shop` → 200 in ~53 s (4 warnings, 1 smell, fingerprint `57f8a707eabda8ae`); F-Droid.apk upload → 200 in ~4.5 min (1 critical, 5 warnings, 6 smells, fingerprint `36679169d89f25a4`). APK scans are slow because of the single vCPU — acceptable for demo traffic.
+- **Known limits on this tier:** one scan at a time (built-in slots), no deep engine, APK scans take minutes under swap pressure.
+
+**Maintenance:** `ssh vibeguard-vps` → `cd /opt/vibeguard && git pull && docker compose -f docker-compose.prod.yml up -d --build`; occasional `apt upgrade`. Logs: `docker logs vibeguard-vibeguard-1`.
+
+**Follow-up:** TLS + domain — Caddy container + DuckDNS subdomain per Path A step 5; then set `TRUST_PROXY_HEADERS=true` in `docker-compose.prod.yml` (only safe behind the proxy) and move ufw to allow 80/443 only.
 
 ## What the app needs (constraints any host must satisfy)
 
