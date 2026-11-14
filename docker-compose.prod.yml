@@ -18,6 +18,10 @@ services:
       # Do NOT set TRUST_PROXY_HEADERS here: with no proxy in front, clients could spoof
       # X-Forwarded-For and dodge the per-IP limits. Set it only when Caddy proxies the app.
       WEB_ALLOW_LOCAL: "false"
+      # This VPS has 2 GB RAM; the deep REA engine needs ~6 GB. Point REA_BIN at a nonexistent
+      # path so rea_available() is false: the UI hides the Deep option and /health reports it
+      # honestly, instead of users picking a scan that would be OOM-killed mid-run.
+      REA_BIN: "/nonexistent"
     restart: unless-stopped
 volumes:
   vibeguard-data:
