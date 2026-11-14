@@ -24,6 +24,9 @@ services:
       # path so rea_available() is false: the UI hides the Deep option and /health reports it
       # honestly, instead of users picking a scan that would be OOM-killed mid-run.
       REA_BIN: "/nonexistent"
+      # Owner decision (2026-11-14): no cap on new accounts per network — anyone can sign up.
+      # (Free *scans* stay limited to 5/day per account by the app defaults.)
+      ACCOUNTS_PER_IP_PER_DAY: "1000000"
     restart: unless-stopped
 
   caddy:
