@@ -1,0 +1,23 @@
+# Public hosting on a plain VPS:  docker compose -f docker-compose.prod.yml up -d --build
+# Publishes the app on 0.0.0.0:8000 (plain HTTP; put Caddy/nginx in front for TLS).
+# The 8100 demo site stays container-internal: the "Scan the built-in demo site" button
+# only appears when the app is opened via 127.0.0.1/localhost, so public visitors never see it.
+services:
+  vibeguard:
+    build: .
+    image: vibeguard:local
+    ports:
+      - "8000:8000"
+    volumes:
+      - vibeguard-data:/data
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # Strangers must not scan this server's own localhost (README hardening note).
+      # Do NOT set TRUST_PROXY_HEADERS here: with no proxy in front, clients could spoof
+      # X-Forwarded-For and dodge the per-IP limits. Set it only when Caddy proxies the app.
+      WEB_ALLOW_LOCAL: "false"
+    restart: unless-stopped
+volumes:
+  vibeguard-data:
