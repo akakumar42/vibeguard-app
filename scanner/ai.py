@@ -4,6 +4,7 @@ Providers (all OpenAI-compatible), picked with LLM_PROVIDER:
   glm         -> Z.ai GLM-5.2                     (key: ZAI_API_KEY)
   kimi        -> Moonshot Kimi K3                 (key: MOONSHOT_API_KEY)
   openrouter  -> any OpenRouter model, GLM-5.2 default (key: OPENROUTER_API_KEY)  [default]
+  openai      -> OpenAI direct, gpt-4.1-mini default (key: OPENAI_API_KEY)
 
 Settings can also go in a .env file in the project root (see .env.example).
 
@@ -78,6 +79,15 @@ PROVIDERS = {
         base_url="https://openrouter.ai/api/v1",
         model="z-ai/glm-5.2",
         key_envs=("OPENROUTER_API_KEY",),
+        response_format="json_object",
+    ),
+    # https://platform.openai.com - direct OpenAI API. Token-efficient default: gpt-4.1-mini
+    # (temperature=0, max_tokens and json_object are all supported; gpt-5 models reject them).
+    "openai": ProviderConfig(
+        name="openai",
+        base_url="https://api.openai.com/v1",
+        model="gpt-4.1-mini",
+        key_envs=("OPENAI_API_KEY",),
         response_format="json_object",
     ),
 }
