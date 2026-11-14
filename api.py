@@ -90,6 +90,13 @@ _fix_jobs: dict[str, dict] = {}
 _fix_jobs_lock = threading.Lock()
 TRUST_PROXY_HEADERS = os.environ.get("TRUST_PROXY_HEADERS", "false").lower() in ("1", "true", "yes")
 
+
+def _url_scheme(request: Request) -> str:
+    """The scheme as seen by the client: trust X-Forwarded-Proto only from our trusted proxy."""
+    if TRUST_PROXY_HEADERS and request.headers.get("x-forwarded-proto"):
+        return request.headers["x-forwarded-proto"].split(",")[0].strip()
+    return request.url.scheme
+
 app = FastAPI(
     title="VibeGuard",
     description="Upload an Android app you own or are authorized to test and get a plain-English report "
@@ -236,7 +243,7 @@ def auth_verify(request: Request, email: str = Form(...), code: str = Form(...))
 def _signed_in(request: Request, account: dict, token: str) -> JSONResponse:
     response = JSONResponse({"email": account["email"], **limits.status(account["id"])})
     response.set_cookie(accounts.SESSION_COOKIE, token, max_age=accounts.SESSION_TTL_SECONDS, httponly=True,
-                        samesite="lax", secure=request.url.scheme == "https", path="/")
+                        samesite="lax", secure=_url_scheme(request) == "https", path="/")
     return response
 
 
