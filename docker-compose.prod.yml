@@ -1,5 +1,6 @@
-# Public hosting on a plain VPS:  docker compose -f docker-compose.prod.yml up -d --build
-# Publishes the app on 0.0.0.0:8000 (plain HTTP; put Caddy/nginx in front for TLS).
+# Public hosting on a VPS behind Caddy:  docker compose -f docker-compose.prod.yml up -d --build
+# Caddy terminates TLS (automatic Let's Encrypt for the DuckDNS name in Caddyfile) and proxies
+# to the app. The app port is bound to localhost only; Caddy reaches it over the compose network.
 # The 8100 demo site stays container-internal: the "Scan the built-in demo site" button
 # only appears when the app is opened via 127.0.0.1/localhost, so public visitors never see it.
 services:
@@ -7,7 +8,7 @@ services:
     build: .
     image: vibeguard:local
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     volumes:
       - vibeguard-data:/data
     env_file:
@@ -15,13 +16,31 @@ services:
         required: false
     environment:
       # Strangers must not scan this server's own localhost (README hardening note).
-      # Do NOT set TRUST_PROXY_HEADERS here: with no proxy in front, clients could spoof
-      # X-Forwarded-For and dodge the per-IP limits. Set it only when Caddy proxies the app.
+      # TRUST_PROXY_HEADERS is safe now that only Caddy (below) proxies the app: clients can't
+      # reach uvicorn directly to spoof X-Forwarded-For, and real visitor IPs reach the limiter.
       WEB_ALLOW_LOCAL: "false"
+      TRUST_PROXY_HEADERS: "true"
       # This VPS has 2 GB RAM; the deep REA engine needs ~6 GB. Point REA_BIN at a nonexistent
       # path so rea_available() is false: the UI hides the Deep option and /health reports it
       # honestly, instead of users picking a scan that would be OOM-killed mid-run.
       REA_BIN: "/nonexistent"
     restart: unless-stopped
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"   # HTTP/3
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - vibeguard
+
 volumes:
   vibeguard-data:
+  caddy-data:
+  caddy-config:

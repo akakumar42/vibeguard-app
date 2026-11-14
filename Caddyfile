@@ -1,0 +1,4 @@
+# TLS is automatic: Caddy gets and renews the free Let's Encrypt cert for this DuckDNS name.
+vibeguard911.duckdns.org {
+	reverse_proxy vibeguard:8000
+}
